@@ -11,4 +11,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      // Exclude server-side modules from client bundle
+      external: ['openai', '@anthropic-ai/sdk', 'rss-parser'],
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge'],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    exclude: ['openai', '@anthropic-ai/sdk', 'rss-parser'],
+  },
 })
