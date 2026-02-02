@@ -1,15 +1,33 @@
 # Upday Robots.txt
 # https://updayapp.com
 
+# Default rules for all bots
 User-agent: *
 Allow: /
-
-# Sitemap
-Sitemap: https://updayapp.com/sitemap.xml
-
-# Crawl-delay (optional, for polite crawling)
-Crawl-delay: 1
-
-# Disallow admin/api paths (if any)
 Disallow: /api/
 Disallow: /admin/
+Crawl-delay: 1
+
+# Google-specific rules (no crawl delay, max indexing)
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Google Images
+User-agent: Googlebot-Image
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://updayapp.com/sitemap.xml
+Sitemap: https://updayapp.com/news-sitemap.xml
+
+# Host
+Host: https://updayapp.com

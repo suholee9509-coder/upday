@@ -64,7 +64,7 @@ export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProp
           <div className="flex-shrink-0">
             <img
               src={item.imageUrl}
-              alt=""
+              alt={`${item.title} - ${item.source}`}
               width={112}
               height={112}
               loading="lazy"

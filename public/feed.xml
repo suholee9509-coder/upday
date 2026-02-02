@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Upday - Tech News, Faster</title>
+    <link>https://updayapp.com</link>
+    <description>AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev.</description>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 02 Feb 2026 12:55:06 GMT</lastBuildDate>
+    <atom:link href="https://updayapp.com/feed.xml" rel="self" type="application/rss+xml"/>
+    
+    <item>
+      <title><![CDATA[PART 2 :CONTROLLER ALL CONCEPT IN SPRINGBOOT PROJECT]]></title>
+      <link>https://dev.to/bhu_kalki/part-2-controller-all-concept-in-springboot-project-1fln</link>
+      <description><![CDATA[Controller Mein Sirf 4 Tarah Ka Data Aata Hai 🎯
+
+
+
+
+
+
+  
+  
+  4 Input Sources - Yaad Rakho Bas Ye:
+
+
+
+
+
+┌────────────────────────────────────────────────┐
+│   Controller Mein Data Kahan Se Aata Hai.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:50:17 GMT</pubDate>
+      <category>dev</category>
+      <source url="https://dev.to/bhu_kalki/part-2-controller-all-concept-in-springboot-project-1fln">Dev.to</source>
+      <guid isPermaLink="true">https://dev.to/bhu_kalki/part-2-controller-all-concept-in-springboot-project-1fln</guid>
+    </item>
+    <item>
+      <title><![CDATA[Building a 2D Lighting System in PyGame: What Broke, What Worked, and What I Learned]]></title>
+      <link>https://dev.to/osmankahraman/building-a-2d-lighting-system-in-pygame-what-broke-what-worked-and-what-i-learned-2o5g</link>
+      <description><![CDATA[I didn’t start this project aiming to build a perfect lighting engine. To keep things understandable, I intentionally began with a very raw setup: a purely black-and-white scene.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:49:33 GMT</pubDate>
+      <category>dev</category>
+      <source url="https://dev.to/osmankahraman/building-a-2d-lighting-system-in-pygame-what-broke-what-worked-and-what-i-learned-2o5g">Dev.to</source>
+      <guid isPermaLink="true">https://dev.to/osmankahraman/building-a-2d-lighting-system-in-pygame-what-broke-what-worked-and-what-i-learned-2o5g</guid>
+    </item>
+    <item>
+      <title><![CDATA[Why Great Code Still Gets Hacked: A Guide to SAST, DAST, and SCA]]></title>
+      <link>https://dev.to/17j/why-great-code-still-gets-hacked-a-guide-to-sast-dast-and-sca-2fig</link>
+      <description><![CDATA[Liquid syntax error: Unknown tag 'callout'.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:47:24 GMT</pubDate>
+      <category>dev</category>
+      <source url="https://dev.to/17j/why-great-code-still-gets-hacked-a-guide-to-sast-dast-and-sca-2fig">Dev.to</source>
+      <guid isPermaLink="true">https://dev.to/17j/why-great-code-still-gets-hacked-a-guide-to-sast-dast-and-sca-2fig</guid>
+    </item>
+    <item>
+      <title><![CDATA[Online Community Demise and why DEV is Different (at least a little bit, I hope)]]></title>
+      <link>https://dev.to/ingosteinke/online-community-demise-and-why-dev-is-different-16km</link>
+      <description><![CDATA[I recently claimed that we might look back on the 2010s decade and early 2020 years as a golden age of the internet, collaboration and information exchange.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:47:08 GMT</pubDate>
+      <category>dev</category>
+      <source url="https://dev.to/ingosteinke/online-community-demise-and-why-dev-is-different-16km">Dev.to</source>
+      <guid isPermaLink="true">https://dev.to/ingosteinke/online-community-demise-and-why-dev-is-different-16km</guid>
+    </item>
+    <item>
+      <title><![CDATA[RAG Is Easy. Your Data Isn't. Why AI Projects Fail]]></title>
+      <link>https://dev.to/razoorka/rag-is-easy-your-data-isnt-why-ai-projects-fail-5gan</link>
+      <description><![CDATA[I joined a discovery call. The brief beforehand: "This is basically a copy of Project X.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:42:01 GMT</pubDate>
+      <category>dev</category>
+      <source url="https://dev.to/razoorka/rag-is-easy-your-data-isnt-why-ai-projects-fail-5gan">Dev.to</source>
+      <guid isPermaLink="true">https://dev.to/razoorka/rag-is-easy-your-data-isnt-why-ai-projects-fail-5gan</guid>
+    </item>
+    <item>
+      <title><![CDATA[Amazon buys 10 more Falcon 9 launches]]></title>
+      <link>https://spacenews.com/amazon-buys-10-more-falcon-9-launches/</link>
+      <description><![CDATA[Amazon has purchased an additional 10 Falcon 9 launches from SpaceX as part of its efforts to accelerate deployment of its broadband satellite constellation.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:39:03 GMT</pubDate>
+      <category>space</category>
+      <source url="https://spacenews.com/amazon-buys-10-more-falcon-9-launches/">SpaceNews</source>
+      <guid isPermaLink="true">https://spacenews.com/amazon-buys-10-more-falcon-9-launches/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Starlink and the unravelling of digital sovereignty]]></title>
+      <link>https://spacenews.com/starlink-and-the-unravelling-of-digital-sovereignty/</link>
+      <description><![CDATA[In January 2026, Iranian authorities shut down landline and mobile telecommunications infrastructure in the country to clamp down on coordinated protests.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:00:00 GMT</pubDate>
+      <category>space</category>
+      <source url="https://spacenews.com/starlink-and-the-unravelling-of-digital-sovereignty/">SpaceNews</source>
+      <guid isPermaLink="true">https://spacenews.com/starlink-and-the-unravelling-of-digital-sovereignty/</guid>
+    </item>
+    <item>
+      <title><![CDATA[CesiumAstro to scale operations with $470 million in equity and debt financing]]></title>
+      <link>https://spacenews.com/cesiumastro-to-scale-operations-with-450-million-in-equity-and-debt-financing/</link>
+      <description><![CDATA[SAN FRANCISCO – CesiumAstro is preparing for rapid expansion thanks to an influx of cash announced Feb. 2: $270 million in equity and $200 million in debt financing.]]></description>
+      <pubDate>Mon, 02 Feb 2026 12:00:00 GMT</pubDate>
+      <category>space</category>
+      <source url="https://spacenews.com/cesiumastro-to-scale-operations-with-450-million-in-equity-and-debt-financing/">SpaceNews</source>
+      <guid isPermaLink="true">https://spacenews.com/cesiumastro-to-scale-operations-with-450-million-in-equity-and-debt-financing/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Transcelestial to provide satellite laser communication terminals to Gilmour Space]]></title>
+      <link>https://spacenews.com/transcelestial-to-provide-satellite-laser-communication-terminals-to-gilmour-space/</link>
+      <description><![CDATA[Transcelestial, a startup developing optical communications technologies, has signed an agreement with Gilmour Space Technologies to incorporate its technology on Gilmour Space spacecraft.]]></description>
+      <pubDate>Mon, 02 Feb 2026 11:01:48 GMT</pubDate>
+      <category>space</category>
+      <source url="https://spacenews.com/transcelestial-to-provide-satellite-laser-communication-terminals-to-gilmour-space/">SpaceNews</source>
+      <guid isPermaLink="true">https://spacenews.com/transcelestial-to-provide-satellite-laser-communication-terminals-to-gilmour-space/</guid>
+    </item>
+    <item>
+      <title><![CDATA[These AI notetaking devices can help you record and transcribe your meetings]]></title>
+      <link>https://techcrunch.com/2026/02/02/ai-notetaker-hardware-devices-pins-pendants-record-transcribe/</link>
+      <description><![CDATA[These physical notetakers transcribe audio and give users summaries and action items of meetings using AI. Some even offer live translation.]]></description>
+      <pubDate>Mon, 02 Feb 2026 08:00:00 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://techcrunch.com/2026/02/02/ai-notetaker-hardware-devices-pins-pendants-record-transcribe/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/02/02/ai-notetaker-hardware-devices-pins-pendants-record-transcribe/</guid>
+    </item>
+    <item>
+      <title><![CDATA[AI layoffs or ‘AI-washing’?]]></title>
+      <link>https://techcrunch.com/2026/02/01/ai-layoffs-or-ai-washing/</link>
+      <description><![CDATA[How many of the companies with recent layoffs are just using AI as an excuse.]]></description>
+      <pubDate>Sun, 01 Feb 2026 22:15:53 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://techcrunch.com/2026/02/01/ai-layoffs-or-ai-washing/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/02/01/ai-layoffs-or-ai-washing/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Saudi Space Agency Announces Winners of Global ‘DebriSolver’ Competition at Space Debris Conference]]></title>
+      <link>https://spacenews.com/saudi-space-agency-announces-winners-of-global-debrisolver-competition-at-space-debris-conference/</link>
+      <description><![CDATA[The Saudi Space Agency announced on Tuesday the names of the winning teams of the global “DebriSolver” competition, one of the flagship initiatives accompanying the Space Debris Conference 2026.]]></description>
+      <pubDate>Sun, 01 Feb 2026 20:57:16 GMT</pubDate>
+      <category>space</category>
+      <source url="https://spacenews.com/saudi-space-agency-announces-winners-of-global-debrisolver-competition-at-space-debris-conference/">SpaceNews</source>
+      <guid isPermaLink="true">https://spacenews.com/saudi-space-agency-announces-winners-of-global-debrisolver-competition-at-space-debris-conference/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Why Tether’s CEO is everywhere right now]]></title>
+      <link>https://techcrunch.com/2026/02/01/why-tethers-ceo-is-everywhere-right-now/</link>
+      <description><![CDATA[For years, Tether's CEO avoided the United States, watching from offshore as regulators circled and prosecutors investigated.]]></description>
+      <pubDate>Sun, 01 Feb 2026 20:32:21 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://techcrunch.com/2026/02/01/why-tethers-ceo-is-everywhere-right-now/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/02/01/why-tethers-ceo-is-everywhere-right-now/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Shedding light on Iran’s longest internet blackout]]></title>
+      <link>https://www.theverge.com/policy/871848/iran-blackout-internet-mahsa-alimardani</link>
+      <description><![CDATA[After protests broke out in early January, the Iranian regime shut down the internet, starting the longest blackout in Iranian history.]]></description>
+      <pubDate>Sun, 01 Feb 2026 18:30:00 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://www.theverge.com/policy/871848/iran-blackout-internet-mahsa-alimardani">The Verge</source>
+      <guid isPermaLink="true">https://www.theverge.com/policy/871848/iran-blackout-internet-mahsa-alimardani</guid>
+    </item>
+    <item>
+      <title><![CDATA[Indonesia ‘conditionally’ lifts ban on Grok]]></title>
+      <link>https://techcrunch.com/2026/02/01/indonesia-conditionally-lifts-ban-on-grok/</link>
+      <description><![CDATA[Indonesia has followed Malaysia and the Philippines in lifting a ban on xAI’s chatbot Grok.]]></description>
+      <pubDate>Sun, 01 Feb 2026 17:20:00 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://techcrunch.com/2026/02/01/indonesia-conditionally-lifts-ban-on-grok/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/02/01/indonesia-conditionally-lifts-ban-on-grok/</guid>
+    </item>
+    <item>
+      <title><![CDATA[India offers zero taxes through 2047 to lure global AI workloads]]></title>
+      <link>https://techcrunch.com/2026/02/01/india-offers-zero-taxes-through-2047-to-lure-global-ai-workloads/</link>
+      <description><![CDATA[New Delhi's latest move comes as Amazon, Google, and Microsoft expand data center investments in India.]]></description>
+      <pubDate>Sun, 01 Feb 2026 16:30:00 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://techcrunch.com/2026/02/01/india-offers-zero-taxes-through-2047-to-lure-global-ai-workloads/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/02/01/india-offers-zero-taxes-through-2047-to-lure-global-ai-workloads/</guid>
+    </item>
+    <item>
+      <title><![CDATA[At NIH, a power struggle over institute directorships deepens]]></title>
+      <link>https://arstechnica.com/science/2026/02/at-nih-a-power-struggle-over-institute-directorships-deepens/</link>
+      <description><![CDATA[The research agency has 27 institute and center directors. Will those roles become politicized.]]></description>
+      <pubDate>Sun, 01 Feb 2026 12:15:50 GMT</pubDate>
+      <category>science</category>
+      <source url="https://arstechnica.com/science/2026/02/at-nih-a-power-struggle-over-institute-directorships-deepens/">Ars Technica</source>
+      <guid isPermaLink="true">https://arstechnica.com/science/2026/02/at-nih-a-power-struggle-over-institute-directorships-deepens/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Fungus could be the insecticide of the future]]></title>
+      <link>https://arstechnica.com/science/2026/02/fungus-could-be-the-insecticide-of-the-future/</link>
+      <description><![CDATA[Plant chemicals made more potent by insect pests are detoxified by the fungus.]]></description>
+      <pubDate>Sun, 01 Feb 2026 12:00:13 GMT</pubDate>
+      <category>science</category>
+      <source url="https://arstechnica.com/science/2026/02/fungus-could-be-the-insecticide-of-the-future/">Ars Technica</source>
+      <guid isPermaLink="true">https://arstechnica.com/science/2026/02/fungus-could-be-the-insecticide-of-the-future/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Meet the new European unicorns of 2026]]></title>
+      <link>https://techcrunch.com/2026/01/31/meet-the-new-european-unicorns-of-2026/</link>
+      <description><![CDATA[From Belgium to Ukraine, five fresh European unicorns were minted this January.]]></description>
+      <pubDate>Sun, 01 Feb 2026 07:00:00 GMT</pubDate>
+      <category>startup</category>
+      <source url="https://techcrunch.com/2026/01/31/meet-the-new-european-unicorns-of-2026/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/01/31/meet-the-new-european-unicorns-of-2026/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Nvidia CEO denies he’s ‘unhappy’ with OpenAI]]></title>
+      <link>https://www.theverge.com/tech/871818/nvidia-ceo-jensen-huang-unhappy-openai</link>
+      <description><![CDATA[Nvidia's CEO Jensen Huang denied reports that he was unhappy with OpenAI and said his company still planned to make a "huge" investment in the ChatGPT firm.]]></description>
+      <pubDate>Sat, 31 Jan 2026 23:37:56 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://www.theverge.com/tech/871818/nvidia-ceo-jensen-huang-unhappy-openai">The Verge</source>
+      <guid isPermaLink="true">https://www.theverge.com/tech/871818/nvidia-ceo-jensen-huang-unhappy-openai</guid>
+    </item>
+    <item>
+      <title><![CDATA[Research roundup: 6 cool stories we almost missed]]></title>
+      <link>https://arstechnica.com/science/2026/01/research-roundup-6-cool-stories-we-almost-missed-2/</link>
+      <description><![CDATA[A lip-syncing robot, Leonardo's DNA, and new evidence that humans, not glaciers, moved stones to Stonehenge.]]></description>
+      <pubDate>Sat, 31 Jan 2026 23:13:32 GMT</pubDate>
+      <category>science</category>
+      <source url="https://arstechnica.com/science/2026/01/research-roundup-6-cool-stories-we-almost-missed-2/">Ars Technica</source>
+      <guid isPermaLink="true">https://arstechnica.com/science/2026/01/research-roundup-6-cool-stories-we-almost-missed-2/</guid>
+    </item>
+    <item>
+      <title><![CDATA[SpaceX wants to put 1 million solar-powered data centers into orbit]]></title>
+      <link>https://www.theverge.com/tech/871641/spacex-fcc-1-million-solar-powered-data-centers-satellites-orbit</link>
+      <description><![CDATA[SpaceX filed a request with the FCC on Friday seeking approval to put a constellation of 1 million data center satellites into orbit.]]></description>
+      <pubDate>Sat, 31 Jan 2026 19:38:36 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://www.theverge.com/tech/871641/spacex-fcc-1-million-solar-powered-data-centers-satellites-orbit">The Verge</source>
+      <guid isPermaLink="true">https://www.theverge.com/tech/871641/spacex-fcc-1-million-solar-powered-data-centers-satellites-orbit</guid>
+    </item>
+    <item>
+      <title><![CDATA[HomeBoost’s app will show you where to save on your utility bills]]></title>
+      <link>https://techcrunch.com/2026/01/31/homeboosts-app-will-show-you-where-to-save-on-your-utility-bills/</link>
+      <description><![CDATA[The startup is partnering with utilities to help homeowners determine the best upgrades to cut their energy use.]]></description>
+      <pubDate>Sat, 31 Jan 2026 16:15:00 GMT</pubDate>
+      <category>startup</category>
+      <source url="https://techcrunch.com/2026/01/31/homeboosts-app-will-show-you-where-to-save-on-your-utility-bills/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/01/31/homeboosts-app-will-show-you-where-to-save-on-your-utility-bills/</guid>
+    </item>
+    <item>
+      <title><![CDATA[ChatGPT isn’t the only chatbot pulling answers from Elon Musk’s Grokipedia]]></title>
+      <link>https://www.theverge.com/report/870910/ai-chatbots-citing-grokipedia</link>
+      <description><![CDATA[ChatGPT is using Grokipedia as a source, and it's not the only AI tool to do so.]]></description>
+      <pubDate>Sat, 31 Jan 2026 13:00:00 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://www.theverge.com/report/870910/ai-chatbots-citing-grokipedia">The Verge</source>
+      <guid isPermaLink="true">https://www.theverge.com/report/870910/ai-chatbots-citing-grokipedia</guid>
+    </item>
+    <item>
+      <title><![CDATA[a16z partner Kofi Ampadu to leave firm after TxO program pause]]></title>
+      <link>https://techcrunch.com/2026/01/30/a16z-partner-kofi-ampadu-to-leave-firm-after-txo-program-pause/</link>
+      <description><![CDATA[Ampadu's departure perhaps signals the end of the TxO chapter.]]></description>
+      <pubDate>Sat, 31 Jan 2026 01:23:12 GMT</pubDate>
+      <category>startup</category>
+      <source url="https://techcrunch.com/2026/01/30/a16z-partner-kofi-ampadu-to-leave-firm-after-txo-program-pause/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/2026/01/30/a16z-partner-kofi-ampadu-to-leave-firm-after-txo-program-pause/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Video game company stock prices dip after Google introduces an AI world-generation tool]]></title>
+      <link>https://www.theverge.com/games/871348/google-project-genie-take-two-roblox-unity</link>
+      <description><![CDATA[.]]></description>
+      <pubDate>Fri, 30 Jan 2026 22:45:16 GMT</pubDate>
+      <category>ai</category>
+      <source url="https://www.theverge.com/games/871348/google-project-genie-take-two-roblox-unity">The Verge</source>
+      <guid isPermaLink="true">https://www.theverge.com/games/871348/google-project-genie-take-two-roblox-unity</guid>
+    </item>
+    <item>
+      <title><![CDATA[Uber is literally in the driver’s seat when it comes to AV bets]]></title>
+      <link>https://techcrunch.com/video/uber-is-literally-in-the-drivers-seat-when-it-comes-to-av-bets/</link>
+      <description><![CDATA[Self-driving truck startup Waabi’s billion-dollar fundraise isn’t just about trucks.]]></description>
+      <pubDate>Fri, 30 Jan 2026 18:56:17 GMT</pubDate>
+      <category>startup</category>
+      <source url="https://techcrunch.com/video/uber-is-literally-in-the-drivers-seat-when-it-comes-to-av-bets/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/video/uber-is-literally-in-the-drivers-seat-when-it-comes-to-av-bets/</guid>
+    </item>
+    <item>
+      <title><![CDATA[Uber puts another chip on the self-driving roulette table]]></title>
+      <link>https://techcrunch.com/podcast/uber-puts-another-chip-on-the-self-driving-roulette-table/</link>
+      <description><![CDATA[Self-driving truck startup Waabi’s billion-dollar fundraise isn’t just about trucks.]]></description>
+      <pubDate>Fri, 30 Jan 2026 16:37:34 GMT</pubDate>
+      <category>startup</category>
+      <source url="https://techcrunch.com/podcast/uber-puts-another-chip-on-the-self-driving-roulette-table/">TechCrunch</source>
+      <guid isPermaLink="true">https://techcrunch.com/podcast/uber-puts-another-chip-on-the-self-driving-roulette-table/</guid>
+    </item>
+    <item>
+      <title><![CDATA[What ice fishing can teach us about making foraging decisions]]></title>
+      <link>https://arstechnica.com/science/2026/01/what-ice-fishing-can-teach-us-about-making-foraging-decisions/</link>
+      <description><![CDATA[Social density increases likelihood of sticking with a location. Environmental factors had little influence.]]></description>
+      <pubDate>Thu, 29 Jan 2026 19:00:41 GMT</pubDate>
+      <category>science</category>
+      <source url="https://arstechnica.com/science/2026/01/what-ice-fishing-can-teach-us-about-making-foraging-decisions/">Ars Technica</source>
+      <guid isPermaLink="true">https://arstechnica.com/science/2026/01/what-ice-fishing-can-teach-us-about-making-foraging-decisions/</guid>
+    </item>
+    <item>
+      <title><![CDATA[New OpenAI tool renews fears that “AI slop” will overwhelm scientific research]]></title>
+      <link>https://arstechnica.com/ai/2026/01/new-openai-tool-renews-fears-that-ai-slop-will-overwhelm-scientific-research/</link>
+      <description><![CDATA[New "Prism" workspace launches just as studies show AI-assisted papers are flooding journals with diminished quality.]]></description>
+      <pubDate>Thu, 29 Jan 2026 17:51:49 GMT</pubDate>
+      <category>science</category>
+      <source url="https://arstechnica.com/ai/2026/01/new-openai-tool-renews-fears-that-ai-slop-will-overwhelm-scientific-research/">Ars Technica</source>
+      <guid isPermaLink="true">https://arstechnica.com/ai/2026/01/new-openai-tool-renews-fears-that-ai-slop-will-overwhelm-scientific-research/</guid>
+    </item>
+  </channel>
+</rss>

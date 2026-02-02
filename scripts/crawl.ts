@@ -6,6 +6,11 @@
 
 import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
+import * as fs from 'fs'
+import * as path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 dotenv.config()
 
@@ -153,6 +158,97 @@ async function crawlAndStore() {
   }
 
   console.log(`\n✨ Done! Total articles stored: ${totalStored}`)
+
+  // Generate RSS feed and News Sitemap
+  await generateRSSFeed()
+  await generateNewsSitemap()
+}
+
+/**
+ * Generate RSS feed from stored articles
+ */
+async function generateRSSFeed() {
+  console.log('\n📰 Generating RSS feed...')
+
+  const { data: articles, error } = await supabase
+    .from('news_items')
+    .select('*')
+    .order('published_at', { ascending: false })
+    .limit(50)
+
+  if (error || !articles) {
+    console.error('   ❌ Failed to fetch articles for RSS')
+    return
+  }
+
+  const rssItems = articles.map(article => `
+    <item>
+      <title><![CDATA[${article.title}]]></title>
+      <link>${article.source_url}</link>
+      <description><![CDATA[${article.summary}]]></description>
+      <pubDate>${new Date(article.published_at).toUTCString()}</pubDate>
+      <category>${article.category}</category>
+      <source url="${article.source_url}">${article.source}</source>
+      <guid isPermaLink="true">${article.source_url}</guid>
+    </item>`).join('')
+
+  const rssFeed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Upday - Tech News, Faster</title>
+    <link>https://updayapp.com</link>
+    <description>AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev.</description>
+    <language>en-us</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <atom:link href="https://updayapp.com/feed.xml" rel="self" type="application/rss+xml"/>
+    ${rssItems}
+  </channel>
+</rss>`
+
+  const feedPath = path.resolve(__dirname, '../public/feed.xml')
+  fs.writeFileSync(feedPath, rssFeed)
+  console.log('   ✅ Generated feed.xml')
+}
+
+/**
+ * Generate Google News Sitemap
+ */
+async function generateNewsSitemap() {
+  console.log('\n🗺️  Generating News Sitemap...')
+
+  const { data: articles, error } = await supabase
+    .from('news_items')
+    .select('*')
+    .order('published_at', { ascending: false })
+    .limit(1000)
+
+  if (error || !articles) {
+    console.error('   ❌ Failed to fetch articles for sitemap')
+    return
+  }
+
+  const urlEntries = articles.map(article => `
+  <url>
+    <loc>${article.source_url}</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Upday</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${new Date(article.published_at).toISOString()}</news:publication_date>
+      <news:title><![CDATA[${article.title}]]></news:title>
+    </news:news>
+  </url>`).join('')
+
+  const newsSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+${urlEntries}
+</urlset>`
+
+  const sitemapPath = path.resolve(__dirname, '../public/news-sitemap.xml')
+  fs.writeFileSync(sitemapPath, newsSitemap)
+  console.log('   ✅ Generated news-sitemap.xml')
 }
 
 crawlAndStore().catch(console.error)

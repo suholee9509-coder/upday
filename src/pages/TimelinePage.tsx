@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Header } from '@/components/layout/Header'
 import { FilterBar, TimelineFeed } from '@/components/news'
-import { SEO, CATEGORY_SEO } from '@/components/SEO'
+import { SEO, CATEGORY_SEO, injectItemListSchema, injectBreadcrumbSchema } from '@/components/SEO'
 import { useNews } from '@/hooks/useNews'
 import type { Category } from '@/types/news'
 
@@ -36,6 +36,33 @@ export function TimelinePage() {
 
   // Dynamic SEO based on category
   const seo = category ? CATEGORY_SEO[category] : null
+
+  // Inject structured data for SEO
+  useEffect(() => {
+    // Breadcrumb schema
+    const breadcrumbs = [
+      { name: 'Home', url: 'https://updayapp.com' },
+      { name: 'Timeline', url: 'https://updayapp.com/timeline' },
+    ]
+    if (category) {
+      breadcrumbs.push({
+        name: category.toUpperCase(),
+        url: `https://updayapp.com/timeline?category=${category}`,
+      })
+    }
+    injectBreadcrumbSchema(breadcrumbs)
+
+    // ItemList schema for news feed
+    if (items.length > 0) {
+      injectItemListSchema(
+        items.slice(0, 10).map((item, index) => ({
+          title: item.title,
+          url: item.sourceUrl,
+          position: index + 1,
+        }))
+      )
+    }
+  }, [category, items])
 
   return (
     <div className="min-h-screen bg-background">

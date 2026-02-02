@@ -78,7 +78,6 @@ export function SEO({
     }
     canonical.href = fullUrl
 
-    // Cleanup function not needed as we're updating existing tags
   }, [fullTitle, description, image, fullUrl, type, publishedTime, section])
 
   return null
@@ -110,4 +109,109 @@ export const CATEGORY_SEO: Record<string, { title: string; description: string }
     title: 'Design News',
     description: 'Breaking product design, UI/UX trends, and creative tool updates.',
   },
+}
+
+/**
+ * Inject BreadcrumbList structured data
+ */
+export function injectBreadcrumbSchema(items: { name: string; url: string }[]) {
+  const existingScript = document.querySelector('script[data-schema="breadcrumb"]')
+  if (existingScript) {
+    existingScript.remove()
+  }
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
+
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.setAttribute('data-schema', 'breadcrumb')
+  script.textContent = JSON.stringify(schema)
+  document.head.appendChild(script)
+}
+
+/**
+ * Inject NewsArticle structured data for individual news items
+ */
+export function injectNewsArticleSchema(article: {
+  title: string
+  summary: string
+  imageUrl?: string
+  publishedAt: string
+  source: string
+  sourceUrl: string
+  category: string
+}) {
+  const existingScript = document.querySelector('script[data-schema="news-article"]')
+  if (existingScript) {
+    existingScript.remove()
+  }
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: article.title,
+    description: article.summary,
+    image: article.imageUrl || `${BASE_URL}/og-image.png`,
+    datePublished: article.publishedAt,
+    dateModified: article.publishedAt,
+    author: {
+      '@type': 'Organization',
+      name: article.source,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Upday',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${BASE_URL}/logo.png`,
+      },
+    },
+    articleSection: article.category,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': article.sourceUrl,
+    },
+  }
+
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.setAttribute('data-schema', 'news-article')
+  script.textContent = JSON.stringify(schema)
+  document.head.appendChild(script)
+}
+
+/**
+ * Inject ItemList structured data for news feed
+ */
+export function injectItemListSchema(items: { title: string; url: string; position: number }[]) {
+  const existingScript = document.querySelector('script[data-schema="item-list"]')
+  if (existingScript) {
+    existingScript.remove()
+  }
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items.slice(0, 10).map((item) => ({
+      '@type': 'ListItem',
+      position: item.position,
+      name: item.title,
+      url: item.url,
+    })),
+  }
+
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.setAttribute('data-schema', 'item-list')
+  script.textContent = JSON.stringify(schema)
+  document.head.appendChild(script)
 }

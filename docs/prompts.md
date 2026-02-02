@@ -150,3 +150,65 @@ GitHub → Actions 탭 → "Scheduled RSS Crawl" → "Run workflow"
 ### claude-3-haiku
 - 1회 크롤링: ~$0.0077 (약 10원)
 - 월간 (하루 2회): ~$0.46 (약 620원)
+
+---
+
+## 8. SEO 최적화
+
+### 메타 태그
+| 태그 | 값 |
+|------|-----|
+| Title | Upday - Tech News, Faster |
+| Description | AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev. |
+| Robots | index, follow, max-image-preview:large, max-snippet:-1 |
+
+### Open Graph / Twitter Cards
+- og:type: website
+- og:image: /og-image.png (1200x630)
+- twitter:card: summary_large_image
+
+### Structured Data (JSON-LD)
+| 스키마 | 용도 |
+|--------|------|
+| WebSite | 사이트 정보 + SearchAction |
+| Organization | 퍼블리셔 정보 |
+| BreadcrumbList | 네비게이션 경로 (동적) |
+| ItemList | 뉴스 피드 목록 (동적) |
+| NewsArticle | 개별 뉴스 기사 (동적) |
+
+### 파일 구조
+| 파일 | 용도 | 업데이트 주기 |
+|------|------|---------------|
+| `/sitemap.xml` | 정적 페이지 사이트맵 | 수동 |
+| `/news-sitemap.xml` | 뉴스 기사 사이트맵 | 크롤링 시 자동 |
+| `/feed.xml` | RSS 피드 | 크롤링 시 자동 |
+| `/robots.txt` | 크롤러 안내 | 수동 |
+| `/og-image.png` | 소셜 공유 이미지 | 수동 |
+
+### SEO 컴포넌트 (`src/components/SEO.tsx`)
+```typescript
+// 기본 SEO
+<SEO title="페이지 제목" description="설명" url="/path" />
+
+// 카테고리별 SEO
+const seo = CATEGORY_SEO['ai']
+<SEO title={seo.title} description={seo.description} />
+
+// 구조화된 데이터 주입
+injectBreadcrumbSchema([{ name: 'Home', url: '...' }])
+injectItemListSchema([{ title: '...', url: '...', position: 1 }])
+injectNewsArticleSchema({ title, summary, publishedAt, source, ... })
+```
+
+### 검색엔진 등록 (수동 필요)
+1. **Google Search Console**: https://search.google.com/search-console
+   - `index.html`의 `GOOGLE_VERIFICATION_CODE` 교체
+2. **Naver 서치어드바이저**: https://searchadvisor.naver.com
+   - `index.html`의 `NAVER_VERIFICATION_CODE` 교체
+
+### Core Web Vitals 목표
+| 지표 | 목표 |
+|------|------|
+| LCP (Largest Contentful Paint) | < 2.5s |
+| INP (Interaction to Next Paint) | < 200ms |
+| CLS (Cumulative Layout Shift) | < 0.1 |
