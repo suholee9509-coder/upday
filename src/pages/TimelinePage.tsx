@@ -1,17 +1,16 @@
 import { useState, useCallback } from 'react'
 import { Header } from '@/components/layout/Header'
 import { FilterBar, TimelineFeed } from '@/components/news'
-import { useNews } from '@/hooks/useNews'
+import { getMockNews } from '@/lib/mock-data'
 import type { Category } from '@/types/news'
 
 export function TimelinePage() {
   const [category, setCategory] = useState<Category | null>(null)
   const [query, setQuery] = useState('')
 
-  // Fetch news with proper loading/error states
-  // Falls back to mock data if Supabase not configured
-  const { items, hasMore, loading, error, loadMore, refresh } = useNews({
-    category,
+  // Use mock data for now (Supabase integration can be enabled later)
+  const { items, hasMore } = getMockNews({
+    category: category || undefined,
     q: query || undefined,
   })
 
@@ -46,10 +45,6 @@ export function TimelinePage() {
         <TimelineFeed
           items={items}
           hasMore={hasMore}
-          loading={loading}
-          error={error}
-          onLoadMore={loadMore}
-          onRetry={refresh}
           searchQuery={query || undefined}
           category={category}
           onReset={handleReset}
