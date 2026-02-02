@@ -32,11 +32,32 @@ const parser = new Parser<CustomFeed, CustomItem>({
 export interface RawArticle {
   title: string
   body: string
-  sourceUrl: string
+  sourceUrl: string  // IMPORTANT: Must be the actual article URL, not category/homepage
   source: string
   imageUrl?: string
   publishedAt: string
   suggestedCategories: Category[]
+}
+
+/**
+ * Validate that a URL is a valid article URL (not a homepage or category page)
+ */
+function isValidArticleUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    // Must have a path beyond just "/"
+    if (parsed.pathname === '/' || parsed.pathname === '') {
+      return false
+    }
+    // Should not be a category/tag page (heuristic check)
+    const lowerPath = parsed.pathname.toLowerCase()
+    if (lowerPath.match(/^\/(category|tag|topic|section|feed|rss)\/?$/)) {
+      return false
+    }
+    return true
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -176,13 +197,19 @@ async function crawlSource(source: RSSSource): Promise<RawArticle[]> {
       // Latest 10 per source
       if (!item.title || !item.link) continue
 
+      // CRITICAL: Validate that link is an actual article URL
+      if (!isValidArticleUrl(item.link)) {
+        console.warn(`Skipping invalid article URL: ${item.link}`)
+        continue
+      }
+
       const body = item.contentSnippet || item.content || item.summary || ''
       const imageUrl = extractImageUrl(item as CustomItem & Parser.Item)
 
       articles.push({
         title: item.title,
         body: body,
-        sourceUrl: item.link,
+        sourceUrl: item.link,  // This MUST be the direct article URL from RSS
         source: source.source,
         imageUrl,
         publishedAt: item.pubDate
