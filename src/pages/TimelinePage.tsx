@@ -40,8 +40,8 @@ export function TimelinePage() {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={seo?.title || '타임라인'}
-        description={seo?.description || '최신 테크 뉴스를 시간순으로 확인하세요'}
+        title={seo?.title || 'Timeline'}
+        description={seo?.description || 'Real-time tech news feed. AI-summarized, no noise.'}
         url={category ? `/${category}` : '/timeline'}
       />
       <Header query={query} onQueryChange={handleQueryChange} />

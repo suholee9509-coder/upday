@@ -11,8 +11,8 @@ interface SEOProps {
 }
 
 const BASE_URL = 'https://updayapp.com'
-const DEFAULT_TITLE = 'Upday - AI, 스타트업, 테크 뉴스 큐레이션'
-const DEFAULT_DESCRIPTION = 'AI, 스타트업, 우주, 과학, 개발 분야의 최신 테크 뉴스를 한눈에. 매일 업데이트되는 큐레이션 뉴스 플랫폼.'
+const DEFAULT_TITLE = 'Upday - Tech News, Faster'
+const DEFAULT_DESCRIPTION = 'AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev. No noise, just what matters.'
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`
 
 export function SEO({
@@ -87,27 +87,27 @@ export function SEO({
 // Category SEO presets
 export const CATEGORY_SEO: Record<string, { title: string; description: string }> = {
   ai: {
-    title: 'AI 뉴스',
-    description: '인공지능, 머신러닝, LLM, ChatGPT 등 최신 AI 기술 뉴스와 트렌드',
+    title: 'AI News',
+    description: 'Breaking AI news: LLMs, machine learning, ChatGPT, and emerging AI trends updated in real-time.',
   },
   startup: {
-    title: '스타트업 뉴스',
-    description: '스타트업 펀딩, 인수합병, IPO 등 창업 생태계 최신 소식',
+    title: 'Startup News',
+    description: 'Latest startup funding, acquisitions, IPOs, and founder stories as they happen.',
   },
   science: {
-    title: '과학 뉴스',
-    description: '과학 연구, 의학 발견, 물리학, 생물학 등 과학계 최신 뉴스',
+    title: 'Science News',
+    description: 'Breaking scientific discoveries, research breakthroughs, and tech innovations.',
   },
   space: {
-    title: '우주 뉴스',
-    description: 'NASA, SpaceX, 로켓, 위성, 우주 탐사 등 항공우주 분야 뉴스',
+    title: 'Space News',
+    description: 'Real-time updates on SpaceX, NASA, rocket launches, and space exploration.',
   },
   dev: {
-    title: '개발자 뉴스',
-    description: '프로그래밍, 오픈소스, GitHub, 개발 도구 등 개발자 커뮤니티 소식',
+    title: 'Developer News',
+    description: 'Latest in programming, open source, GitHub updates, and developer tools.',
   },
   design: {
-    title: '디자인 뉴스',
-    description: 'UI/UX, 프로덕트 디자인, 디자인 툴 등 디자인 분야 최신 트렌드',
+    title: 'Design News',
+    description: 'Breaking product design, UI/UX trends, and creative tool updates.',
   },
 }
