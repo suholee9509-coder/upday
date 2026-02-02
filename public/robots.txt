@@ -1,0 +1,15 @@
+# Upday Robots.txt
+# https://updayapp.com
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://updayapp.com/sitemap.xml
+
+# Crawl-delay (optional, for polite crawling)
+Crawl-delay: 1
+
+# Disallow admin/api paths (if any)
+Disallow: /api/
+Disallow: /admin/

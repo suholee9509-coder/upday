@@ -1,6 +1,7 @@
 import { ArrowRight, Clock, Search, Filter, Sparkles } from 'lucide-react'
 import { Button, Card } from '@/components/ui'
 import { NewsCard } from '@/components/news'
+import { SEO } from '@/components/SEO'
 import { mockNews } from '@/lib/mock-data'
 
 export function LandingPage() {
@@ -9,6 +10,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO url="/" />
       {/* Hero Section */}
       <section className="max-w-4xl mx-auto px-4 py-20 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">

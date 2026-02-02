@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Header } from '@/components/layout/Header'
 import { FilterBar, TimelineFeed } from '@/components/news'
+import { SEO, CATEGORY_SEO } from '@/components/SEO'
 import { useNews } from '@/hooks/useNews'
 import type { Category } from '@/types/news'
 
@@ -33,8 +34,16 @@ export function TimelinePage() {
     setCategory(null)
   }, [])
 
+  // Dynamic SEO based on category
+  const seo = category ? CATEGORY_SEO[category] : null
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={seo?.title || '타임라인'}
+        description={seo?.description || '최신 테크 뉴스를 시간순으로 확인하세요'}
+        url={category ? `/${category}` : '/timeline'}
+      />
       <Header query={query} onQueryChange={handleQueryChange} />
       <FilterBar
         currentCategory={category}
