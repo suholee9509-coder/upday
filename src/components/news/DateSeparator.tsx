@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { formatDateSeparator, cn } from '@/lib/utils'
 
 interface DateSeparatorProps {
@@ -5,7 +6,7 @@ interface DateSeparatorProps {
   className?: string
 }
 
-export function DateSeparator({ date, className }: DateSeparatorProps) {
+export const DateSeparator = memo(function DateSeparator({ date, className }: DateSeparatorProps) {
   return (
     <div
       className={cn(
@@ -20,4 +21,4 @@ export function DateSeparator({ date, className }: DateSeparatorProps) {
       </span>
     </div>
   )
-}
+})

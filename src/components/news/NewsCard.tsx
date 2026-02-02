@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui'
 import { formatRelativeTime, cn } from '@/lib/utils'
@@ -9,7 +9,7 @@ interface NewsCardProps {
   className?: string
 }
 
-export function NewsCard({ item, className }: NewsCardProps) {
+export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProps) {
   const [imageError, setImageError] = useState(false)
   const showImage = item.imageUrl && !imageError
 
@@ -65,7 +65,10 @@ export function NewsCard({ item, className }: NewsCardProps) {
             <img
               src={item.imageUrl}
               alt=""
+              width={112}
+              height={112}
               loading="lazy"
+              decoding="async"
               onError={() => setImageError(true)}
               className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-lg bg-muted"
             />
@@ -74,4 +77,4 @@ export function NewsCard({ item, className }: NewsCardProps) {
       </div>
     </article>
   )
-}
+})

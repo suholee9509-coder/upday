@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Skeleton } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
@@ -5,7 +6,7 @@ interface NewsCardSkeletonProps {
   className?: string
 }
 
-export function NewsCardSkeleton({ className }: NewsCardSkeletonProps) {
+export const NewsCardSkeleton = memo(function NewsCardSkeleton({ className }: NewsCardSkeletonProps) {
   return (
     <div className={cn('p-4 border-b border-border', className)}>
       {/* Title skeleton */}
@@ -25,4 +26,4 @@ export function NewsCardSkeleton({ className }: NewsCardSkeletonProps) {
       <Skeleton className="h-3.5 w-24" />
     </div>
   )
-}
+})
