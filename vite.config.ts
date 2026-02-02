@@ -24,18 +24,12 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      // Exclude server-side modules from client bundle
-      external: ['openai', '@anthropic-ai/sdk', 'rss-parser'],
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-ui': ['lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge'],
-          'vendor-supabase': ['@supabase/supabase-js'],
         },
       },
     },
-  },
-  optimizeDeps: {
-    exclude: ['openai', '@anthropic-ai/sdk', 'rss-parser'],
   },
 })

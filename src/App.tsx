@@ -8,11 +8,12 @@ const LandingPage = lazy(() => import('@/pages/LandingPage').then(m => ({ defaul
 const TimelinePage = lazy(() => import('@/pages/TimelinePage').then(m => ({ default: m.TimelinePage })))
 const ComponentsPage = lazy(() => import('@/pages/ComponentsPage').then(m => ({ default: m.ComponentsPage })))
 
-// Simple loading fallback
+// Loading fallback with spinner
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="animate-pulse text-muted-foreground">Loading...</div>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
+      <div className="text-sm text-muted-foreground">Loading...</div>
     </div>
   )
 }
