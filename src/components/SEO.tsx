@@ -13,7 +13,7 @@ interface SEOProps {
 const BASE_URL = 'https://updayapp.com'
 const DEFAULT_TITLE = 'Upday - AI, 스타트업, 테크 뉴스 큐레이션'
 const DEFAULT_DESCRIPTION = 'AI, 스타트업, 우주, 과학, 개발 분야의 최신 테크 뉴스를 한눈에. 매일 업데이트되는 큐레이션 뉴스 플랫폼.'
-const DEFAULT_IMAGE = `${BASE_URL}/og-image.svg`
+const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`
 
 export function SEO({
   title,
