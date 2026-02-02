@@ -23,6 +23,12 @@ export default defineConfig({
     },
   },
   build: {
+    target: 'es2020',
+    minify: 'esbuild',
+    cssMinify: true,
+    cssCodeSplit: true,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 500,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -30,6 +36,10 @@ export default defineConfig({
           'vendor-ui': ['lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge'],
           'vendor-supabase': ['@supabase/supabase-js'],
         },
+      },
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
       },
     },
   },

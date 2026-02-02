@@ -1,7 +1,15 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { fetchNews, supabase } from '@/lib/db'
 import { getMockNews } from '@/lib/mock-data'
 import type { NewsItem, NewsQueryParams, Category } from '@/types/news'
+
+// Simple in-memory cache for stale-while-revalidate pattern
+const cache = new Map<string, { items: Omit<NewsItem, 'body'>[]; timestamp: number }>()
+const CACHE_TTL = 60 * 1000 // 1 minute
+
+function getCacheKey(category?: Category | null, q?: string): string {
+  return `${category || 'all'}-${q || ''}`
+}
 
 interface UseNewsOptions {
   category?: Category | null
@@ -29,9 +37,33 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [cursor, setCursor] = useState<string | undefined>(undefined)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const fetchData = useCallback(async (reset: boolean = false) => {
-    setLoading(true)
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    abortControllerRef.current = new AbortController()
+
+    const cacheKey = getCacheKey(category, q)
+
+    // Check cache for instant display (stale-while-revalidate)
+    if (reset) {
+      const cached = cache.get(cacheKey)
+      if (cached) {
+        setItems(cached.items)
+        setLoading(false)
+        // If cache is fresh, don't refetch
+        if (Date.now() - cached.timestamp < CACHE_TTL) {
+          return
+        }
+      }
+    }
+
+    if (!cache.has(cacheKey)) {
+      setLoading(true)
+    }
     setError(null)
 
     try {
@@ -54,6 +86,8 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
 
       if (reset) {
         setItems(result.items)
+        // Update cache
+        cache.set(cacheKey, { items: result.items, timestamp: Date.now() })
       } else {
         setItems((prev) => [...prev, ...result.items])
       }
@@ -65,7 +99,9 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
         setCursor(result.items[result.items.length - 1].publishedAt)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch news')
+      if ((err as Error).name !== 'AbortError') {
+        setError(err instanceof Error ? err.message : 'Failed to fetch news')
+      }
     } finally {
       setLoading(false)
     }
