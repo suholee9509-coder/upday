@@ -118,6 +118,38 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+@layer utilities {
+  /* 스크롤바 숨김 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 텍스트 그라데이션 */
+  .text-gradient {
+    @apply bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent;
+  }
+
+  /* 섹션 구분선 */
+  .section-divider {
+    @apply border-t border-border;
+  }
+}
+
+/* 부드러운 페이지 전환 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 선택 영역 스타일 */
+::selection {
+  @apply bg-primary/20 text-foreground;
 }
