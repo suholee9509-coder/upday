@@ -27,6 +27,7 @@ export interface ProcessedArticle {
   category: Category
   source: string
   source_url: string
+  image_url?: string
   published_at: string
 }
 
@@ -123,6 +124,7 @@ async function processArticleWithAI(raw: RawArticle): Promise<ProcessedArticle |
     category,
     source: raw.source,
     source_url: raw.sourceUrl,
+    image_url: raw.imageUrl,
     published_at: raw.publishedAt,
   }
 }
@@ -145,6 +147,7 @@ function processArticleSimple(raw: RawArticle): ProcessedArticle | null {
     category: classifySimple(title, body, raw.suggestedCategories),
     source: raw.source,
     source_url: raw.sourceUrl,
+    image_url: raw.imageUrl,
     published_at: raw.publishedAt,
   }
 }
