@@ -28,13 +28,10 @@ export function TimelinePage() {
     setQuery('')
   }, [])
 
-  // Determine empty message
-  let emptyMessage = 'No news yet.'
-  if (query) {
-    emptyMessage = `No results for "${query}". Try a different search term.`
-  } else if (category) {
-    emptyMessage = `No news in ${category} category yet.`
-  }
+  const handleReset = useCallback(() => {
+    setQuery('')
+    setCategory(null)
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,7 +45,9 @@ export function TimelinePage() {
         <TimelineFeed
           items={items}
           hasMore={hasMore}
-          emptyMessage={emptyMessage}
+          searchQuery={query || undefined}
+          category={category}
+          onReset={handleReset}
         />
       </main>
     </div>
