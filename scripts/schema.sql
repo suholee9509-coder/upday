@@ -10,9 +10,13 @@ CREATE TABLE IF NOT EXISTS news_items (
   category TEXT NOT NULL CHECK (category IN ('ai', 'startup', 'science', 'design', 'space', 'dev')),
   source TEXT NOT NULL,
   source_url TEXT NOT NULL UNIQUE,
+  image_url TEXT, -- og:image or RSS enclosure image
   published_at TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration: Add image_url column if table already exists
+-- ALTER TABLE news_items ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_news_published_at ON news_items(published_at DESC);

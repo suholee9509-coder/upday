@@ -8,6 +8,7 @@ export interface NewsItem {
   category: Category
   source: string
   sourceUrl: string
+  imageUrl?: string // og:image or RSS enclosure
   publishedAt: string // ISO 8601, UTC
   createdAt: string
 }

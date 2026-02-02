@@ -23,6 +23,7 @@ interface NewsItemRow {
   category: Category
   source: string
   source_url: string
+  image_url: string | null
   published_at: string
   created_at: string
 }
@@ -36,6 +37,7 @@ function transformRow(row: NewsItemRow): Omit<NewsItem, 'body'> {
     category: row.category,
     source: row.source,
     sourceUrl: row.source_url,
+    imageUrl: row.image_url || undefined,
     publishedAt: row.published_at,
     createdAt: row.created_at,
   }
@@ -53,7 +55,7 @@ export async function fetchNews(params: NewsQueryParams = {}): Promise<NewsRespo
 
   let query = supabase
     .from('news_items')
-    .select('id, title, summary, category, source, source_url, published_at, created_at')
+    .select('id, title, summary, category, source, source_url, image_url, published_at, created_at')
     .order('published_at', { ascending: false })
     .limit(limit + 1) // Fetch one extra to check hasMore
 
@@ -113,6 +115,7 @@ export async function fetchNewsById(id: string): Promise<NewsItem | null> {
     category: row.category,
     source: row.source,
     sourceUrl: row.source_url,
+    imageUrl: row.image_url || undefined,
     publishedAt: row.published_at,
     createdAt: row.created_at,
   }
