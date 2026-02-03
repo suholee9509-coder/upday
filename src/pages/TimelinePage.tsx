@@ -118,7 +118,7 @@ export function TimelinePage() {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={seo?.title || 'Timeline'}
+        title="Timeline"
         description={seo?.description || 'Real-time tech news feed. AI-summarized, no noise.'}
         url={category ? `/${category}` : '/timeline'}
       />
