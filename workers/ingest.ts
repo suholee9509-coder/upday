@@ -2,7 +2,7 @@
  * News Ingestion Worker for Cloudflare
  * Runs on a cron schedule to fetch and process news
  *
- * Schedule: Every 4 hours (0 */4 * * *)
+ * Schedule: Every 4 hours (cron: 0 0,4,8,12,16,20 * * *)
  * Deploy: wrangler deploy -c wrangler-ingest.toml
  */
 
