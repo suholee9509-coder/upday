@@ -9,6 +9,9 @@
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     <link rel="preconnect" href="https://gqswdaiufqoqvbzwfyvm.supabase.co" crossorigin />
 
+    <!-- Preload critical assets for better LCP -->
+    <link rel="preload" href="/og-image.png" as="image" type="image/png" />
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V9D2MZEH6N"></script>
     <script>
@@ -63,42 +66,102 @@
     <meta name="twitter:description" content="AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev." />
     <meta name="twitter:image" content="https://updayapp.com/og-image.png" />
 
-    <!-- Naver Verification (네이버 서치어드바이저) -->
-    <meta name="naver-site-verification" content="NAVER_VERIFICATION_CODE" />
-
     <!-- Google Verification (구글 서치 콘솔) -->
-    <meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE" />
+    <meta name="google-site-verification" content="ok6zTvWVtTnnjqE0vSitYIvplZHUKlr3sDTrN7RM23I" />
 
-    <!-- Structured Data - Organization -->
+    <!-- Naver Verification (네이버 서치어드바이저) - TODO: https://searchadvisor.naver.com/ -->
+    <!-- <meta name="naver-site-verification" content="YOUR_CODE" /> -->
+
+    <!-- Bing Verification - TODO: https://www.bing.com/webmasters -->
+    <!-- <meta name="msvalidate.01" content="YOUR_CODE" /> -->
+
+    <!-- Structured Data - WebSite with SearchAction -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Upday",
+      "alternateName": "Upday Tech News",
       "url": "https://updayapp.com",
       "description": "AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev.",
+      "inLanguage": "ko-KR",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://updayapp.com/search?q={search_term_string}",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://updayapp.com/timeline?q={search_term_string}"
+        },
         "query-input": "required name=search_term_string"
       }
     }
     </script>
 
-    <!-- Structured Data - Organization -->
+    <!-- Structured Data - NewsMediaOrganization (Google News Publisher) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": "NewsMediaOrganization",
       "name": "Upday",
       "url": "https://updayapp.com",
-      "logo": "https://updayapp.com/logo.png",
-      "sameAs": []
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://updayapp.com/og-image.png",
+        "width": 1200,
+        "height": 630
+      },
+      "sameAs": [],
+      "publishingPrinciples": "https://updayapp.com/about",
+      "masthead": "https://updayapp.com/about",
+      "foundingDate": "2025",
+      "actionableFeedbackPolicy": "https://updayapp.com/feedback",
+      "diversityPolicy": "https://updayapp.com/diversity",
+      "ethicsPolicy": "https://updayapp.com/ethics",
+      "ownershipFundingInfo": "https://updayapp.com/about"
+    }
+    </script>
+
+    <!-- Structured Data - CollectionPage for Timeline -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Tech News Timeline",
+      "description": "Real-time tech news feed with AI-powered summaries covering AI, startups, science, and development.",
+      "url": "https://updayapp.com/timeline",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Upday",
+        "url": "https://updayapp.com"
+      },
+      "about": [
+        {"@type": "Thing", "name": "Artificial Intelligence"},
+        {"@type": "Thing", "name": "Technology Startups"},
+        {"@type": "Thing", "name": "Science News"},
+        {"@type": "Thing", "name": "Software Development"}
+      ]
     }
     </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Fallback content for crawlers that don't execute JavaScript -->
+    <noscript>
+      <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: system-ui, sans-serif;">
+        <h1>Upday - Tech News, Faster</h1>
+        <p>AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev.</p>
+        <h2>Categories</h2>
+        <ul>
+          <li><a href="/timeline?category=ai">AI News</a> - Breaking AI news, LLMs, machine learning, ChatGPT</li>
+          <li><a href="/timeline?category=startup">Startup News</a> - Latest startup funding, acquisitions, IPOs</li>
+          <li><a href="/timeline?category=science">Science News</a> - Scientific discoveries and research breakthroughs</li>
+          <li><a href="/timeline?category=space">Space News</a> - SpaceX, NASA, rocket launches, space exploration</li>
+          <li><a href="/timeline?category=dev">Developer News</a> - Programming, open source, GitHub updates</li>
+          <li><a href="/timeline?category=design">Design News</a> - Product design, UI/UX trends</li>
+        </ul>
+        <p><a href="/timeline">View Full Timeline</a></p>
+      </div>
+    </noscript>
   </body>
 </html>

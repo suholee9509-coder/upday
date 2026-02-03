@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:prerender": "tsc -b && PRERENDER=true vite build",
+    "build:analyze": "tsc -b && ANALYZE=true vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "seed": "tsx scripts/seed.ts"
@@ -28,6 +30,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@prerenderer/renderer-puppeteer": "^1.2.4",
+    "@prerenderer/rollup-plugin": "^0.3.12",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
