@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Search, Filter, Sparkles } from 'lucide-react'
+import { ArrowRight, Clock, Search, Filter } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, Card } from '@/components/ui'
 import { NewsCard } from '@/components/news'
@@ -14,35 +14,123 @@ export function LandingPage() {
     <div className="min-h-screen bg-background">
       <SEO url="/" />
       {/* Hero Section */}
-      <section className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-          <Sparkles className="h-4 w-4" />
-          AI-powered news summaries
-        </div>
+      <section className="relative overflow-hidden border-b border-border">
+        {/* Background layers */}
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-background to-background" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.1),transparent)]" />
 
-        <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-          Know what's changing.
-          <br />
-          <span className="text-muted-foreground">Without reading everything.</span>
-        </h1>
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
 
-        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-          AI-summarized news in a timeline. Scan tech, science, and startup news in minutes, not hours. No login required.
-        </p>
+        <div className="relative max-w-[1560px] mx-auto px-5 py-20 md:py-28">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left: Text content */}
+            <div className="text-center lg:text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-background/80 backdrop-blur-sm text-xs font-medium mb-6">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-muted-foreground">Live updates every hour</span>
+              </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="text-base px-8" onClick={() => navigate('/timeline')}>
-            Go to Timeline
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-          <Button variant="outline" size="lg" className="text-base px-8" onClick={() => navigate('/components')}>
-            View Components
-          </Button>
+              {/* Headline */}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-5 leading-[1.1] tracking-tight">
+                Know what's changing.
+                <br />
+                <span className="text-muted-foreground">Without reading everything.</span>
+              </h1>
+
+              {/* Subheadline */}
+              <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                AI-summarized news in a timeline. Scan tech, science, and startup news in minutes, not hours.
+              </p>
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <Button
+                  size="lg"
+                  className="text-sm px-6"
+                  onClick={() => navigate('/timeline')}
+                >
+                  Start reading
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="text-sm text-muted-foreground"
+                  onClick={() => {
+                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                >
+                  Learn more
+                </Button>
+              </div>
+
+              {/* Tagline */}
+              <p className="text-xs text-muted-foreground mt-6">
+                Read less. Know more.
+              </p>
+            </div>
+
+            {/* Right: Floating preview card */}
+            <div className="relative lg:pl-8">
+              <div className="relative">
+                {/* Glow effect behind card */}
+                <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-2xl blur-2xl" />
+
+                {/* Preview card */}
+                <Card className="relative overflow-hidden shadow-xl border-border/50">
+                  {/* Card header */}
+                  <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
+                    <div className="flex gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-2">upday timeline</span>
+                  </div>
+
+                  {/* Preview news items */}
+                  <div className="divide-y divide-border">
+                    {previewItems.slice(0, 2).map((item) => (
+                      <div key={item.id} className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 w-1 h-12 rounded-full bg-primary/20" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-muted-foreground mb-1">{item.source}</p>
+                            <h4 className="text-sm font-medium text-foreground line-clamp-2 mb-1">
+                              {item.title}
+                            </h4>
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {item.summary}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Fade overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+                </Card>
+
+                {/* Floating badges */}
+                <div className="absolute -top-3 -right-3 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium shadow-lg">
+                  AI Summary
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Feature Showcase */}
-      <section className="bg-muted/30 py-16 border-y border-border">
+      <section id="features" className="bg-muted/30 py-16 border-y border-border">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-center mb-12">Why upday?</h2>
           <div className="grid md:grid-cols-3 gap-8">

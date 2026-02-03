@@ -21,11 +21,11 @@ export interface RSSSource {
 
 /**
  * RSS feed sources organized by category
- * Total: ~25 feeds across 6 categories with global diversity
+ * Total: ~45 feeds across 6 categories with global diversity
  */
 export const RSS_SOURCES: RSSSource[] = [
   // ============================================
-  // AI - 5 sources (US, EU, Global perspectives)
+  // AI - 7 sources (US, EU, Global perspectives)
   // ============================================
   {
     url: 'https://techcrunch.com/category/artificial-intelligence/feed/',
@@ -56,15 +56,29 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 5, // High credibility
   },
   {
-    url: 'https://www.wired.com/feed/category/artificial-intelligence/latest/rss',
+    url: 'https://www.wired.com/feed/tag/ai/latest/rss',
     source: 'Wired',
     categories: ['ai'],
     region: 'us',
     priority: 4,
   },
+  {
+    url: 'https://www.engadget.com/rss.xml',
+    source: 'Engadget',
+    categories: ['ai'],
+    region: 'us',
+    priority: 3,
+  },
+  {
+    url: 'https://gizmodo.com/rss',
+    source: 'Gizmodo',
+    categories: ['ai'],
+    region: 'us',
+    priority: 3,
+  },
 
   // ============================================
-  // Startup - 4 sources
+  // Startup - 5 sources
   // ============================================
   {
     url: 'https://techcrunch.com/category/startups/feed/',
@@ -81,22 +95,29 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 4,
   },
   {
-    url: 'https://www.theinformation.com/rss/all',
-    source: 'The Information',
-    categories: ['startup'],
-    region: 'us',
-    priority: 3, // May require auth
-  },
-  {
     url: 'https://restofworld.org/feed/latest/',
     source: 'Rest of World',
     categories: ['startup'],
     region: 'global',
     priority: 4, // Global tech perspective
   },
+  {
+    url: 'https://thenextweb.com/feed',
+    source: 'The Next Web',
+    categories: ['startup'],
+    region: 'eu',
+    priority: 4,
+  },
+  {
+    url: 'https://mashable.com/feeds/rss/all',
+    source: 'Mashable',
+    categories: ['startup'],
+    region: 'us',
+    priority: 3,
+  },
 
   // ============================================
-  // Science - 4 sources
+  // Science - 5 sources
   // ============================================
   {
     url: 'https://feeds.arstechnica.com/arstechnica/science',
@@ -126,9 +147,16 @@ export const RSS_SOURCES: RSSSource[] = [
     region: 'us',
     priority: 5,
   },
+  {
+    url: 'https://www.wired.com/feed/rss',
+    source: 'Wired',
+    categories: ['science'],
+    region: 'us',
+    priority: 4,
+  },
 
   // ============================================
-  // Design - 4 sources
+  // Design - 6 sources
   // ============================================
   {
     url: 'https://feeds.feedburner.com/fastcompany/headlines',
@@ -158,6 +186,20 @@ export const RSS_SOURCES: RSSSource[] = [
     region: 'us',
     priority: 3,
   },
+  {
+    url: 'https://alistapart.com/main/feed/',
+    source: 'A List Apart',
+    categories: ['design'],
+    region: 'us',
+    priority: 4,
+  },
+  {
+    url: 'https://smashingmagazine.com/feed',
+    source: 'Smashing Magazine',
+    categories: ['design'],
+    region: 'eu',
+    priority: 4,
+  },
 
   // ============================================
   // Space - 4 sources
@@ -184,7 +226,7 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 5,
   },
   {
-    url: 'http://www.space.com/feeds.xml',
+    url: 'https://www.space.com/feeds/all',
     source: 'Space.com',
     categories: ['space'],
     region: 'us',
@@ -192,7 +234,7 @@ export const RSS_SOURCES: RSSSource[] = [
   },
 
   // ============================================
-  // Dev - 6 sources
+  // Dev - 10 sources
   // ============================================
   {
     url: 'https://dev.to/feed',
@@ -209,7 +251,7 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 5,
   },
   {
-    url: 'https://blog.github.com/feed.xml',
+    url: 'https://github.blog/feed/',
     source: 'GitHub Blog',
     categories: ['dev'],
     region: 'us',
@@ -236,9 +278,37 @@ export const RSS_SOURCES: RSSSource[] = [
     region: 'eu',
     priority: 3,
   },
+  {
+    url: 'https://css-tricks.com/feed/',
+    source: 'CSS-Tricks',
+    categories: ['dev'],
+    region: 'us',
+    priority: 4,
+  },
+  {
+    url: 'https://www.tomshardware.com/feeds/all',
+    source: "Tom's Hardware",
+    categories: ['dev'],
+    region: 'us',
+    priority: 3,
+  },
+  {
+    url: 'https://9to5mac.com/feed/',
+    source: '9to5Mac',
+    categories: ['dev'],
+    region: 'us',
+    priority: 3,
+  },
+  {
+    url: 'https://www.androidcentral.com/feed',
+    source: 'Android Central',
+    categories: ['dev'],
+    region: 'us',
+    priority: 3,
+  },
 
   // ============================================
-  // General Tech (multi-category coverage)
+  // General Tech - Global authoritative sources (8 sources)
   // ============================================
   {
     url: 'https://feeds.bbci.co.uk/news/technology/rss.xml',
@@ -248,13 +318,6 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 5, // High credibility global source
   },
   {
-    url: 'https://www.engadget.com/rss.xml',
-    source: 'Engadget',
-    categories: ['ai', 'dev'],
-    region: 'us',
-    priority: 3,
-  },
-  {
     url: 'https://www.zdnet.com/news/rss.xml',
     source: 'ZDNet',
     categories: ['dev', 'ai'],
@@ -262,9 +325,37 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 3,
   },
   {
-    url: 'https://www.wired.com/feed/rss',
-    source: 'Wired',
-    categories: ['ai', 'science', 'dev'],
+    url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
+    source: 'NY Times Tech',
+    categories: ['ai', 'science'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://www.theguardian.com/technology/rss',
+    source: 'The Guardian Tech',
+    categories: ['ai', 'dev'],
+    region: 'eu',
+    priority: 5,
+  },
+  {
+    url: 'https://www.cnet.com/rss/news/',
+    source: 'CNET',
+    categories: ['ai', 'dev'],
+    region: 'us',
+    priority: 4,
+  },
+  {
+    url: 'https://www.techradar.com/rss',
+    source: 'TechRadar',
+    categories: ['dev', 'ai'],
+    region: 'eu',
+    priority: 3,
+  },
+  {
+    url: 'https://arstechnica.com/feed/',
+    source: 'Ars Technica',
+    categories: ['ai', 'dev', 'science'],
     region: 'us',
     priority: 4,
   },

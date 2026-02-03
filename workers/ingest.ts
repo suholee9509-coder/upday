@@ -40,53 +40,68 @@ interface FeedResult {
 // NOTE: Keep this in sync with the shared configuration
 // Workers environment cannot use Vite aliases, so we duplicate the config
 const RSS_SOURCES = [
-  // AI - 5 sources
+  // AI - 7 sources
   { url: 'https://techcrunch.com/category/artificial-intelligence/feed/', source: 'TechCrunch', category: 'ai' },
   { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', source: 'The Verge', category: 'ai' },
   { url: 'https://venturebeat.com/category/ai/feed/', source: 'VentureBeat', category: 'ai' },
   { url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed', source: 'MIT Technology Review', category: 'ai' },
-  { url: 'https://www.wired.com/feed/category/artificial-intelligence/latest/rss', source: 'Wired', category: 'ai' },
+  { url: 'https://www.wired.com/feed/tag/ai/latest/rss', source: 'Wired', category: 'ai' },
+  { url: 'https://www.engadget.com/rss.xml', source: 'Engadget', category: 'ai' },
+  { url: 'https://gizmodo.com/rss', source: 'Gizmodo', category: 'ai' },
 
-  // Startup - 3 sources (excluding The Information - requires auth)
+  // Startup - 4 sources
   { url: 'https://techcrunch.com/category/startups/feed/', source: 'TechCrunch', category: 'startup' },
   { url: 'https://news.crunchbase.com/feed/', source: 'Crunchbase News', category: 'startup' },
   { url: 'https://restofworld.org/feed/latest/', source: 'Rest of World', category: 'startup' },
+  { url: 'https://thenextweb.com/feed', source: 'The Next Web', category: 'startup' },
 
-  // Science - 4 sources
+  // Science - 5 sources
   { url: 'https://feeds.arstechnica.com/arstechnica/science', source: 'Ars Technica', category: 'science' },
   { url: 'https://www.sciencedaily.com/rss/all.xml', source: 'Science Daily', category: 'science' },
   { url: 'https://phys.org/rss-feed/', source: 'Phys.org', category: 'science' },
   { url: 'https://www.technologyreview.com/feed/', source: 'MIT Technology Review', category: 'science' },
+  { url: 'https://www.wired.com/feed/rss', source: 'Wired', category: 'science' },
 
-  // Design - 4 sources
+  // Design - 6 sources
   { url: 'https://feeds.feedburner.com/fastcompany/headlines', source: 'Fast Company', category: 'design' },
   { url: 'https://www.dezeen.com/feed/', source: 'Dezeen', category: 'design' },
   { url: 'https://www.designboom.com/feed/', source: 'Designboom', category: 'design' },
   { url: 'https://feeds.feedburner.com/core77/blog', source: 'Core77', category: 'design' },
+  { url: 'https://alistapart.com/main/feed/', source: 'A List Apart', category: 'design' },
+  { url: 'https://smashingmagazine.com/feed', source: 'Smashing Magazine', category: 'design' },
 
   // Space - 4 sources
   { url: 'https://spacenews.com/feed/', source: 'SpaceNews', category: 'space' },
   { url: 'https://feeds.arstechnica.com/arstechnica/space', source: 'Ars Technica', category: 'space' },
   { url: 'https://www.nasa.gov/feed/', source: 'NASA', category: 'space' },
-  { url: 'http://www.space.com/feeds.xml', source: 'Space.com', category: 'space' },
+  { url: 'https://www.space.com/feeds/all', source: 'Space.com', category: 'space' },
 
-  // Dev - 6 sources
+  // Dev - 10 sources
   { url: 'https://dev.to/feed', source: 'Dev.to', category: 'dev' },
   { url: 'https://news.ycombinator.com/rss', source: 'Hacker News', category: 'dev' },
-  { url: 'https://blog.github.com/feed.xml', source: 'GitHub Blog', category: 'dev' },
+  { url: 'https://github.blog/feed/', source: 'GitHub Blog', category: 'dev' },
   { url: 'https://thenewstack.io/feed/', source: 'The New Stack', category: 'dev' },
   { url: 'https://feed.infoq.com/', source: 'InfoQ', category: 'dev' },
   { url: 'https://www.theregister.com/headlines.atom', source: 'The Register', category: 'dev' },
+  { url: 'https://css-tricks.com/feed/', source: 'CSS-Tricks', category: 'dev' },
+  { url: 'https://www.tomshardware.com/feeds/all', source: "Tom's Hardware", category: 'dev' },
+  { url: 'https://9to5mac.com/feed/', source: '9to5Mac', category: 'dev' },
+  { url: 'https://www.androidcentral.com/feed', source: 'Android Central', category: 'dev' },
 
-  // General Tech (multi-category coverage)
-  { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', source: 'BBC Technology', category: 'dev' },
-  { url: 'https://www.engadget.com/rss.xml', source: 'Engadget', category: 'ai' },
+  // General Tech - Global authoritative sources (5 sources)
+  { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', source: 'BBC Technology', category: 'ai' },
   { url: 'https://www.zdnet.com/news/rss.xml', source: 'ZDNet', category: 'dev' },
-  { url: 'https://www.wired.com/feed/rss', source: 'Wired', category: 'science' },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', source: 'NY Times Tech', category: 'ai' },
+  { url: 'https://www.theguardian.com/technology/rss', source: 'The Guardian Tech', category: 'ai' },
+  { url: 'https://www.cnet.com/rss/news/', source: 'CNET', category: 'ai' },
+  { url: 'https://mashable.com/feeds/rss/all', source: 'Mashable', category: 'startup' },
+  { url: 'https://www.techradar.com/rss', source: 'TechRadar', category: 'dev' },
+  { url: 'https://arstechnica.com/feed/', source: 'Ars Technica', category: 'ai' },
 ]
 
 /**
  * Fetch with timeout using AbortController
+ * Follows redirects automatically
  */
 async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
   const controller = new AbortController()
@@ -96,6 +111,7 @@ async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Respons
     const response = await fetch(url, {
       headers: { 'User-Agent': 'upday-news-bot/1.0' },
       signal: controller.signal,
+      redirect: 'follow', // Follow redirects automatically
     })
     return response
   } finally {
@@ -130,7 +146,8 @@ async function fetchWithRetry(url: string, maxRetries: number = MAX_RETRIES): Pr
 }
 
 /**
- * Simple RSS parser for Workers (no external dependencies)
+ * Simple RSS/Atom parser for Workers (no external dependencies)
+ * Supports both RSS <item> tags and Atom <entry> tags
  */
 async function parseRSS(url: string): Promise<{ title: string; link: string; content: string; pubDate: string }[]> {
   const response = await fetchWithRetry(url)
@@ -142,14 +159,33 @@ async function parseRSS(url: string): Promise<{ title: string; link: string; con
   const xml = await response.text()
   const items: { title: string; link: string; content: string; pubDate: string }[] = []
 
-  // Simple XML parsing (works for most RSS feeds)
-  const itemMatches = xml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) || []
+  // Try RSS <item> tags first
+  let itemMatches = xml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) || []
+
+  // If no RSS items, try Atom <entry> tags
+  if (itemMatches.length === 0) {
+    itemMatches = xml.match(/<entry[^>]*>[\s\S]*?<\/entry>/gi) || []
+  }
 
   for (const itemXml of itemMatches.slice(0, MAX_ARTICLES_PER_FEED)) {
+    // Parse title
     const title = itemXml.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i)?.[1] || ''
-    const link = itemXml.match(/<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i)?.[1] || ''
-    const content = itemXml.match(/<(?:content:encoded|description)[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|description)>/i)?.[1] || ''
-    const pubDate = itemXml.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || ''
+
+    // Parse link - RSS uses <link>text</link>, Atom uses <link href="..."/>
+    let link = itemXml.match(/<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i)?.[1] || ''
+    if (!link) {
+      // Try Atom-style link with href attribute
+      link = itemXml.match(/<link[^>]*href=["']([^"']+)["'][^>]*\/?>/i)?.[1] || ''
+    }
+
+    // Parse content - try multiple content tags
+    const content = itemXml.match(/<(?:content:encoded|content|description|summary)[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|content|description|summary)>/i)?.[1] || ''
+
+    // Parse date - RSS uses pubDate, Atom uses published or updated
+    let pubDate = itemXml.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || ''
+    if (!pubDate) {
+      pubDate = itemXml.match(/<(?:published|updated)[^>]*>([\s\S]*?)<\/(?:published|updated)>/i)?.[1] || ''
+    }
 
     if (title && link) {
       items.push({
