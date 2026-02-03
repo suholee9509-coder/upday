@@ -10,7 +10,8 @@
     "build:analyze": "tsc -b && ANALYZE=true vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "monitor": "tsx scripts/monitor.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
