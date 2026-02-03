@@ -2,12 +2,16 @@
  * News Ingestion Worker for Cloudflare
  * Runs on a cron schedule to fetch and process news
  *
- * Configure in wrangler.toml:
- * [[triggers]]
- * crons = ["0 * * * *"]  # Every hour
+ * Schedule: Every 4 hours (0 */4 * * *)
+ * Deploy: wrangler deploy -c wrangler-ingest.toml
  */
 
 import { createClient } from '@supabase/supabase-js'
+
+// Configuration
+const FETCH_TIMEOUT_MS = 10000 // 10 seconds per feed
+const MAX_ARTICLES_PER_FEED = 10
+const MAX_RETRIES = 3 // Retry count for failed fetches
 
 interface Env {
   SUPABASE_URL: string
@@ -15,64 +19,149 @@ interface Env {
   CRON_SECRET?: string
 }
 
-interface RawArticle {
-  title: string
-  body: string
-  sourceUrl: string
-  source: string
-  publishedAt: string
-  category: string
+interface CrawlStats {
+  processed: number
+  skipped: number
+  errors: number
+  feedsProcessed: number
+  feedsFailed: number
+  startTime: number
+  endTime?: number
 }
 
-// RSS Sources (simplified for Worker environment)
+interface FeedResult {
+  source: string
+  processed: number
+  skipped: number
+  error?: string
+}
+
+// RSS Sources - Synchronized with src/lib/rss-feeds.ts
+// NOTE: Keep this in sync with the shared configuration
+// Workers environment cannot use Vite aliases, so we duplicate the config
 const RSS_SOURCES = [
+  // AI - 5 sources
   { url: 'https://techcrunch.com/category/artificial-intelligence/feed/', source: 'TechCrunch', category: 'ai' },
   { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', source: 'The Verge', category: 'ai' },
+  { url: 'https://venturebeat.com/category/ai/feed/', source: 'VentureBeat', category: 'ai' },
+  { url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed', source: 'MIT Technology Review', category: 'ai' },
+  { url: 'https://www.wired.com/feed/category/artificial-intelligence/latest/rss', source: 'Wired', category: 'ai' },
+
+  // Startup - 3 sources (excluding The Information - requires auth)
   { url: 'https://techcrunch.com/category/startups/feed/', source: 'TechCrunch', category: 'startup' },
+  { url: 'https://news.crunchbase.com/feed/', source: 'Crunchbase News', category: 'startup' },
+  { url: 'https://restofworld.org/feed/latest/', source: 'Rest of World', category: 'startup' },
+
+  // Science - 4 sources
+  { url: 'https://feeds.arstechnica.com/arstechnica/science', source: 'Ars Technica', category: 'science' },
+  { url: 'https://www.sciencedaily.com/rss/all.xml', source: 'Science Daily', category: 'science' },
+  { url: 'https://phys.org/rss-feed/', source: 'Phys.org', category: 'science' },
+  { url: 'https://www.technologyreview.com/feed/', source: 'MIT Technology Review', category: 'science' },
+
+  // Design - 4 sources
+  { url: 'https://feeds.feedburner.com/fastcompany/headlines', source: 'Fast Company', category: 'design' },
+  { url: 'https://www.dezeen.com/feed/', source: 'Dezeen', category: 'design' },
+  { url: 'https://www.designboom.com/feed/', source: 'Designboom', category: 'design' },
+  { url: 'https://feeds.feedburner.com/core77/blog', source: 'Core77', category: 'design' },
+
+  // Space - 4 sources
   { url: 'https://spacenews.com/feed/', source: 'SpaceNews', category: 'space' },
+  { url: 'https://feeds.arstechnica.com/arstechnica/space', source: 'Ars Technica', category: 'space' },
+  { url: 'https://www.nasa.gov/feed/', source: 'NASA', category: 'space' },
+  { url: 'http://www.space.com/feeds.xml', source: 'Space.com', category: 'space' },
+
+  // Dev - 6 sources
   { url: 'https://dev.to/feed', source: 'Dev.to', category: 'dev' },
+  { url: 'https://news.ycombinator.com/rss', source: 'Hacker News', category: 'dev' },
+  { url: 'https://blog.github.com/feed.xml', source: 'GitHub Blog', category: 'dev' },
+  { url: 'https://thenewstack.io/feed/', source: 'The New Stack', category: 'dev' },
+  { url: 'https://feed.infoq.com/', source: 'InfoQ', category: 'dev' },
+  { url: 'https://www.theregister.com/headlines.atom', source: 'The Register', category: 'dev' },
+
+  // General Tech (multi-category coverage)
+  { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', source: 'BBC Technology', category: 'dev' },
+  { url: 'https://www.engadget.com/rss.xml', source: 'Engadget', category: 'ai' },
+  { url: 'https://www.zdnet.com/news/rss.xml', source: 'ZDNet', category: 'dev' },
+  { url: 'https://www.wired.com/feed/rss', source: 'Wired', category: 'science' },
 ]
+
+/**
+ * Fetch with timeout using AbortController
+ */
+async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'upday-news-bot/1.0' },
+      signal: controller.signal,
+    })
+    return response
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+/**
+ * Fetch with exponential backoff retry
+ */
+async function fetchWithRetry(url: string, maxRetries: number = MAX_RETRIES): Promise<Response> {
+  let lastError: Error | undefined
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetchWithTimeout(url, FETCH_TIMEOUT_MS)
+      if (response.ok || response.status < 500) {
+        return response // Success or client error (don't retry 4xx)
+      }
+      throw new Error(`HTTP ${response.status}`)
+    } catch (error) {
+      lastError = error as Error
+      if (attempt < maxRetries - 1) {
+        const delay = Math.pow(2, attempt) * 1000 // 1s, 2s, 4s
+        console.log(`[RETRY] ${url} - attempt ${attempt + 1}/${maxRetries}, waiting ${delay}ms`)
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+    }
+  }
+
+  throw lastError || new Error('Max retries exceeded')
+}
 
 /**
  * Simple RSS parser for Workers (no external dependencies)
  */
 async function parseRSS(url: string): Promise<{ title: string; link: string; content: string; pubDate: string }[]> {
-  try {
-    const response = await fetch(url, {
-      headers: { 'User-Agent': 'upday-news-bot/1.0' },
-    })
+  const response = await fetchWithRetry(url)
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-
-    const xml = await response.text()
-    const items: { title: string; link: string; content: string; pubDate: string }[] = []
-
-    // Simple XML parsing (works for most RSS feeds)
-    const itemMatches = xml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) || []
-
-    for (const itemXml of itemMatches.slice(0, 10)) {
-      const title = itemXml.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i)?.[1] || ''
-      const link = itemXml.match(/<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i)?.[1] || ''
-      const content = itemXml.match(/<(?:content:encoded|description)[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|description)>/i)?.[1] || ''
-      const pubDate = itemXml.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || ''
-
-      if (title && link) {
-        items.push({
-          title: cleanText(title),
-          link: cleanText(link),
-          content: cleanText(content),
-          pubDate: pubDate.trim(),
-        })
-      }
-    }
-
-    return items
-  } catch (error) {
-    console.error(`Failed to parse RSS from ${url}:`, error)
-    return []
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
   }
+
+  const xml = await response.text()
+  const items: { title: string; link: string; content: string; pubDate: string }[] = []
+
+  // Simple XML parsing (works for most RSS feeds)
+  const itemMatches = xml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) || []
+
+  for (const itemXml of itemMatches.slice(0, MAX_ARTICLES_PER_FEED)) {
+    const title = itemXml.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i)?.[1] || ''
+    const link = itemXml.match(/<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i)?.[1] || ''
+    const content = itemXml.match(/<(?:content:encoded|description)[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|description)>/i)?.[1] || ''
+    const pubDate = itemXml.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || ''
+
+    if (title && link) {
+      items.push({
+        title: cleanText(title),
+        link: cleanText(link),
+        content: cleanText(content),
+        pubDate: pubDate.trim(),
+      })
+    }
+  }
+
+  return items
 }
 
 /**
@@ -109,19 +198,20 @@ function generateSummary(body: string): string {
 }
 
 /**
- * Main ingestion function
+ * Process a single feed with error isolation
  */
-async function runIngestion(env: Env): Promise<{ processed: number; errors: string[] }> {
-  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
-  const errors: string[] = []
-  let processed = 0
+async function processFeed(
+  feed: { url: string; source: string; category: string },
+  supabase: ReturnType<typeof createClient>
+): Promise<FeedResult> {
+  const result: FeedResult = { source: feed.source, processed: 0, skipped: 0 }
 
-  for (const source of RSS_SOURCES) {
-    try {
-      const items = await parseRSS(source.url)
-      console.log(`Fetched ${items.length} items from ${source.source}`)
+  try {
+    const items = await parseRSS(feed.url)
+    console.log(`[FEED] ${feed.source}: Fetched ${items.length} items`)
 
-      for (const item of items) {
+    for (const item of items) {
+      try {
         // Check if already exists
         const { data: existing } = await supabase
           .from('news_items')
@@ -130,7 +220,8 @@ async function runIngestion(env: Env): Promise<{ processed: number; errors: stri
           .limit(1)
 
         if (existing && existing.length > 0) {
-          continue // Skip duplicates
+          result.skipped++
+          continue
         }
 
         const summary = generateSummary(item.content)
@@ -139,24 +230,82 @@ async function runIngestion(env: Env): Promise<{ processed: number; errors: stri
           title: item.title,
           summary: summary,
           body: item.content.substring(0, 5000),
-          category: source.category,
-          source: source.source,
+          category: feed.category,
+          source: feed.source,
           source_url: item.link,
           published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
         })
 
         if (error) {
-          errors.push(`Failed to insert: ${error.message}`)
+          console.error(`[ERROR] Insert failed for ${item.link}: ${error.message}`)
+          result.error = error.message
         } else {
-          processed++
+          result.processed++
         }
+      } catch (itemError) {
+        console.error(`[ERROR] Item processing failed: ${itemError instanceof Error ? itemError.message : 'Unknown'}`)
       }
-    } catch (error) {
-      errors.push(`Source ${source.source}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  } catch (feedError) {
+    const errorMsg = feedError instanceof Error ? feedError.message : 'Unknown error'
+    console.error(`[ERROR] Feed ${feed.source} failed: ${errorMsg}`)
+    result.error = errorMsg
+  }
+
+  return result
+}
+
+/**
+ * Main ingestion function with enhanced logging
+ */
+async function runIngestion(env: Env): Promise<{ stats: CrawlStats; feedResults: FeedResult[] }> {
+  const stats: CrawlStats = {
+    processed: 0,
+    skipped: 0,
+    errors: 0,
+    feedsProcessed: 0,
+    feedsFailed: 0,
+    startTime: Date.now(),
+  }
+
+  console.log(`[CRON] ========================================`)
+  console.log(`[CRON] Starting crawl at ${new Date().toISOString()}`)
+  console.log(`[CRON] Feeds to process: ${RSS_SOURCES.length}`)
+  console.log(`[CRON] ========================================`)
+
+  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
+  const feedResults: FeedResult[] = []
+
+  // Process feeds sequentially to avoid rate limiting
+  for (const feed of RSS_SOURCES) {
+    const result = await processFeed(feed, supabase)
+    feedResults.push(result)
+
+    stats.processed += result.processed
+    stats.skipped += result.skipped
+
+    if (result.error) {
+      stats.feedsFailed++
+      stats.errors++
+    } else {
+      stats.feedsProcessed++
     }
   }
 
-  return { processed, errors }
+  stats.endTime = Date.now()
+  const duration = stats.endTime - stats.startTime
+
+  console.log(`[CRON] ========================================`)
+  console.log(`[CRON] Crawl completed at ${new Date().toISOString()}`)
+  console.log(`[CRON] Duration: ${duration}ms (${(duration / 1000).toFixed(2)}s)`)
+  console.log(`[CRON] Feeds: ${stats.feedsProcessed}/${RSS_SOURCES.length} successful`)
+  console.log(`[CRON] Articles: ${stats.processed} new, ${stats.skipped} skipped`)
+  if (stats.errors > 0) {
+    console.log(`[CRON] Errors: ${stats.errors}`)
+  }
+  console.log(`[CRON] ========================================`)
+
+  return { stats, feedResults }
 }
 
 export default {
@@ -171,23 +320,45 @@ export default {
       })
     }
 
-    const result = await runIngestion(env)
+    console.log(`[HTTP] Manual trigger received at ${new Date().toISOString()}`)
 
-    return new Response(JSON.stringify(result), {
-      status: result.errors.length > 0 ? 207 : 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const { stats, feedResults } = await runIngestion(env)
+
+    return new Response(
+      JSON.stringify({
+        success: stats.errors === 0,
+        stats: {
+          processed: stats.processed,
+          skipped: stats.skipped,
+          errors: stats.errors,
+          feedsProcessed: stats.feedsProcessed,
+          feedsFailed: stats.feedsFailed,
+          durationMs: stats.endTime! - stats.startTime,
+        },
+        feeds: feedResults,
+      }),
+      {
+        status: stats.errors > 0 ? 207 : 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
   },
 
-  // Cron handler
+  // Cron handler with enhanced error handling
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    console.log(`[CRON] Scheduled event triggered: ${event.cron}`)
+
     ctx.waitUntil(
-      runIngestion(env).then(result => {
-        console.log(`Ingestion completed: ${result.processed} articles processed`)
-        if (result.errors.length > 0) {
-          console.error('Errors:', result.errors)
-        }
-      })
+      runIngestion(env)
+        .then(({ stats }) => {
+          if (stats.errors > 0) {
+            console.warn(`[CRON] Completed with ${stats.errors} errors`)
+          }
+        })
+        .catch((error) => {
+          console.error(`[CRON] Critical failure:`, error)
+          // Don't re-throw - let the worker complete gracefully
+        })
     )
   },
 }

@@ -6,7 +6,7 @@ compatibility_date = "2026-02-01"
 
 # Scheduled triggers for news ingestion
 [triggers]
-crons = ["0 */2 * * *"]  # Every 2 hours
+crons = ["0 */4 * * *"]  # Every 4 hours (6 times/day)
 
 # Environment variables (set via Cloudflare dashboard or wrangler secret)
 # Run: wrangler secret put SUPABASE_URL

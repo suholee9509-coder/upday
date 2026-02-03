@@ -17,7 +17,7 @@ export function FilterBar({
   className,
 }: FilterBarProps) {
   return (
-    <div
+    <nav
       className={cn(
         'sticky top-0 z-10 bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80',
         'border-b border-border px-4 py-3',
@@ -26,11 +26,15 @@ export function FilterBar({
         disabled && 'opacity-50 pointer-events-none',
         className
       )}
+      role="group"
+      aria-label="News category filters"
     >
       <Button
         variant={!currentCategory ? 'primary' : 'outline'}
         size="sm"
         onClick={() => onCategoryChange(null)}
+        aria-pressed={!currentCategory}
+        aria-label="Show all categories"
       >
         All
       </Button>
@@ -40,10 +44,12 @@ export function FilterBar({
           variant={currentCategory === cat.id ? 'primary' : 'outline'}
           size="sm"
           onClick={() => onCategoryChange(cat.id)}
+          aria-pressed={currentCategory === cat.id}
+          aria-label={`Filter by ${cat.label} news`}
         >
           {cat.label}
         </Button>
       ))}
-    </div>
+    </nav>
   )
 }

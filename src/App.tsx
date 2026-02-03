@@ -2,11 +2,17 @@ import './index.css'
 import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { SkipLink } from '@/components/SkipLink'
 
 // Code splitting - lazy load pages
 const LandingPage = lazy(() => import('@/pages/LandingPage').then(m => ({ default: m.LandingPage })))
 const TimelinePage = lazy(() => import('@/pages/TimelinePage').then(m => ({ default: m.TimelinePage })))
 const ComponentsPage = lazy(() => import('@/pages/ComponentsPage').then(m => ({ default: m.ComponentsPage })))
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
+const AboutPage = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })))
+const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then(m => ({ default: m.FeedbackPage })))
+const DiversityPage = lazy(() => import('@/pages/DiversityPage').then(m => ({ default: m.DiversityPage })))
+const EthicsPage = lazy(() => import('@/pages/EthicsPage').then(m => ({ default: m.EthicsPage })))
 
 // Prefetch timeline page when on landing page (improves navigation speed)
 function usePrefetchRoutes() {
@@ -42,6 +48,11 @@ function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/components" element={<ComponentsPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
+        <Route path="/diversity" element={<DiversityPage />} />
+        <Route path="/ethics" element={<EthicsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   )
@@ -51,6 +62,7 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <SkipLink />
         <AppRoutes />
       </BrowserRouter>
     </ErrorBoundary>

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useCallback } from 'react'
 import { NewsCard } from './NewsCard'
 import { DateSeparator } from './DateSeparator'
 import { NewsCardSkeleton } from './NewsCardSkeleton'
@@ -35,6 +36,41 @@ export function TimelineFeed({
   category,
   className,
 }: TimelineFeedProps) {
+  // Generate status message for screen readers
+  const getStatusMessage = () => {
+    if (error) return 'Error loading news. Please try again.'
+    if (loading && items.length === 0) return 'Loading news...'
+    if (loading) return 'Loading more news...'
+    if (items.length === 0) {
+      if (searchQuery) return `No results found for "${searchQuery}".`
+      if (category) return `No news in ${category} category.`
+      return 'No news available.'
+    }
+    return `${items.length} news items loaded.`
+  }
+
+  // Infinite scroll using IntersectionObserver
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadMoreRef = useCallback((node: HTMLDivElement | null) => {
+    sentinelRef.current = node
+  }, [])
+
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore || loading || !onLoadMore) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          onLoadMore()
+        }
+      },
+      { rootMargin: '200px' } // Load 200px before reaching the bottom
+    )
+
+    observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [hasMore, loading, onLoadMore])
+
   // Group items by date
   const groupedItems: { date: string; items: typeof items }[] = []
   items.forEach((item) => {
@@ -46,10 +82,23 @@ export function TimelineFeed({
     }
   })
 
+  // Live region for screen reader announcements
+  const liveRegion = (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className="sr-only"
+    >
+      {getStatusMessage()}
+    </div>
+  )
+
   // Error state
   if (error) {
     return (
       <div className={cn('max-w-2xl mx-auto', className)}>
+        {liveRegion}
         <EmptyState
           type="error"
           onRetry={onRetry}
@@ -62,6 +111,7 @@ export function TimelineFeed({
   if (loading && items.length === 0) {
     return (
       <div className={cn('max-w-2xl mx-auto', className)}>
+        {liveRegion}
         {[1, 2, 3, 4, 5].map((i) => (
           <NewsCardSkeleton key={i} />
         ))}
@@ -76,6 +126,7 @@ export function TimelineFeed({
 
     return (
       <div className={cn('max-w-2xl mx-auto', className)}>
+        {liveRegion}
         <EmptyState
           type={type}
           query={searchQuery}
@@ -88,6 +139,7 @@ export function TimelineFeed({
 
   return (
     <div className={cn('max-w-2xl mx-auto', className)}>
+      {liveRegion}
       {groupedItems.map((group) => (
         <div key={group.date}>
           <DateSeparator date={group.date} />
@@ -106,9 +158,9 @@ export function TimelineFeed({
         </div>
       )}
 
-      {/* Load more button */}
+      {/* Infinite scroll sentinel + Load more button fallback */}
       {hasMore && !loading && onLoadMore && (
-        <div className="p-6 text-center">
+        <div ref={loadMoreRef} className="p-6 text-center">
           <Button variant="outline" onClick={onLoadMore}>
             Load more
           </Button>

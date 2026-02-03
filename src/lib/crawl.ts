@@ -1,10 +1,13 @@
 /**
  * News Crawling Module
  * Fetches articles from RSS feeds and web sources
+ *
+ * Uses shared RSS configuration from rss-feeds.ts for source diversity
  */
 
 import Parser from 'rss-parser'
 import type { Category } from '@/types/news'
+import { RSS_SOURCES, FEED_CONFIG, type RSSSource } from './rss-feeds'
 
 // Custom parser with media extensions
 type CustomFeed = object
@@ -16,9 +19,9 @@ type CustomItem = {
 }
 
 const parser = new Parser<CustomFeed, CustomItem>({
-  timeout: 10000,
+  timeout: FEED_CONFIG.fetchTimeoutMs,
   headers: {
-    'User-Agent': 'upday-news-bot/1.0',
+    'User-Agent': FEED_CONFIG.userAgent,
   },
   customFields: {
     item: [
@@ -89,101 +92,8 @@ function extractImageUrl(item: CustomItem & Parser.Item): string | undefined {
   return undefined
 }
 
-interface RSSSource {
-  url: string
-  source: string
-  categories: Category[]
-}
-
-// RSS feed sources organized by category
-const RSS_SOURCES: RSSSource[] = [
-  // AI
-  {
-    url: 'https://techcrunch.com/category/artificial-intelligence/feed/',
-    source: 'TechCrunch',
-    categories: ['ai'],
-  },
-  {
-    url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
-    source: 'The Verge',
-    categories: ['ai'],
-  },
-  {
-    url: 'https://venturebeat.com/category/ai/feed/',
-    source: 'VentureBeat',
-    categories: ['ai'],
-  },
-
-  // Startup
-  {
-    url: 'https://techcrunch.com/category/startups/feed/',
-    source: 'TechCrunch',
-    categories: ['startup'],
-  },
-  {
-    url: 'https://www.theinformation.com/rss/all',
-    source: 'The Information',
-    categories: ['startup'],
-  },
-
-  // Science
-  {
-    url: 'https://feeds.arstechnica.com/arstechnica/science',
-    source: 'Ars Technica',
-    categories: ['science'],
-  },
-  {
-    url: 'https://www.sciencedaily.com/rss/all.xml',
-    source: 'Science Daily',
-    categories: ['science'],
-  },
-
-  // Design
-  {
-    url: 'https://feeds.feedburner.com/fastcompany/headlines',
-    source: 'Fast Company',
-    categories: ['design'],
-  },
-  {
-    url: 'https://www.dezeen.com/feed/',
-    source: 'Dezeen',
-    categories: ['design'],
-  },
-
-  // Space
-  {
-    url: 'https://spacenews.com/feed/',
-    source: 'SpaceNews',
-    categories: ['space'],
-  },
-  {
-    url: 'https://feeds.arstechnica.com/arstechnica/space',
-    source: 'Ars Technica',
-    categories: ['space'],
-  },
-  {
-    url: 'https://www.nasa.gov/feed/',
-    source: 'NASA',
-    categories: ['space'],
-  },
-
-  // Dev
-  {
-    url: 'https://dev.to/feed',
-    source: 'Dev.to',
-    categories: ['dev'],
-  },
-  {
-    url: 'https://news.ycombinator.com/rss',
-    source: 'Hacker News',
-    categories: ['dev'],
-  },
-  {
-    url: 'https://blog.github.com/feed.xml',
-    source: 'GitHub Blog',
-    categories: ['dev'],
-  },
-]
+// RSSSource type is imported from rss-feeds.ts
+// RSS_SOURCES is imported from rss-feeds.ts for shared configuration
 
 /**
  * Crawl a single RSS source
@@ -193,8 +103,7 @@ async function crawlSource(source: RSSSource): Promise<RawArticle[]> {
     const feed = await parser.parseURL(source.url)
     const articles: RawArticle[] = []
 
-    for (const item of feed.items.slice(0, 10)) {
-      // Latest 10 per source
+    for (const item of feed.items.slice(0, FEED_CONFIG.maxItemsPerFeed)) {
       if (!item.title || !item.link) continue
 
       // CRITICAL: Validate that link is an actual article URL

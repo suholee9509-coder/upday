@@ -13,6 +13,7 @@ import type { Category } from '@/types/news'
 export interface IngestionResult {
   crawled: number
   deduplicated: number
+  skipped: number // AI calls saved due to deduplication
   valid: number
   stored: number
   aiProcessed: number
@@ -188,6 +189,7 @@ export async function runIngestionPipeline(useAI: boolean = true): Promise<Inges
   const result: IngestionResult = {
     crawled: 0,
     deduplicated: 0,
+    skipped: 0, // AI calls saved
     valid: 0,
     stored: 0,
     aiProcessed: 0,
@@ -209,10 +211,12 @@ export async function runIngestionPipeline(useAI: boolean = true): Promise<Inges
       return result
     }
 
-    // Step 2: Deduplicate
+    // Step 2: Deduplicate (saves AI API calls for existing articles)
     const uniqueArticles = await deduplicateArticles(rawArticles)
     result.deduplicated = uniqueArticles.length
+    result.skipped = result.crawled - result.deduplicated // AI calls saved
     console.log(`${result.deduplicated} unique articles after deduplication`)
+    console.log(`${result.skipped} articles skipped (AI calls saved)`)
 
     if (uniqueArticles.length === 0) {
       console.log('No new unique articles to process')

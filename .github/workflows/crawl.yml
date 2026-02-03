@@ -1,12 +1,13 @@
-name: Scheduled RSS Crawl
+name: Backup RSS Crawl
+
+# Primary crawling is handled by Cloudflare Workers (every 4 hours)
+# This workflow serves as a backup and manual trigger option
 
 on:
   schedule:
-    # 6:00 AM ET (11:00 UTC during EST, 10:00 UTC during EDT)
+    # Once daily at 6:00 AM ET as backup (in case Workers fail)
     - cron: '0 11 * * *'
-    # 6:00 PM ET (23:00 UTC during EST, 22:00 UTC during EDT)
-    - cron: '0 23 * * *'
-  workflow_dispatch: # 수동 실행 가능
+  workflow_dispatch: # Manual trigger available
 
 jobs:
   crawl:
@@ -32,4 +33,8 @@ jobs:
         run: npx tsx scripts/crawl.ts
 
       - name: Log completion
-        run: echo "Crawl completed at $(date)"
+        run: |
+          echo "=========================================="
+          echo "Backup crawl completed at $(date)"
+          echo "Primary crawling: Cloudflare Workers (every 4h)"
+          echo "=========================================="

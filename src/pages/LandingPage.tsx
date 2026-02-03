@@ -1,10 +1,12 @@
 import { ArrowRight, Clock, Search, Filter, Sparkles } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button, Card } from '@/components/ui'
 import { NewsCard } from '@/components/news'
 import { SEO } from '@/components/SEO'
 import { mockNews } from '@/lib/mock-data'
 
 export function LandingPage() {
+  const navigate = useNavigate()
   // Get 3 preview items
   const previewItems = mockNews.slice(0, 3)
 
@@ -29,11 +31,11 @@ export function LandingPage() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="text-base px-8" onClick={() => window.location.href = '/timeline'}>
+          <Button size="lg" className="text-base px-8" onClick={() => navigate('/timeline')}>
             Go to Timeline
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <Button variant="outline" size="lg" className="text-base px-8" onClick={() => window.location.href = '/components'}>
+          <Button variant="outline" size="lg" className="text-base px-8" onClick={() => navigate('/components')}>
             View Components
           </Button>
         </div>
@@ -75,13 +77,13 @@ export function LandingPage() {
               <NewsCard key={item.id} item={item} />
             ))}
             <div className="p-4 text-center border-t border-border bg-muted/30">
-              <a
-                href="/timeline"
+              <Link
+                to="/timeline"
                 className="text-primary hover:underline font-medium inline-flex items-center gap-1"
               >
                 View full timeline
                 <ArrowRight className="h-4 w-4" />
-              </a>
+              </Link>
             </div>
           </Card>
         </div>
@@ -118,7 +120,7 @@ export function LandingPage() {
           <p className="text-muted-foreground mb-8">
             Join thousands of professionals who scan upday every morning.
           </p>
-          <Button size="lg" className="text-base px-8" onClick={() => window.location.href = '/timeline'}>
+          <Button size="lg" className="text-base px-8" onClick={() => navigate('/timeline')}>
             Start scanning
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>

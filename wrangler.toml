@@ -15,9 +15,9 @@ not_found_handling = "single-page-application"
 # CRON_SECRET = "..."
 
 # Scheduled triggers for news ingestion
-# Uncomment when ready to enable automatic ingestion
-# [triggers]
-# crons = ["0 */2 * * *"]  # Every 2 hours
+# Main cron is handled by upday-ingest worker (see wrangler-ingest.toml)
+# Deploy with: wrangler deploy -c wrangler-ingest.toml
+# Current schedule: Every 4 hours (0 */4 * * *)
 
 # Ingestion worker (separate worker for cron jobs)
 # Deploy separately: wrangler deploy -c wrangler-ingest.toml

@@ -1,10 +1,50 @@
 /**
  * Deduplication Module
  * Removes duplicate articles based on URL and title similarity
+ * Prevents unnecessary AI processing for existing articles (cost optimization)
  */
 
 import { supabase } from './db'
 import type { RawArticle } from './crawl'
+
+export interface DedupeStats {
+  input: number
+  afterUrlFilter: number
+  afterTitleFilter: number
+  urlDuplicates: number
+  titleDuplicates: number
+  aiCallsSaved: number
+}
+
+/**
+ * Normalize URL by removing tracking parameters and fragments
+ */
+function normalizeUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+
+    // Remove common tracking parameters
+    const trackingParams = [
+      'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+      'ref', 'source', 'fbclid', 'gclid', 'mc_cid', 'mc_eid'
+    ]
+    trackingParams.forEach(param => parsed.searchParams.delete(param))
+
+    // Remove fragment
+    parsed.hash = ''
+
+    // Normalize trailing slash
+    let normalizedPath = parsed.pathname
+    if (normalizedPath.length > 1 && normalizedPath.endsWith('/')) {
+      normalizedPath = normalizedPath.slice(0, -1)
+    }
+    parsed.pathname = normalizedPath
+
+    return parsed.toString()
+  } catch {
+    return url // Return original if parsing fails
+  }
+}
 
 /**
  * Calculate Jaccard similarity between two strings (word-based)
@@ -73,38 +113,63 @@ const TITLE_SIMILARITY_THRESHOLD = 0.75
 
 /**
  * Remove articles that already exist in the database (by URL)
+ * Uses normalized URLs for comparison
  */
-async function filterExistingUrls(articles: RawArticle[]): Promise<RawArticle[]> {
-  if (!supabase || articles.length === 0) return articles
+async function filterExistingUrls(articles: RawArticle[]): Promise<{ filtered: RawArticle[]; duplicateCount: number }> {
+  if (!supabase || articles.length === 0) {
+    return { filtered: articles, duplicateCount: 0 }
+  }
 
-  const urls = articles.map(a => a.sourceUrl)
+  // Normalize URLs for both query and comparison
+  const urlMap = new Map<string, RawArticle>()
+  for (const article of articles) {
+    const normalized = normalizeUrl(article.sourceUrl)
+    // Keep the first occurrence of each normalized URL
+    if (!urlMap.has(normalized)) {
+      urlMap.set(normalized, article)
+    }
+  }
+
+  const normalizedUrls = Array.from(urlMap.keys())
+  const originalUrls = articles.map(a => a.sourceUrl)
 
   // Query in batches to avoid URL length limits
   const batchSize = 50
   const existingUrls = new Set<string>()
 
-  for (let i = 0; i < urls.length; i += batchSize) {
-    const batch = urls.slice(i, i + batchSize)
+  // Check both normalized and original URLs
+  const allUrlsToCheck = [...new Set([...normalizedUrls, ...originalUrls])]
+
+  for (let i = 0; i < allUrlsToCheck.length; i += batchSize) {
+    const batch = allUrlsToCheck.slice(i, i + batchSize)
     const { data } = await supabase
       .from('news_items')
       .select('source_url')
       .in('source_url', batch)
 
     if (data) {
-      data.forEach(row => existingUrls.add(row.source_url))
+      data.forEach(row => {
+        existingUrls.add(row.source_url)
+        existingUrls.add(normalizeUrl(row.source_url))
+      })
     }
   }
 
-  const filtered = articles.filter(a => !existingUrls.has(a.sourceUrl))
-  console.log(`Filtered ${articles.length - filtered.length} articles by existing URL`)
+  const filtered = articles.filter(a => {
+    const normalized = normalizeUrl(a.sourceUrl)
+    return !existingUrls.has(a.sourceUrl) && !existingUrls.has(normalized)
+  })
 
-  return filtered
+  const duplicateCount = articles.length - filtered.length
+  console.log(`[DEDUPE] URL filter: ${duplicateCount} duplicates found (${filtered.length} remaining)`)
+
+  return { filtered, duplicateCount }
 }
 
 /**
  * Remove articles with similar titles within the batch
  */
-function filterSimilarTitles(articles: RawArticle[]): RawArticle[] {
+function filterSimilarTitles(articles: RawArticle[]): { filtered: RawArticle[]; duplicateCount: number } {
   const unique: RawArticle[] = []
 
   for (const article of articles) {
@@ -117,29 +182,74 @@ function filterSimilarTitles(articles: RawArticle[]): RawArticle[] {
     }
   }
 
-  console.log(`Filtered ${articles.length - unique.length} articles by title similarity`)
-  return unique
+  const duplicateCount = articles.length - unique.length
+  console.log(`[DEDUPE] Title filter: ${duplicateCount} similar titles found (${unique.length} remaining)`)
+
+  return { filtered: unique, duplicateCount }
 }
 
 /**
  * Main deduplication function
  * 1. Remove articles with URLs already in database
  * 2. Remove articles with similar titles within the batch
+ *
+ * Returns unique articles and stats (AI calls saved = total duplicates)
  */
 export async function deduplicateArticles(articles: RawArticle[]): Promise<RawArticle[]> {
   if (articles.length === 0) return []
 
   // Step 1: Filter by existing URLs in database
-  const afterUrlFilter = await filterExistingUrls(articles)
+  const { filtered: afterUrlFilter, duplicateCount: urlDupes } = await filterExistingUrls(articles)
 
   // Step 2: Filter by title similarity within the batch
-  const afterTitleFilter = filterSimilarTitles(afterUrlFilter)
+  const { filtered: afterTitleFilter, duplicateCount: titleDupes } = filterSimilarTitles(afterUrlFilter)
 
-  console.log(
-    `Deduplication: ${articles.length} → ${afterTitleFilter.length} articles`
-  )
+  const stats: DedupeStats = {
+    input: articles.length,
+    afterUrlFilter: afterUrlFilter.length,
+    afterTitleFilter: afterTitleFilter.length,
+    urlDuplicates: urlDupes,
+    titleDuplicates: titleDupes,
+    aiCallsSaved: urlDupes + titleDupes,
+  }
+
+  console.log(`[DEDUPE] ========================================`)
+  console.log(`[DEDUPE] Input articles: ${stats.input}`)
+  console.log(`[DEDUPE] URL duplicates skipped: ${stats.urlDuplicates}`)
+  console.log(`[DEDUPE] Title duplicates skipped: ${stats.titleDuplicates}`)
+  console.log(`[DEDUPE] Final unique articles: ${stats.afterTitleFilter}`)
+  console.log(`[DEDUPE] AI API calls saved: ${stats.aiCallsSaved}`)
+  console.log(`[DEDUPE] ========================================`)
 
   return afterTitleFilter
+}
+
+/**
+ * Get deduplication stats without filtering (for monitoring)
+ */
+export async function getDedupeStats(articles: RawArticle[]): Promise<DedupeStats> {
+  if (articles.length === 0) {
+    return {
+      input: 0,
+      afterUrlFilter: 0,
+      afterTitleFilter: 0,
+      urlDuplicates: 0,
+      titleDuplicates: 0,
+      aiCallsSaved: 0,
+    }
+  }
+
+  const { filtered: afterUrlFilter, duplicateCount: urlDupes } = await filterExistingUrls(articles)
+  const { filtered: afterTitleFilter, duplicateCount: titleDupes } = filterSimilarTitles(afterUrlFilter)
+
+  return {
+    input: articles.length,
+    afterUrlFilter: afterUrlFilter.length,
+    afterTitleFilter: afterTitleFilter.length,
+    urlDuplicates: urlDupes,
+    titleDuplicates: titleDupes,
+    aiCallsSaved: urlDupes + titleDupes,
+  }
 }
 
 /**
