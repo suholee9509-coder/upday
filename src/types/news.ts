@@ -1,4 +1,13 @@
-export type Category = 'ai' | 'startup' | 'science' | 'design' | 'space' | 'dev'
+export type Category = 'ai' | 'startups' | 'dev' | 'product' | 'research'
+
+export type CompanyGroup = 'ai-llm' | 'developer-tools' | 'productivity-saas' | 'commerce-platform'
+
+export interface Company {
+  id: string              // slug (e.g., "openai")
+  name: string            // display name (e.g., "OpenAI")
+  logoUrl?: string        // company logo
+  group: CompanyGroup     // for browser categorization
+}
 
 export interface NewsItem {
   id: string
@@ -6,18 +15,20 @@ export interface NewsItem {
   summary: string
   body: string
   category: Category
+  companies?: string[]    // associated company slugs (e.g., ["openai", "microsoft"])
   source: string
   sourceUrl: string
-  imageUrl?: string // og:image or RSS enclosure
-  publishedAt: string // ISO 8601, UTC
+  imageUrl?: string       // og:image or RSS enclosure
+  publishedAt: string     // ISO 8601, UTC
   createdAt: string
 }
 
 export interface NewsQueryParams {
-  limit?: number // default 20
-  cursor?: string // publishedAt of last item
+  limit?: number    // default 20
+  cursor?: string   // publishedAt of last item
   category?: Category
-  q?: string // search query
+  company?: string  // company slug filter
+  q?: string        // search query
 }
 
 export interface NewsResponse {

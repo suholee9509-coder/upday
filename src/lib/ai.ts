@@ -42,14 +42,13 @@ Generate a 2-3 line summary (100-250 characters):`
 const CLASSIFY_SYSTEM_PROMPT = `You are a news classifier. Classify articles into exactly ONE category based on the primary topic.
 
 Categories:
-- ai: Artificial intelligence, machine learning, LLMs, neural networks, chatbots
-- startup: Startups, funding rounds, acquisitions, IPOs, entrepreneurship
-- science: Scientific research, medical breakthroughs, biology, physics, chemistry
-- design: Product design, UX/UI, visual design, creative tools, design systems
-- space: Space exploration, aerospace, satellites, astronomy, rockets
-- dev: Software development, programming, open source, infrastructure, DevOps
+- ai: Artificial intelligence, machine learning, LLMs, neural networks, chatbots, generative AI
+- startups: Startups, funding rounds, acquisitions, IPOs, entrepreneurship, unicorns
+- dev: Software development, programming, open source, infrastructure, DevOps, cloud
+- product: Product launches, UX/UI, design, product strategy, creative tools
+- research: Scientific research, medical breakthroughs, space exploration, aerospace, biology, physics
 
-Respond with ONLY the category ID (ai, startup, science, design, space, or dev).`
+Respond with ONLY the category ID (ai, startups, dev, product, or research).`
 
 const CLASSIFY_USER_PROMPT = `Classify this article:
 
