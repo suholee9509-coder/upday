@@ -11,7 +11,7 @@ export const config = {
   siteUrl: process.env.SITE_URL || 'https://updayapp.com',
 
   // RSS Feed URL
-  rssFeedUrl: process.env.RSS_FEED_URL || 'https://updayapp.com/feed.xml',
+  rssFeedUrl: process.env.RSS_FEED_URL || 'https://upday-feed.suholee9509-98c.workers.dev',
 
   // Telegram Bot credentials (from environment)
   telegram: {

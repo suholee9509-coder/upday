@@ -100,8 +100,14 @@ async function main(): Promise<void> {
     itemsToPost.push(item)
   }
 
-  // Sort by date (oldest first) and limit
-  itemsToPost.sort((a, b) => a.pubDate.getTime() - b.pubDate.getTime())
+  // Sort by priority source first, then by date (oldest first)
+  const prioritySources = config.prioritySources || []
+  itemsToPost.sort((a, b) => {
+    const aPriority = prioritySources.includes(a.source) ? 0 : 1
+    const bPriority = prioritySources.includes(b.source) ? 0 : 1
+    if (aPriority !== bPriority) return aPriority - bPriority
+    return a.pubDate.getTime() - b.pubDate.getTime()
+  })
   const limitedItems = itemsToPost.slice(0, config.posting.maxPostsPerRun)
 
   console.log(`\nFound ${itemsToPost.length} new items, will post ${limitedItems.length}`)

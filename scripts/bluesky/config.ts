@@ -11,7 +11,7 @@ export const config = {
   siteUrl: process.env.SITE_URL || 'https://updayapp.com',
 
   // RSS Feed URL
-  rssFeedUrl: process.env.RSS_FEED_URL || 'https://updayapp.com/feed.xml',
+  rssFeedUrl: process.env.RSS_FEED_URL || 'https://upday-feed.suholee9509-98c.workers.dev',
 
   // Bluesky credentials (from environment)
   bluesky: {
@@ -57,6 +57,20 @@ export const config = {
 
   // Base hashtags (global tech community)
   baseHashtags: ['#Tech', '#TechNews'],
+
+  // Priority sources (these get posted first)
+  prioritySources: [
+    'TechCrunch',
+    'The Verge',
+    'Wired',
+    'MIT Technology Review',
+    'Ars Technica',
+    'VentureBeat',
+    'Vercel Blog',
+    'Google AI Blog',
+    'Microsoft Blog',
+    'OpenAI Blog',
+  ],
 
   // State file for tracking last posted article
   stateFilePath: process.env.STATE_FILE_PATH || '/tmp/bluesky-auto-post-state.json',

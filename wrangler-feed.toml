@@ -1,0 +1,12 @@
+# Cloudflare Workers Configuration for Dynamic RSS Feed
+
+name = "upday-feed"
+main = "workers/feed.ts"
+compatibility_date = "2026-02-01"
+
+# Environment variables (set via Cloudflare dashboard or wrangler secret)
+# Run: wrangler secret put SUPABASE_URL -c wrangler-feed.toml
+# Run: wrangler secret put SUPABASE_ANON_KEY -c wrangler-feed.toml
+
+[vars]
+# Non-sensitive variables can go here

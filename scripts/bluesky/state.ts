@@ -118,8 +118,8 @@ export function getFilterDate(state: PostState): Date | null {
   if (state.lastPostedTime) {
     return new Date(state.lastPostedTime)
   }
-  // First run: only post articles from the last hour
-  const oneHourAgo = new Date()
-  oneHourAgo.setHours(oneHourAgo.getHours() - 1)
-  return oneHourAgo
+  // First run: post articles from the last 4 hours (matches crawl cycle)
+  const fourHoursAgo = new Date()
+  fourHoursAgo.setHours(fourHoursAgo.getHours() - 4)
+  return fourHoursAgo
 }
