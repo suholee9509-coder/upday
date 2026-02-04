@@ -45,7 +45,7 @@ export function FilterBar({
       aria-label="News filters"
     >
       {/* Category filters - scrollable on mobile */}
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 min-w-0">
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 min-w-0 py-0.5 -my-0.5">
         <Link
           to="/timeline"
           className={cn(chipBase, !currentCategory ? chipActive : chipInactive)}
