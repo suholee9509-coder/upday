@@ -283,10 +283,14 @@ async function parseRSS(url: string): Promise<RSSItem[]> {
     // Parse content - try multiple content tags (keep raw for image extraction)
     const rawContent = itemXml.match(/<(?:content:encoded|content|description|summary)[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|content|description|summary)>/i)?.[1] || ''
 
-    // Parse date - RSS uses pubDate, Atom uses published or updated
+    // Parse date - RSS uses pubDate, Atom uses published or updated, Dublin Core uses dc:date
     let pubDate = itemXml.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || ''
     if (!pubDate) {
       pubDate = itemXml.match(/<(?:published|updated)[^>]*>([\s\S]*?)<\/(?:published|updated)>/i)?.[1] || ''
+    }
+    if (!pubDate) {
+      // Dublin Core date format (used by A List Apart, etc.)
+      pubDate = itemXml.match(/<dc:date[^>]*>([\s\S]*?)<\/dc:date>/i)?.[1] || ''
     }
 
     // Extract image URL before cleaning content

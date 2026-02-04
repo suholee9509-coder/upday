@@ -18,6 +18,8 @@
     "backfill:images:dry": "tsx scripts/backfill-images.ts --dry-run",
     "backfill:titles": "tsx scripts/backfill-titles.ts",
     "backfill:titles:dry": "tsx scripts/backfill-titles.ts --dry-run",
+    "backfill:dates": "tsx scripts/backfill-dates.ts",
+    "backfill:dates:dry": "tsx scripts/backfill-dates.ts --dry-run",
     "twitter:post": "tsx scripts/twitter/auto-post.ts",
     "twitter:dry-run": "DRY_RUN=true tsx scripts/twitter/auto-post.ts",
     "bluesky:post": "tsx scripts/bluesky/auto-post.ts",
