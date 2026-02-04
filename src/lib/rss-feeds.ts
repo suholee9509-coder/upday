@@ -157,7 +157,7 @@ export const RSS_SOURCES: RSSSource[] = [
   },
 
   // ============================================
-  // Product - 6 sources (formerly Design)
+  // Product (UX/Product Strategy) - 6 sources
   // ============================================
   {
     url: 'https://feeds.feedburner.com/fastcompany/headlines',
@@ -167,18 +167,18 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 4,
   },
   {
-    url: 'https://www.dezeen.com/feed/',
-    source: 'Dezeen',
+    url: 'https://uxdesign.cc/feed',
+    source: 'UX Collective',
     categories: ['product'],
-    region: 'eu',
+    region: 'global',
     priority: 5,
   },
   {
-    url: 'https://www.designboom.com/feed/',
-    source: 'Designboom',
+    url: 'https://uxplanet.org/feed',
+    source: 'UX Planet',
     categories: ['product'],
     region: 'global',
-    priority: 3,
+    priority: 4,
   },
   {
     url: 'https://www.creativebloq.com/feed',

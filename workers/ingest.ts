@@ -62,10 +62,10 @@ const RSS_SOURCES = [
   { url: 'https://www.technologyreview.com/feed/', source: 'MIT Technology Review', category: 'research' },
   { url: 'https://www.wired.com/feed/rss', source: 'Wired', category: 'research' },
 
-  // Product (Design) - 6 sources
+  // Product (UX/Product Strategy) - 6 sources
   { url: 'https://feeds.feedburner.com/fastcompany/headlines', source: 'Fast Company', category: 'product' },
-  { url: 'https://www.dezeen.com/feed/', source: 'Dezeen', category: 'product' },
-  { url: 'https://www.designboom.com/feed/', source: 'Designboom', category: 'product' },
+  { url: 'https://uxdesign.cc/feed', source: 'UX Collective', category: 'product' },
+  { url: 'https://uxplanet.org/feed', source: 'UX Planet', category: 'product' },
   { url: 'https://www.creativebloq.com/feed', source: 'Creative Bloq', category: 'product' },
   { url: 'https://alistapart.com/main/feed/', source: 'A List Apart', category: 'product' },
   { url: 'https://smashingmagazine.com/feed', source: 'Smashing Magazine', category: 'product' },
@@ -344,6 +344,27 @@ function generateSummary(body: string): string {
 }
 
 /**
+ * Check if content is primarily English (filter out CJK, Cyrillic, Arabic, etc.)
+ */
+function isEnglishContent(text: string): boolean {
+  // CJK (Chinese, Japanese, Korean), Cyrillic, Arabic, Thai, Hebrew ranges
+  const nonLatinRegex = /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff\u0e00-\u0e7f\u0590-\u05ff]/
+
+  // If title contains significant non-Latin characters, skip it
+  const nonLatinMatches = text.match(nonLatinRegex)
+  if (nonLatinMatches && nonLatinMatches.length > 0) {
+    // Count non-Latin characters
+    const nonLatinCount = (text.match(new RegExp(nonLatinRegex.source, 'g')) || []).length
+    // If more than 10% of characters are non-Latin, consider it non-English
+    if (nonLatinCount > text.length * 0.1) {
+      return false
+    }
+  }
+
+  return true
+}
+
+/**
  * Process a single feed with error isolation
  */
 async function processFeed(
@@ -366,6 +387,13 @@ async function processFeed(
           .limit(1)
 
         if (existing && existing.length > 0) {
+          result.skipped++
+          continue
+        }
+
+        // Skip non-English content
+        if (!isEnglishContent(item.title)) {
+          console.log(`[SKIP] Non-English: ${item.title.substring(0, 50)}...`)
           result.skipped++
           continue
         }
