@@ -365,6 +365,46 @@ function isEnglishContent(text: string): boolean {
 }
 
 /**
+ * Fetch og:image from article page when RSS doesn't provide image
+ */
+async function fetchOgImage(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'upday-crawler/1.0' },
+      signal: controller.signal,
+    })
+    clearTimeout(timeout)
+
+    if (!response.ok) return null
+
+    const html = await response.text()
+
+    // Try og:image first
+    const ogImage = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["'][^>]*\/?>/i)?.[1]
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["'][^>]*\/?>/i)?.[1]
+
+    if (ogImage && ogImage.startsWith('http')) {
+      return ogImage
+    }
+
+    // Try twitter:image
+    const twitterImage = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["'][^>]*\/?>/i)?.[1]
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["'][^>]*\/?>/i)?.[1]
+
+    if (twitterImage && twitterImage.startsWith('http')) {
+      return twitterImage
+    }
+
+    return null
+  } catch {
+    return null // Silently fail - image is optional
+  }
+}
+
+/**
  * Process a single feed with error isolation
  */
 async function processFeed(
@@ -403,6 +443,12 @@ async function processFeed(
         // Extract companies using keyword matching
         const companies = extractCompanies(item.title, summary)
 
+        // Fetch og:image if RSS doesn't provide image
+        let imageUrl = item.imageUrl
+        if (!imageUrl) {
+          imageUrl = await fetchOgImage(item.link)
+        }
+
         const { error } = await supabase.from('news_items').insert({
           title: item.title,
           summary: summary,
@@ -411,7 +457,7 @@ async function processFeed(
           companies: companies,
           source: feed.source,
           source_url: item.link,
-          image_url: item.imageUrl,
+          image_url: imageUrl,
           published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
         })
 
