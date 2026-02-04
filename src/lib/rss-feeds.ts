@@ -181,11 +181,11 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 3,
   },
   {
-    url: 'https://feeds.feedburner.com/core77/blog',
-    source: 'Core77',
+    url: 'https://www.creativebloq.com/feed',
+    source: 'Creative Bloq',
     categories: ['product'],
-    region: 'us',
-    priority: 3,
+    region: 'global',
+    priority: 4,
   },
   {
     url: 'https://alistapart.com/main/feed/',

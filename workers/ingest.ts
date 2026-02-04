@@ -66,7 +66,7 @@ const RSS_SOURCES = [
   { url: 'https://feeds.feedburner.com/fastcompany/headlines', source: 'Fast Company', category: 'product' },
   { url: 'https://www.dezeen.com/feed/', source: 'Dezeen', category: 'product' },
   { url: 'https://www.designboom.com/feed/', source: 'Designboom', category: 'product' },
-  { url: 'https://feeds.feedburner.com/core77/blog', source: 'Core77', category: 'product' },
+  { url: 'https://www.creativebloq.com/feed', source: 'Creative Bloq', category: 'product' },
   { url: 'https://alistapart.com/main/feed/', source: 'A List Apart', category: 'product' },
   { url: 'https://smashingmagazine.com/feed', source: 'Smashing Magazine', category: 'product' },
 
