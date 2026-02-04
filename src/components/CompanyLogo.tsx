@@ -1,3 +1,5 @@
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 interface CompanyLogoProps {
@@ -42,6 +44,19 @@ const AVAILABLE_LOGOS = [
   'xai',
 ]
 
+// Companies that have dark mode variants
+const DARK_MODE_LOGOS = [
+  'amazon',
+  'anthropic',
+  'apple',
+  'github',
+  'linear',
+  'notion',
+  'openai',
+  'vercel',
+  'xai',
+]
+
 // Fallback component for companies without logos
 function FallbackLogo({ name, className }: { name: string; className?: string }) {
   return (
@@ -52,16 +67,29 @@ function FallbackLogo({ name, className }: { name: string; className?: string })
 }
 
 export function CompanyLogo({ companyId, className, size = 'md' }: CompanyLogoProps) {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const sizeClass = sizeClasses[size]
   const hasLogo = AVAILABLE_LOGOS.includes(companyId)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   if (!hasLogo) {
     return <FallbackLogo name={companyId} className={cn(sizeClass, className)} />
   }
 
+  // Use dark variant if available and in dark mode
+  const isDark = mounted && resolvedTheme === 'dark'
+  const hasDarkVariant = DARK_MODE_LOGOS.includes(companyId)
+  const logoPath = isDark && hasDarkVariant
+    ? `/logos/${companyId}-dark.svg`
+    : `/logos/${companyId}.svg`
+
   return (
     <img
-      src={`/logos/${companyId}.svg`}
+      src={logoPath}
       alt={`${companyId} logo`}
       className={cn(sizeClass, 'object-contain', className)}
     />
