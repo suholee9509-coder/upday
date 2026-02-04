@@ -14,6 +14,8 @@
     "monitor": "tsx scripts/monitor.ts",
     "backfill:companies": "tsx scripts/backfill-companies.ts",
     "backfill:companies:dry": "tsx scripts/backfill-companies.ts --dry-run",
+    "backfill:images": "tsx scripts/backfill-images.ts",
+    "backfill:images:dry": "tsx scripts/backfill-images.ts --dry-run",
     "twitter:post": "tsx scripts/twitter/auto-post.ts",
     "twitter:dry-run": "DRY_RUN=true tsx scripts/twitter/auto-post.ts"
   },

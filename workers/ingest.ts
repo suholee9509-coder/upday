@@ -49,32 +49,32 @@ const RSS_SOURCES = [
   { url: 'https://www.engadget.com/rss.xml', source: 'Engadget', category: 'ai' },
   { url: 'https://gizmodo.com/rss', source: 'Gizmodo', category: 'ai' },
 
-  // Startup - 4 sources
-  { url: 'https://techcrunch.com/category/startups/feed/', source: 'TechCrunch', category: 'startup' },
-  { url: 'https://news.crunchbase.com/feed/', source: 'Crunchbase News', category: 'startup' },
-  { url: 'https://restofworld.org/feed/latest/', source: 'Rest of World', category: 'startup' },
-  { url: 'https://thenextweb.com/feed', source: 'The Next Web', category: 'startup' },
+  // Startups - 4 sources
+  { url: 'https://techcrunch.com/category/startups/feed/', source: 'TechCrunch', category: 'startups' },
+  { url: 'https://news.crunchbase.com/feed/', source: 'Crunchbase News', category: 'startups' },
+  { url: 'https://restofworld.org/feed/latest/', source: 'Rest of World', category: 'startups' },
+  { url: 'https://thenextweb.com/feed', source: 'The Next Web', category: 'startups' },
 
-  // Science - 5 sources
-  { url: 'https://feeds.arstechnica.com/arstechnica/science', source: 'Ars Technica', category: 'science' },
-  { url: 'https://www.sciencedaily.com/rss/all.xml', source: 'Science Daily', category: 'science' },
-  { url: 'https://phys.org/rss-feed/', source: 'Phys.org', category: 'science' },
-  { url: 'https://www.technologyreview.com/feed/', source: 'MIT Technology Review', category: 'science' },
-  { url: 'https://www.wired.com/feed/rss', source: 'Wired', category: 'science' },
+  // Research (Science) - 5 sources
+  { url: 'https://feeds.arstechnica.com/arstechnica/science', source: 'Ars Technica', category: 'research' },
+  { url: 'https://www.sciencedaily.com/rss/all.xml', source: 'Science Daily', category: 'research' },
+  { url: 'https://phys.org/rss-feed/', source: 'Phys.org', category: 'research' },
+  { url: 'https://www.technologyreview.com/feed/', source: 'MIT Technology Review', category: 'research' },
+  { url: 'https://www.wired.com/feed/rss', source: 'Wired', category: 'research' },
 
-  // Design - 6 sources
-  { url: 'https://feeds.feedburner.com/fastcompany/headlines', source: 'Fast Company', category: 'design' },
-  { url: 'https://www.dezeen.com/feed/', source: 'Dezeen', category: 'design' },
-  { url: 'https://www.designboom.com/feed/', source: 'Designboom', category: 'design' },
-  { url: 'https://feeds.feedburner.com/core77/blog', source: 'Core77', category: 'design' },
-  { url: 'https://alistapart.com/main/feed/', source: 'A List Apart', category: 'design' },
-  { url: 'https://smashingmagazine.com/feed', source: 'Smashing Magazine', category: 'design' },
+  // Product (Design) - 6 sources
+  { url: 'https://feeds.feedburner.com/fastcompany/headlines', source: 'Fast Company', category: 'product' },
+  { url: 'https://www.dezeen.com/feed/', source: 'Dezeen', category: 'product' },
+  { url: 'https://www.designboom.com/feed/', source: 'Designboom', category: 'product' },
+  { url: 'https://feeds.feedburner.com/core77/blog', source: 'Core77', category: 'product' },
+  { url: 'https://alistapart.com/main/feed/', source: 'A List Apart', category: 'product' },
+  { url: 'https://smashingmagazine.com/feed', source: 'Smashing Magazine', category: 'product' },
 
-  // Space - 4 sources
-  { url: 'https://spacenews.com/feed/', source: 'SpaceNews', category: 'space' },
-  { url: 'https://feeds.arstechnica.com/arstechnica/space', source: 'Ars Technica', category: 'space' },
-  { url: 'https://www.nasa.gov/feed/', source: 'NASA', category: 'space' },
-  { url: 'https://www.space.com/feeds/all', source: 'Space.com', category: 'space' },
+  // Research (Space) - 4 sources
+  { url: 'https://spacenews.com/feed/', source: 'SpaceNews', category: 'research' },
+  { url: 'https://feeds.arstechnica.com/arstechnica/space', source: 'Ars Technica', category: 'research' },
+  { url: 'https://www.nasa.gov/feed/', source: 'NASA', category: 'research' },
+  { url: 'https://www.space.com/feeds/all', source: 'Space.com', category: 'research' },
 
   // Dev - 10 sources
   { url: 'https://dev.to/feed', source: 'Dev.to', category: 'dev' },
@@ -94,7 +94,7 @@ const RSS_SOURCES = [
   { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', source: 'NY Times Tech', category: 'ai' },
   { url: 'https://www.theguardian.com/technology/rss', source: 'The Guardian Tech', category: 'ai' },
   { url: 'https://www.cnet.com/rss/news/', source: 'CNET', category: 'ai' },
-  { url: 'https://mashable.com/feeds/rss/all', source: 'Mashable', category: 'startup' },
+  { url: 'https://mashable.com/feeds/rss/all', source: 'Mashable', category: 'startups' },
   { url: 'https://www.techradar.com/rss', source: 'TechRadar', category: 'dev' },
   { url: 'https://arstechnica.com/feed/', source: 'Ars Technica', category: 'ai' },
 
@@ -210,11 +210,47 @@ async function fetchWithRetry(url: string, maxRetries: number = MAX_RETRIES): Pr
   throw lastError || new Error('Max retries exceeded')
 }
 
+interface RSSItem {
+  title: string
+  link: string
+  content: string
+  pubDate: string
+  imageUrl: string | null
+}
+
+/**
+ * Extract image URL from RSS item XML
+ * Tries multiple sources: enclosure, media:content, media:thumbnail, img in content
+ */
+function extractImageUrl(itemXml: string, rawContent: string): string | null {
+  // 1. RSS <enclosure> tag with image type
+  const enclosure = itemXml.match(/<enclosure[^>]*url=["']([^"']+)["'][^>]*type=["']image\/[^"']+["'][^>]*\/?>/i)?.[1]
+    || itemXml.match(/<enclosure[^>]*type=["']image\/[^"']+["'][^>]*url=["']([^"']+)["'][^>]*\/?>/i)?.[1]
+  if (enclosure) return enclosure
+
+  // 2. Media namespace tags (media:content, media:thumbnail)
+  const mediaContent = itemXml.match(/<media:content[^>]*url=["']([^"']+)["'][^>]*\/?>/i)?.[1]
+  if (mediaContent && /\.(jpg|jpeg|png|gif|webp)/i.test(mediaContent)) return mediaContent
+
+  const mediaThumbnail = itemXml.match(/<media:thumbnail[^>]*url=["']([^"']+)["'][^>]*\/?>/i)?.[1]
+  if (mediaThumbnail) return mediaThumbnail
+
+  // 3. First <img> tag in content (before cleaning)
+  const imgInContent = rawContent.match(/<img[^>]*src=["']([^"']+)["'][^>]*\/?>/i)?.[1]
+  if (imgInContent && !imgInContent.includes('data:') && !imgInContent.includes('tracking')) return imgInContent
+
+  // 4. <image><url> tag (some feeds use this)
+  const imageTag = itemXml.match(/<image[^>]*>[\s\S]*?<url>([^<]+)<\/url>[\s\S]*?<\/image>/i)?.[1]
+  if (imageTag) return imageTag
+
+  return null
+}
+
 /**
  * Simple RSS/Atom parser for Workers (no external dependencies)
  * Supports both RSS <item> tags and Atom <entry> tags
  */
-async function parseRSS(url: string): Promise<{ title: string; link: string; content: string; pubDate: string }[]> {
+async function parseRSS(url: string): Promise<RSSItem[]> {
   const response = await fetchWithRetry(url)
 
   if (!response.ok) {
@@ -222,7 +258,7 @@ async function parseRSS(url: string): Promise<{ title: string; link: string; con
   }
 
   const xml = await response.text()
-  const items: { title: string; link: string; content: string; pubDate: string }[] = []
+  const items: RSSItem[] = []
 
   // Try RSS <item> tags first
   let itemMatches = xml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) || []
@@ -243,8 +279,8 @@ async function parseRSS(url: string): Promise<{ title: string; link: string; con
       link = itemXml.match(/<link[^>]*href=["']([^"']+)["'][^>]*\/?>/i)?.[1] || ''
     }
 
-    // Parse content - try multiple content tags
-    const content = itemXml.match(/<(?:content:encoded|content|description|summary)[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|content|description|summary)>/i)?.[1] || ''
+    // Parse content - try multiple content tags (keep raw for image extraction)
+    const rawContent = itemXml.match(/<(?:content:encoded|content|description|summary)[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/(?:content:encoded|content|description|summary)>/i)?.[1] || ''
 
     // Parse date - RSS uses pubDate, Atom uses published or updated
     let pubDate = itemXml.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || ''
@@ -252,12 +288,16 @@ async function parseRSS(url: string): Promise<{ title: string; link: string; con
       pubDate = itemXml.match(/<(?:published|updated)[^>]*>([\s\S]*?)<\/(?:published|updated)>/i)?.[1] || ''
     }
 
+    // Extract image URL before cleaning content
+    const imageUrl = extractImageUrl(itemXml, rawContent)
+
     if (title && link) {
       items.push({
         title: cleanText(title),
         link: cleanText(link),
-        content: cleanText(content),
+        content: cleanText(rawContent),
         pubDate: pubDate.trim(),
+        imageUrl,
       })
     }
   }
@@ -338,6 +378,7 @@ async function processFeed(
           companies: companies,
           source: feed.source,
           source_url: item.link,
+          image_url: item.imageUrl,
           published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
         })
 
