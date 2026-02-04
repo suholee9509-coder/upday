@@ -1,0 +1,63 @@
+name: Bluesky Auto-Post
+
+# Automatically post new articles to Bluesky
+# Runs every 30 minutes to check for new articles
+
+on:
+  schedule:
+    # Every 30 minutes
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Manual trigger available
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode (no actual posting)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore state file
+        uses: actions/cache@v4
+        with:
+          path: /tmp/bluesky-auto-post-state.json
+          key: bluesky-state-${{ github.run_id }}
+          restore-keys: |
+            bluesky-state-
+
+      - name: Run Bluesky Auto-Post
+        env:
+          BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          RSS_FEED_URL: https://updayapp.com/feed.xml
+          STATE_FILE_PATH: /tmp/bluesky-auto-post-state.json
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: npm run bluesky:post
+
+      - name: Save state file
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: /tmp/bluesky-auto-post-state.json
+          key: bluesky-state-${{ github.run_id }}
+
+      - name: Log completion
+        run: |
+          echo "=========================================="
+          echo "Bluesky auto-post completed at $(date)"
+          echo "=========================================="

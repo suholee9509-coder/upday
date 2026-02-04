@@ -18,6 +18,7 @@ const AboutPage = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m
 const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then(m => ({ default: m.FeedbackPage })))
 const DiversityPage = lazy(() => import('@/pages/DiversityPage').then(m => ({ default: m.DiversityPage })))
 const EthicsPage = lazy(() => import('@/pages/EthicsPage').then(m => ({ default: m.EthicsPage })))
+const RedirectPage = lazy(() => import('@/pages/RedirectPage').then(m => ({ default: m.RedirectPage })))
 
 // Prefetch timeline page when on landing page (improves navigation speed)
 function usePrefetchRoutes() {
@@ -64,6 +65,7 @@ function AppRoutes() {
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/diversity" element={<DiversityPage />} />
         <Route path="/ethics" element={<EthicsPage />} />
+        <Route path="/go" element={<RedirectPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
