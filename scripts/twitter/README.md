@@ -78,35 +78,38 @@ RSS_FEED_URL="http://localhost:5173/feed.xml" npm run twitter:dry-run
 
 ## Tweet Format
 
-Each tweet follows this format:
+Each tweet follows this format (optimized for engagement):
 
 ```
-{Article Title}
+{Emoji} {Article Title}
 
-{Article URL}
+🔗 {Article URL}
 
-#CategoryHashtag #TechNews #Upday
+#Category #Upday
 ```
 
 Example:
 ```
-Amazon buys 10 more Falcon 9 launches
+🌌 SpaceX successfully lands Starship on Mars simulation test
 
-https://spacenews.com/amazon-buys-10-more-falcon-9-launches/
+🔗 https://updayapp.com/article/spacex-starship
 
-#Space #SpaceNews #TechNews #Upday
+#Space #Upday
 ```
 
-## Category Hashtags
+## Category Emojis & Hashtags
 
-| Category | Hashtags |
-|----------|----------|
-| ai | #AI #MachineLearning |
-| startups | #Startups #TechNews |
-| dev | #Developer #Programming |
-| product | #ProductDesign #UX |
-| research | #Science #Research |
-| space | #Space #SpaceNews |
+| Category | Emoji | Hashtag |
+|----------|-------|---------|
+| ai | 🤖 | #AI |
+| startups | 🚀 | #Startups |
+| dev | 💻 | #Dev |
+| product | 🎨 | #Product |
+| research | 🔬 | #Research |
+| space | 🌌 | #Space |
+| default | 📰 | (none) |
+
+**Note:** Only 2 hashtags are used (1 category + #Upday) for better reach. Excessive hashtags reduce engagement.
 
 ## State Management
 
