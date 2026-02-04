@@ -32,6 +32,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
     "@atproto/api": "^0.18.20",
+    "dotenv": "^16.4.5",
     "@supabase/supabase-js": "^2.93.3",
     "@tailwindcss/vite": "^4.1.18",
     "class-variance-authority": "^0.7.1",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "tsx": "^4.21.0",
     "@prerenderer/renderer-puppeteer": "^1.2.4",
     "@prerenderer/rollup-plugin": "^0.3.12",
     "@types/node": "^24.10.1",
