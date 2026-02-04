@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button, Badge, ThemeToggle } from '@/components/ui'
 import { NewsCard } from '@/components/news'
 import { SEO } from '@/components/SEO'
+import { UpdayWordmark } from '@/components/UpdayLogo'
 import { mockNews } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
 
@@ -29,8 +30,8 @@ export function LandingPage() {
       {/* GNB */}
       <header className="relative z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="font-bold text-xl text-foreground">
-            upday
+          <Link to="/" className="hover:opacity-80 transition-opacity">
+            <UpdayWordmark size="md" />
           </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
@@ -438,7 +439,10 @@ export function LandingPage() {
       {/* Footer */}
       <footer className="py-8 relative">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© 2026 upday</p>
+          <div className="flex items-center gap-3">
+            <UpdayWordmark size="sm" />
+            <span>© 2026</span>
+          </div>
           <div className="flex items-center gap-4">
             <a
               href="https://bsky.app/profile/updayapp.bsky.social"
