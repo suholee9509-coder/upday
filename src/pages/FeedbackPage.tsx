@@ -11,6 +11,8 @@ export function FeedbackPage() {
   const [message, setMessage] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; message?: string }>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const validate = () => {
     const newErrors: typeof errors = {}
@@ -31,14 +33,31 @@ export function FeedbackPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validate()) return
 
-    // In production, this would send to a backend
-    console.log('Feedback submitted:', { email, message })
-    setSubmitted(true)
+    setIsSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const response = await fetch('https://upday-feedback.suholee9509-98c.workers.dev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, message }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send feedback')
+      }
+
+      setSubmitted(true)
+    } catch {
+      setSubmitError('Failed to send feedback. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (submitted) {
@@ -146,9 +165,22 @@ export function FeedbackPage() {
                 )}
               </div>
 
-              <Button type="submit" className="w-full">
-                <Send className="mr-2 h-4 w-4" />
-                Send Feedback
+              {submitError && (
+                <p className="text-sm text-destructive text-center">{submitError}</p>
+              )}
+
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Send Feedback
+                  </>
+                )}
               </Button>
             </form>
           </CardContent>
