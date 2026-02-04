@@ -38,10 +38,15 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [cursor, setCursor] = useState<string | undefined>(undefined)
+  const cursorRef = useRef<string | undefined>(undefined)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const isLoadingRef = useRef(false)
 
   const fetchData = useCallback(async (reset: boolean = false) => {
+    // Prevent duplicate requests
+    if (isLoadingRef.current && !reset) return
+    isLoadingRef.current = true
+
     // Cancel previous request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -52,12 +57,15 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
 
     // Check cache for instant display (stale-while-revalidate)
     if (reset) {
+      cursorRef.current = undefined
       const cached = cache.get(cacheKey)
       if (cached) {
         setItems(cached.items)
+        setHasMore(true) // Assume more until proven otherwise
         setLoading(false)
         // If cache is fresh, don't refetch
         if (Date.now() - cached.timestamp < CACHE_TTL) {
+          isLoadingRef.current = false
           return
         }
       }
@@ -74,7 +82,7 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
         category: category || undefined,
         q: q || undefined,
         company: company || undefined,
-        cursor: reset ? undefined : cursor,
+        cursor: reset ? undefined : cursorRef.current,
       }
 
       let result: { items: Omit<NewsItem, 'body'>[]; hasMore: boolean }
@@ -107,7 +115,7 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
 
       // Update cursor for next page (use original items to not skip any)
       if (result.items.length > 0) {
-        setCursor(result.items[result.items.length - 1].publishedAt)
+        cursorRef.current = result.items[result.items.length - 1].publishedAt
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
@@ -115,23 +123,24 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
       }
     } finally {
       setLoading(false)
+      isLoadingRef.current = false
     }
-  }, [category, q, company, cursor, initialLimit])
+  }, [category, q, company, initialLimit])
 
   // Initial fetch and refetch on filter/search change
   useEffect(() => {
-    setCursor(undefined)
+    cursorRef.current = undefined
     fetchData(true)
   }, [category, q, company]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadMore = useCallback(() => {
-    if (!loading && hasMore) {
+    if (!isLoadingRef.current && hasMore) {
       fetchData(false)
     }
-  }, [loading, hasMore, fetchData])
+  }, [hasMore, fetchData])
 
   const refresh = useCallback(() => {
-    setCursor(undefined)
+    cursorRef.current = undefined
     fetchData(true)
   }, [fetchData])
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react'
 import { NewsCard } from './NewsCard'
 import { DateSeparator } from './DateSeparator'
 import { NewsCardSkeleton } from './NewsCardSkeleton'
@@ -132,16 +132,19 @@ export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(funct
     return () => observer.disconnect()
   }, [hasMore, loading, onLoadMore])
 
-  // Group items by date
-  const groupedItems: { date: string; items: typeof items }[] = []
-  items.forEach((item) => {
-    const lastGroup = groupedItems[groupedItems.length - 1]
-    if (!lastGroup || !isSameDay(lastGroup.date, item.publishedAt)) {
-      groupedItems.push({ date: item.publishedAt, items: [item] })
-    } else {
-      lastGroup.items.push(item)
-    }
-  })
+  // Group items by date (memoized to prevent recalculation on every render)
+  const groupedItems = useMemo(() => {
+    const groups: { date: string; items: typeof items }[] = []
+    items.forEach((item) => {
+      const lastGroup = groups[groups.length - 1]
+      if (!lastGroup || !isSameDay(lastGroup.date, item.publishedAt)) {
+        groups.push({ date: item.publishedAt, items: [item] })
+      } else {
+        lastGroup.items.push(item)
+      }
+    })
+    return groups
+  }, [items])
 
   // Live region for screen reader announcements
   const liveRegion = (

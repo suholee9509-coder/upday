@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { Radio, ChevronRight, ChevronLeft, Pin, Grid2X2, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -72,9 +72,12 @@ export function Sidebar() {
   const currentCompany = searchParams.get('company')
   const isLiveFeed = location.pathname === '/timeline' && !currentCompany
 
-  const pinnedCompanyDetails = pinnedCompanies
-    .map(slug => COMPANIES.find(c => c.id === slug))
-    .filter(Boolean)
+  const pinnedCompanyDetails = useMemo(() =>
+    pinnedCompanies
+      .map(slug => COMPANIES.find(c => c.id === slug))
+      .filter(Boolean),
+    [pinnedCompanies]
+  )
 
   return (
     <>
