@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"generatedAt": "2026-02-03T13:37:36.866Z",
+		"tasksAnalyzed": 10,
+		"totalTasks": 15,
+		"analysisCount": 10,
+		"thresholdScore": 5,
+		"projectName": "Task Master",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 6,
+			"taskTitle": "Cloudflare Workers Cron Triggers 활성화",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "No expansion needed - straightforward configuration change with detailed implementation steps provided.",
+			"reasoning": "Simple configuration update in wrangler.toml, deploy, and verification. Well-documented steps with no coding required. Minimal risk of issues if existing setup is correct."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "workers/ingest.ts 에러 핸들링 및 로깅 강화",
+			"complexityScore": 5,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Break into: 1) Implement per-feed error isolation and logging, 2) Add timeout monitoring and overall execution stats tracking.",
+			"reasoning": "Moderate TypeScript refactoring with try-catch isolation, logging patterns, and timeout considerations. Code provided but requires integration testing in Cloudflare Workers environment."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "중복 기사 AI 처리 스킵 로직 구현",
+			"complexityScore": 6,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Split into: 1) Implement Supabase deduplication query with URL normalization, 2) Integrate filtering logic into main processing pipeline with logging.",
+			"reasoning": "Involves database query optimization, URL normalization, async filtering, and pipeline integration. Supabase .in() query performance considerations for large URL arrays."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "AI 응답 캐싱 시스템 구현",
+			"complexityScore": 8,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Divide into: 1) Cloudflare KV namespace setup and CachedAIResponse interface, 2) Content hashing function implementation, 3) Cache get/put logic integration with TTL handling.",
+			"reasoning": "Complex async caching layer with crypto hashing, KV integration, TTL management, and cache hit/miss logging. Requires wrangler.toml KV binding configuration."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "AI API 배치 처리 및 Rate Limiting 최적화",
+			"complexityScore": 7,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down into: 1) Generic batch processing utility with Promise.allSettled, 2) AI-specific concurrency/rate-limit configuration, 3) Exponential backoff retry implementation.",
+			"reasoning": "Advanced async batching, concurrency control, rate limiting, and retry logic. Performance tuning required with real API rate limits and Cloudflare Workers CPU constraints."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "처리 통계 로깅 시스템 구현",
+			"complexityScore": 6,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Split into: 1) CrawlStats class with computed properties and toJSON serialization, 2) Supabase crawl_logs table creation and stats persistence.",
+			"reasoning": "Requires database schema changes, stats aggregation across pipeline, class-based state management, and JSONB handling. Cross-cutting concern integration."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "RSS 피드 재시도 로직 구현 (Exponential Backoff)",
+			"complexityScore": 7,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Divide into: 1) Generic fetchWithRetry function with configurable backoff, 2) Isolated per-feed processing wrapper with stats integration.",
+			"reasoning": "Sophisticated retry logic with exponential backoff, AbortSignal timeouts, HTTP status handling, and feed isolation. Network error simulation testing required."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "실패 알림 시스템 구현 (Discord/Slack Webhook)",
+			"complexityScore": 6,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Break into: 1) AlertService class with webhook payload formatting, 2) KV-based consecutive failure counter with threshold alerting.",
+			"reasoning": "External webhook integration, failure state persistence in KV, Discord embed formatting, and integration with stats pipeline. Environment variable configuration needed."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "GitHub Actions 백업 스케줄 업데이트",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "No expansion needed - simple YAML configuration change with testing steps provided.",
+			"reasoning": "Straightforward GitHub Actions workflow modification. Well-defined options (daily vs manual) with clear test strategy."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "일일 AI API 호출 한도 및 비용 알림 구현",
+			"complexityScore": 7,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Split into: 1) Daily usage tracking with KV and TTL reset, 2) Limit checking with 80% warning thresholds, 3) Integration into AI processing pipeline with graceful degradation.",
+			"reasoning": "Time-based counters with midnight TTL, multi-threshold alerting, pipeline integration with fallback behavior, and cost control implications."
+		}
+	]
+}

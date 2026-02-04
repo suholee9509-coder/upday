@@ -1,0 +1,429 @@
+# Overview
+
+upday is a timeline-based global news platform that organizes AI-summarized news chronologically, enabling users to grasp what's changing in the world without reading full articles.
+
+**Problem**: News volume is exploding across tech, science, and business, but existing services fragment information into individual articles. Users can't answer "what is changing right now?" without reading dozens of articles daily. The cognitive cost is too high, so news consumption never becomes habitual.
+
+**Who it's for**: Information-sensitive professionals — PMs, developers, investors, founders — who need cross-domain awareness but lack time to read everything.
+
+**Why it's valuable**: Replaces article-by-article consumption with a scannable timeline. Title + 2-3 line AI summary delivers context without clicking through. Zero login friction. Time is the only axis — not algorithms, not editors.
+
+# Core Features
+
+## 1. Timeline-Based News Feed
+The primary interface. All news sorted by publication time, displayed as a scrollable feed with date separators.
+- **What**: Chronological news feed with date grouping and news cards
+- **Why**: Time-based ordering is the core differentiator. Users scan "what happened recently" in one scroll instead of navigating categories or curated feeds.
+- **How**: News cards grouped by date, cursor-based pagination (initial 20 items), load-more for older items. Single column layout across all breakpoints to preserve the time axis.
+
+## 2. AI Summary Generation
+Each article gets a 2-3 line summary focused on "what happened and why it matters."
+- **What**: Automated change-focused summaries generated from article body text
+- **Why**: Eliminates the need to click through to understand news. Summaries are the product's core value — they make scanning possible.
+- **How**: AI processes article body on ingest. One-time generation per article. Consistent tone and length. No opinion or interpretation.
+
+## 3. Category Filtering
+Filter timeline by domain: AI, Startups, Dev, Product, Research.
+- **What**: Single-select category chips that filter the timeline
+- **Why**: Users care about specific domains. Filtering lets them focus without losing the time-based structure.
+- **How**: Filter chips in a sticky bar. Single select (MVP). "All" as default. Selection reflected in URL (?category=ai). Scroll resets on filter change.
+
+## 3.1 Category Taxonomy (5 Categories)
+| ID | Label | Coverage |
+|----|-------|----------|
+| ai | AI | Artificial intelligence, LLM, ML, generative AI |
+| startups | Startups | Funding, M&A, entrepreneurship, unicorns |
+| dev | Dev | Programming, open source, infrastructure, DevOps |
+| product | Product | Product launches, UX, design, product strategy |
+| research | Research | Scientific research, papers, space, biotech |
+
+**Design Rationale**:
+- `design` → `product`: Target users consume "product" perspective, not just "design"
+- `science` + `space` → `research`: Both are "research/discovery" nature, combined for volume
+- 5 categories total: Optimal for mobile filter bar (single row visibility)
+
+## 4. Keyword Search
+Search across internal news database by title, summary, and category.
+- **What**: Internal keyword search with results displayed in timeline format
+- **Why**: Users need to find specific topics or track ongoing stories.
+- **How**: Search bar with ⌘K shortcut. Debounced input. Results maintain chronological order. URL reflects query (?q=keyword). Filter disabled during search (MVP). Internal DB only — no external web search.
+
+## 5. News Ingestion Pipeline
+Backend system that crawls, deduplicates, and stores global English-language news.
+- **What**: Multi-source news collection with deduplication and cleaning
+- **Why**: The entire product depends on a reliable, diverse news supply.
+- **How**: Periodic crawling from RSS feeds and news endpoints across multiple domains. URL + title similarity deduplication. Ad/irrelevant content stripping.
+- **Source Diversity Principle**: Maintain balanced coverage across global sources. No single platform should dominate (target <30% per source). Include sources from different regions (US, EU, Asia) and perspectives. Regular validation of feed health. Graceful degradation for unavailable feeds.
+
+## 6. Landing Page
+Conversion page for first-time visitors.
+- **What**: Value proposition page that drives visitors to the timeline
+- **Why**: First-time visitors need to understand what the product does before using it.
+- **How**: Hero (headline + CTA) → Feature showcase → Live preview with real data → How it works → Final CTA. No login required messaging.
+
+## 7. Company Feed
+Track news by specific company (OpenAI, Google, etc.).
+- **What**: Company-specific news feeds accessible via sidebar navigation
+- **Why**: Target users (investors, founders, PMs) often track specific companies, not just categories. TechCrunch-style company tracking is a key differentiator.
+- **How**:
+  - Sidebar navigation with "Live Feed" and "Companies" sections
+  - Users can pin companies for quick access (stored in LocalStorage)
+  - Company browser page (/timeline/companies) for discovery
+  - URL reflects company filter (?company=openai)
+
+### 7.1 Company List (25 Companies)
+**Tier 1 - AI Leaders**: OpenAI, Anthropic, Google, Microsoft, Meta, NVIDIA, xAI, Mistral
+**Tier 2 - Dev & Infra**: Vercel, Supabase, Cloudflare, Linear, Figma, Notion, Cursor, GitHub, Databricks
+**Tier 3 - Tech Giants & Growth**: Apple, Amazon, Tesla, Stripe, Shopify, Slack, Discord, Reddit
+
+### 7.2 Pin Functionality
+- Users can pin companies for quick sidebar access
+- Pin/unpin via: sidebar hover (📌 icon), company browser (★/☆), company feed header
+- Pinned companies stored in LocalStorage (no account required)
+- Sidebar shows pinned companies as expandable/collapsible list
+
+# User Experience
+
+## Personas
+
+**Primary**: "The Scanner" — PM or developer who opens the app during morning coffee, scrolls through 2-3 days of news in under 5 minutes, occasionally clicks through to an original article, then closes. Returns daily.
+
+**Secondary**: "The Researcher" — Investor or founder tracking a specific domain (e.g., AI). Uses category filter or search to track a topic over time.
+
+## Key User Flows
+
+### First Visit
+```
+Landing Page → Read hero → Scroll to see live preview → Click "Go to Timeline" CTA
+→ Timeline loads with all categories, latest 20 items
+→ Scan news cards → Understand context from title + summary
+→ (Optional) Click "Read original" → New tab with source article
+→ Return to timeline → Continue scanning
+```
+
+### Return Visit
+```
+Direct to /timeline (bookmark or URL)
+→ See latest news since last visit at top
+→ Scan → Filter by category if needed → Search if looking for something specific
+→ Leave and return later
+```
+
+### Filter Flow
+```
+On timeline → Tap "AI" category chip
+→ URL updates to /timeline?category=ai → Timeline shows AI news only
+→ Scroll resets to top → Scan filtered results
+→ Tap "All" to return to full timeline
+```
+
+### Search Flow
+```
+On timeline → Press ⌘K or click search bar
+→ Type query → Results appear (debounced)
+→ URL updates to /timeline?q=query → Filter bar disabled
+→ Scan results → Click ✕ to clear → Full timeline returns
+```
+
+## UI/UX Considerations
+
+- **Sidebar-based layout**: Desktop uses persistent sidebar (Linear/Cursor style) with Live Feed and Companies sections. Tablet uses collapsible sidebar. Mobile uses bottom sheet navigation.
+- **Information hierarchy in news cards**: Title (what happened) → Summary (why it matters) → Time + Category badge (meta) → Source + Link (action). Users scan top-to-bottom; context must be clear from the first two elements alone.
+- **Time display**: Relative ("3h ago") for <24h, absolute ("2/1 14:30") for >24h.
+- **Date separators**: Include day of week ("Monday, February 2, 2026") to strengthen time perception.
+- **Single column only**: Multi-column layouts break the time axis. Non-negotiable.
+- **URL = State**: Every view state (filter, search, company) is reflected in the URL. Shareable, bookmarkable, back-button compatible.
+- **Empty states**: Distinct messages for no search results vs. no category results vs. error.
+- **Dark mode**: System default on first visit, toggle to override. Design system tokens handle automatic switching.
+- **Mobile**: Filter chips horizontally scrollable. Search collapses to icon → expands to full-screen on tap. Sidebar replaced by bottom sheet.
+
+# Technical Architecture
+
+## System Components
+
+```
+[Cron/Trigger]
+    → Crawl Sources (lib/crawl.ts)
+    → Deduplicate & Clean (lib/dedupe.ts)
+    → AI Summarize (lib/summarize.ts)
+    → AI Classify (lib/classify.ts)
+    → Store to DB
+
+[User Request]
+    → Next.js Server Component
+    → Query DB (with filters/search/pagination)
+    → Return NewsItem[]
+    → Render Timeline
+```
+
+## Data Models
+
+```typescript
+interface NewsItem {
+  id: string
+  title: string
+  summary: string
+  body: string               // stored, not sent to client
+  category: Category
+  companies?: string[]       // associated company slugs (e.g., ["openai", "microsoft"])
+  source: string             // publisher name
+  sourceUrl: string          // original article URL
+  imageUrl?: string          // og:image or thumbnail
+  publishedAt: string        // ISO 8601, UTC
+  createdAt: string          // ingestion timestamp
+}
+
+type Category = "ai" | "startups" | "dev" | "product" | "research"
+
+interface Company {
+  id: string                 // slug (e.g., "openai")
+  name: string               // display name (e.g., "OpenAI")
+  logoUrl?: string           // company logo
+  group: CompanyGroup        // for browser categorization
+}
+
+type CompanyGroup = "ai-llm" | "developer-tools" | "productivity-saas" | "commerce-platform"
+
+// API params
+interface NewsQueryParams {
+  limit?: number              // default 20
+  cursor?: string             // publishedAt of last item
+  category?: Category
+  company?: string            // company slug filter
+  q?: string                  // search query
+}
+
+interface NewsResponse {
+  items: NewsItem[]
+  hasMore: boolean
+}
+```
+
+## APIs and Integrations
+
+- **Timeline API**: `GET /api/news` — Returns paginated, filterable, searchable news items. Cursor-based pagination using publishedAt. Supports category filter and keyword search as query params.
+- **AI Integration**: OpenAI API or Anthropic API for summary generation and category classification. Called during ingestion, not on user request.
+- **News Sources**: RSS feeds and crawlable endpoints across target domains. Source list is configurable and extensible.
+
+## Infrastructure
+
+- **Framework**: Next.js 15 (App Router, Server Components)
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS v4 + shadcn/ui + Monet Design System tokens
+- **Database**: TBD — Supabase / PlanetScale / SQLite (MVP scale decision)
+- **AI**: OpenAI or Anthropic API
+- **Deployment**: Cloudflare Workers (not Vercel). Service name: **upday**. Configuration is **wrangler.toml**-based.
+- **Cron**: Cloudflare Cron Triggers or wrangler.toml `[triggers]` for crawling pipeline schedule.
+- **Deploy workflow**: GitHub and CI/CD are automated with Cloudflare; `git commit` and `git push` trigger automatic deployment. To deploy, use only `git push` (and commit) — no manual deploy step.
+
+# Development Roadmap
+
+## Phase 1: Foundation + Seed Data
+Establish shared types, utilities, design system, and a working database with seed data so all subsequent phases have something to build on.
+
+- Define core types: NewsItem, Category, API params/response
+- Shared constants: category list, configuration values
+- Utility functions: cn(), formatRelativeTime(), date helpers
+- Design system CSS variables (light/dark) in globals.css
+- shadcn/ui base component setup
+- Database schema creation
+- Seed data: 50-100 manually curated or pre-crawled articles with summaries and categories
+
+**Delivers**: A database with real-looking data that frontend can query immediately.
+
+## Phase 2: Timeline UI (Static Data)
+Build the complete timeline interface against seed data. Get to a visible, usable frontend as fast as possible.
+
+- News Card component (title → summary → time + category → source + link)
+- Date Separator component
+- Timeline Feed (card list + date grouping + load more button)
+- Header (logo, search bar placeholder, dark mode toggle)
+- Filter Bar (category chips, single select, URL sync via searchParams)
+- Loading state (skeleton cards)
+- Empty states (no results, error)
+- Dark mode with design system tokens
+- Responsive layout (mobile filter scroll, search collapse)
+
+**Delivers**: Fully functional timeline UI reading from seed data. All states work. Looks like a real product.
+
+## Phase 3: Search
+Add keyword search to the working timeline.
+
+- Search bar activation (click + ⌘K shortcut)
+- Debounced input with URL sync (?q=)
+- Search results in timeline format
+- Search + filter interaction (filter disabled during search for MVP)
+- Empty search results state
+- Clear search to return to full timeline
+
+**Delivers**: Users can find specific news by keyword within the existing timeline experience.
+
+## Phase 4: News Ingestion Pipeline
+Backend automation to replace seed data with live news.
+
+- Multi-source crawling implementation (RSS + web scraping)
+- Deduplication logic (URL + title similarity)
+- Content cleaning (strip ads, extract body text)
+- Metadata normalization (timestamps to UTC, required field validation)
+- Scheduled execution (cron configuration)
+- Error handling and logging for pipeline failures
+
+**Delivers**: Database is populated automatically with fresh, deduplicated news articles.
+
+## Phase 5: AI Processing
+Add AI-generated summaries and category classification to the pipeline.
+
+- Summary generation prompt engineering and implementation
+- Category classification prompt engineering and implementation
+- Integration into ingestion pipeline (crawl → clean → summarize → classify → store)
+- Output quality validation (length, tone, no opinion)
+- Fallback handling: articles stored without summary if AI fails (title-only display)
+- Retry logic for API failures
+
+**Delivers**: Every ingested article automatically gets a quality summary and category. Pipeline is end-to-end.
+
+## Phase 6: Landing Page
+Conversion page for first-time visitors.
+
+- Hero section (headline + primary CTA to /timeline)
+- Feature showcase (3 core features as user benefits)
+- Live preview section (pulls real timeline data)
+- How It Works section (3-step visual flow)
+- Final CTA section
+- Responsive layout
+- "No login required" messaging
+
+**Delivers**: Complete first-visit experience that converts to timeline usage.
+
+## Future Enhancements (Post-MVP)
+- Multi-category filter (combine filters)
+- Search + filter combination (?q=openai&category=ai)
+- Bookmark / save articles (requires account system)
+- News clustering (group articles about same event)
+- Email digest / notifications
+- Multi-language news support
+- Infinite scroll (replace load-more button)
+
+# Logical Dependency Chain
+
+## Foundation First
+Types → Constants → Utils → Design System → DB Schema + Seed Data
+
+Everything else depends on these. Seed data is critical — it lets frontend development start immediately without waiting for the crawling pipeline.
+
+## Visible Frontend ASAP
+```
+Foundation (Phase 1)
+    → Timeline UI against seed data (Phase 2)
+    → Search on top of working timeline (Phase 3)
+```
+
+The user-facing product is usable after Phase 2. Search adds depth in Phase 3. This means a working demo exists before any backend automation is built.
+
+## Backend in Parallel After Phase 2
+```
+Phase 2 complete (Timeline UI works with seed data)
+    → Phase 4 (Ingestion) can start
+    → Phase 5 (AI) depends on Phase 4
+    → Phase 3 (Search) can run in parallel with Phase 4
+```
+
+## Landing Last
+```
+Phase 6 (Landing) depends on Phase 2 (Timeline UI) being complete
+    → Live preview section needs real timeline components
+    → Can run in parallel with Phase 4-5
+```
+
+## Atomic Feature Scoping
+Each phase delivers a complete, testable increment:
+- Phase 1: "Can I query the database and get typed data?" ✓
+- Phase 2: "Can a user see and interact with news?" ✓
+- Phase 3: "Can a user find specific news?" ✓
+- Phase 4: "Does the database fill itself?" ✓
+- Phase 5: "Does every article have a good summary?" ✓
+- Phase 6: "Can first-time visitors understand the product?" ✓
+
+# Risks and Mitigations
+
+## Technical Challenges
+
+**AI summary quality inconsistency**
+- Risk: Summaries vary in tone, length, or include opinion
+- Mitigation: Strict prompt engineering with output validation (length check, sentiment check). Fallback to title-only display if summary fails quality check.
+
+**Crawling reliability**
+- Risk: Sources block crawlers, change HTML structure, or go down
+- Mitigation: Multiple sources per category. Graceful degradation — missing one source doesn't break the timeline. Error alerting on pipeline failures.
+
+**Search performance at scale**
+- Risk: Keyword search becomes slow as article count grows
+- Mitigation: Start with DB full-text search. Monitor performance. Migrate to dedicated search (e.g., Meilisearch) if needed.
+
+## MVP Scoping
+
+**What's in**: Timeline feed, news cards, category filter, search, AI summaries, crawling pipeline, landing page.
+
+**What's explicitly out**: User accounts, bookmarks, notifications, multi-language, news clustering, infinite scroll, multi-category filter, search + filter combination.
+
+The MVP is deliberately narrow. Every excluded feature is a v2 candidate, not a "nice to have" that creeps back in.
+
+## Resource Constraints
+
+**AI API costs**
+- Risk: Per-article summarization + classification costs scale with volume
+- Mitigation: One-time generation principle — never re-summarize. Batch processing where possible. Monitor cost per article.
+
+**Single developer / small team**
+- Risk: Pipeline + frontend + AI is a lot of surface area
+- Mitigation: Seed data strategy lets frontend and backend develop independently. Phases are scoped to be completable in focused sprints.
+
+# Appendix
+
+## Category Definitions
+
+| ID | Label | Coverage |
+|----|-------|----------|
+| ai | AI | Artificial intelligence, LLM, ML, generative AI |
+| startups | Startups | Funding, M&A, entrepreneurship, unicorns |
+| dev | Dev | Programming, open source, infrastructure, DevOps |
+| product | Product | Product launches, UX, design, product strategy |
+| research | Research | Scientific research, papers, space, biotech |
+
+## News Card Information Hierarchy
+
+```
+1st: Title — What happened (highest visual weight)
+2nd: Summary — Why it matters (read naturally after title)
+3rd: Time + Category — When, what domain (metadata)
+4th: Source + Link — Where to read more (action, lowest priority)
+```
+
+## URL State Mapping
+
+| State | URL | Behavior |
+|-------|-----|----------|
+| Default | /timeline | All categories, latest news |
+| Filtered | /timeline?category=ai | Single category, scroll reset |
+| Search | /timeline?q=openai | Search results, filter disabled |
+| Company | /timeline?company=openai | Company-specific feed |
+| Company Browser | /timeline/companies | Company selection page |
+| Combined (v2) | /timeline?q=openai&category=ai | Future enhancement |
+
+## Non-Functional Requirements
+
+| Requirement | Target |
+|-------------|--------|
+| LCP | < 2 seconds |
+| Initial load | 20 news items |
+| Pagination | Cursor-based (publishedAt) |
+| Summary length | 2-3 lines, consistent |
+| Category per article | Exactly 1 |
+| Login required | No (MVP) |
+
+## Open Questions
+
+- Database: Supabase vs PlanetScale vs SQLite for MVP scale
+- Crawl frequency: Real-time vs scheduled (15min / 1hr intervals)
+- Summary timing: Batch processing vs on-ingest generation
+- Search engine: DB full-text vs lightweight library (e.g., Fuse.js, Meilisearch)
