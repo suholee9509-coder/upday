@@ -267,8 +267,11 @@ async function parseRSS(url: string): Promise<RSSItem[]> {
   }
 
   for (const itemXml of itemMatches.slice(0, MAX_ARTICLES_PER_FEED)) {
-    // Parse title
-    const title = itemXml.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i)?.[1] || ''
+    // Parse title - handle CDATA with leading/trailing whitespace
+    let titleRaw = itemXml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || ''
+    // Extract CDATA content if present (handles whitespace around CDATA)
+    const titleCdata = titleRaw.match(/<!\[CDATA\[([\s\S]*?)\]\]>/i)
+    const title = titleCdata ? titleCdata[1].trim() : titleRaw.trim()
 
     // Parse link - RSS uses <link>text</link>, Atom uses <link href="..."/>
     let link = itemXml.match(/<link[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i)?.[1] || ''

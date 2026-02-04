@@ -34,7 +34,7 @@ async function getStats() {
 
   // Articles by category
   console.log('\n📁 By Category:')
-  const categories = ['ai', 'startup', 'science', 'design', 'space', 'dev']
+  const categories = ['ai', 'startups', 'dev', 'product', 'research']
 
   for (const cat of categories) {
     const { count } = await supabase
