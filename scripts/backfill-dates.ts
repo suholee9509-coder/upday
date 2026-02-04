@@ -61,6 +61,10 @@ async function fetchPublishedDate(url: string): Promise<string | null> {
     const timeElement = html.match(/<time[^>]*datetime=["']([^"']+)["'][^>]*>/i)?.[1]
     if (timeElement && isValidDate(timeElement)) return timeElement
 
+    // Try Core77-style published_into_channel_on field
+    const core77Date = html.match(/published_into_channel_on["']:["']([^"']+)["']/i)?.[1]
+    if (core77Date && isValidDate(core77Date)) return core77Date
+
     return null
   } catch (error) {
     console.error(`  Failed to fetch ${url}:`, error instanceof Error ? error.message : 'Unknown error')
