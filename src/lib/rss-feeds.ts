@@ -213,7 +213,7 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 5,
   },
   {
-    url: 'https://feeds.arstechnica.com/arstechnica/space',
+    url: 'https://arstechnica.com/tag/space/feed/',
     source: 'Ars Technica',
     categories: ['research'],
     region: 'us',
@@ -362,18 +362,11 @@ export const RSS_SOURCES: RSSSource[] = [
   },
 
   // ============================================
-  // Company Official Blogs - Primary sources (12 sources)
+  // Company Official Blogs - Primary sources (10 sources)
   // ============================================
   {
     url: 'https://openai.com/blog/rss.xml',
     source: 'OpenAI Blog',
-    categories: ['ai'],
-    region: 'us',
-    priority: 5,
-  },
-  {
-    url: 'https://www.anthropic.com/rss.xml',
-    source: 'Anthropic Blog',
     categories: ['ai'],
     region: 'us',
     priority: 5,
@@ -393,8 +386,8 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 4,
   },
   {
-    url: 'https://ai.meta.com/blog/rss/',
-    source: 'Meta AI Blog',
+    url: 'https://engineering.fb.com/feed/',
+    source: 'Meta Engineering',
     categories: ['ai'],
     region: 'us',
     priority: 5,
@@ -405,13 +398,6 @@ export const RSS_SOURCES: RSSSource[] = [
     categories: ['ai'],
     region: 'us',
     priority: 5,
-  },
-  {
-    url: 'https://mistral.ai/feed.xml',
-    source: 'Mistral Blog',
-    categories: ['ai'],
-    region: 'eu',
-    priority: 4,
   },
   {
     url: 'https://vercel.com/atom',

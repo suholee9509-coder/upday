@@ -72,7 +72,7 @@ const RSS_SOURCES = [
 
   // Research (Space) - 4 sources
   { url: 'https://spacenews.com/feed/', source: 'SpaceNews', category: 'research' },
-  { url: 'https://feeds.arstechnica.com/arstechnica/space', source: 'Ars Technica', category: 'research' },
+  { url: 'https://arstechnica.com/tag/space/feed/', source: 'Ars Technica', category: 'research' },
   { url: 'https://www.nasa.gov/feed/', source: 'NASA', category: 'research' },
   { url: 'https://www.space.com/feeds/all', source: 'Space.com', category: 'research' },
 
@@ -98,14 +98,12 @@ const RSS_SOURCES = [
   { url: 'https://www.techradar.com/rss', source: 'TechRadar', category: 'dev' },
   { url: 'https://arstechnica.com/feed/', source: 'Ars Technica', category: 'ai' },
 
-  // Company Official Blogs - Primary sources for company news (12 sources)
+  // Company Official Blogs - Primary sources for company news (10 sources)
   { url: 'https://openai.com/blog/rss.xml', source: 'OpenAI Blog', category: 'ai' },
-  { url: 'https://www.anthropic.com/rss.xml', source: 'Anthropic Blog', category: 'ai' },
   { url: 'https://blog.google/technology/ai/rss/', source: 'Google AI Blog', category: 'ai' },
   { url: 'https://blogs.microsoft.com/feed/', source: 'Microsoft Blog', category: 'ai' },
-  { url: 'https://ai.meta.com/blog/rss/', source: 'Meta AI Blog', category: 'ai' },
+  { url: 'https://engineering.fb.com/feed/', source: 'Meta Engineering', category: 'ai' },
   { url: 'https://blogs.nvidia.com/feed/', source: 'NVIDIA Blog', category: 'ai' },
-  { url: 'https://mistral.ai/feed.xml', source: 'Mistral Blog', category: 'ai' },
   { url: 'https://vercel.com/atom', source: 'Vercel Blog', category: 'dev' },
   { url: 'https://supabase.com/blog/rss.xml', source: 'Supabase Blog', category: 'dev' },
   { url: 'https://blog.cloudflare.com/rss/', source: 'Cloudflare Blog', category: 'dev' },
