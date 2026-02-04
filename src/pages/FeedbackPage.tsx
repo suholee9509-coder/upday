@@ -53,7 +53,7 @@ export function FeedbackPage() {
         <header className="border-b border-border">
           <div className="max-w-2xl mx-auto px-4 py-4">
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft />
               Back to Home
             </Button>
           </div>
@@ -84,7 +84,7 @@ export function FeedbackPage() {
       <header className="border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft />
             Back to Home
           </Button>
         </div>

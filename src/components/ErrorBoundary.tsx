@@ -56,11 +56,11 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button onClick={this.handleReset}>
-                <RefreshCw className="mr-2 h-4 w-4" />
+                <RefreshCw />
                 Try again
               </Button>
               <Button variant="outline" onClick={this.handleGoHome}>
-                <Home className="mr-2 h-4 w-4" />
+                <Home />
                 Go home
               </Button>
             </div>

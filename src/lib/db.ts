@@ -21,6 +21,7 @@ interface NewsItemRow {
   summary: string
   body: string
   category: Category
+  companies: string[] | null
   source: string
   source_url: string
   image_url: string | null
@@ -35,6 +36,7 @@ function transformRow(row: NewsItemRow): Omit<NewsItem, 'body'> {
     title: row.title,
     summary: row.summary,
     category: row.category,
+    companies: row.companies || [],
     source: row.source,
     sourceUrl: row.source_url,
     imageUrl: row.image_url || undefined,
@@ -51,17 +53,22 @@ export async function fetchNews(params: NewsQueryParams = {}): Promise<NewsRespo
     throw new Error('Supabase not configured')
   }
 
-  const { limit = 20, cursor, category, q } = params
+  const { limit = 20, cursor, category, q, company } = params
 
   let query = supabase
     .from('news_items')
-    .select('id, title, summary, category, source, source_url, image_url, published_at, created_at')
+    .select('id, title, summary, category, companies, source, source_url, image_url, published_at, created_at')
     .order('published_at', { ascending: false })
     .limit(limit + 1) // Fetch one extra to check hasMore
 
   // Filter by category
   if (category) {
     query = query.eq('category', category)
+  }
+
+  // Filter by company (companies array contains the slug)
+  if (company) {
+    query = query.contains('companies', [company])
   }
 
   // Search by keyword (title + summary)

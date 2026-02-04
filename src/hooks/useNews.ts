@@ -1,19 +1,21 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { fetchNews, supabase } from '@/lib/db'
 import { getMockNews } from '@/lib/mock-data'
+import { isRelevantForCompany } from '@/lib/company-relevance'
 import type { NewsItem, NewsQueryParams, Category } from '@/types/news'
 
 // Simple in-memory cache for stale-while-revalidate pattern
 const cache = new Map<string, { items: Omit<NewsItem, 'body'>[]; timestamp: number }>()
 const CACHE_TTL = 60 * 1000 // 1 minute
 
-function getCacheKey(category?: Category | null, q?: string): string {
-  return `${category || 'all'}-${q || ''}`
+function getCacheKey(category?: Category | null, q?: string, company?: string | null): string {
+  return `${category || 'all'}-${q || ''}-${company || ''}`
 }
 
 interface UseNewsOptions {
   category?: Category | null
   q?: string
+  company?: string | null
   initialLimit?: number
 }
 
@@ -31,7 +33,7 @@ interface UseNewsResult {
  * Falls back to mock data if Supabase is not configured
  */
 export function useNews(options: UseNewsOptions = {}): UseNewsResult {
-  const { category, q, initialLimit = 20 } = options
+  const { category, q, company, initialLimit = 20 } = options
   const [items, setItems] = useState<Omit<NewsItem, 'body'>[]>([])
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -46,7 +48,7 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
     }
     abortControllerRef.current = new AbortController()
 
-    const cacheKey = getCacheKey(category, q)
+    const cacheKey = getCacheKey(category, q, company)
 
     // Check cache for instant display (stale-while-revalidate)
     if (reset) {
@@ -71,6 +73,7 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
         limit: initialLimit,
         category: category || undefined,
         q: q || undefined,
+        company: company || undefined,
         cursor: reset ? undefined : cursor,
       }
 
@@ -84,17 +87,25 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
         result = getMockNews(params)
       }
 
-      if (reset) {
-        setItems(result.items)
-        // Update cache
-        cache.set(cacheKey, { items: result.items, timestamp: Date.now() })
-      } else {
-        setItems((prev) => [...prev, ...result.items])
+      // Apply relevance filter for company queries
+      // DB returns all articles mentioning the company, but we only show highly relevant ones
+      let filteredItems = result.items
+      if (company) {
+        filteredItems = result.items.filter(item => isRelevantForCompany(item, company))
       }
 
+      if (reset) {
+        setItems(filteredItems)
+        // Update cache
+        cache.set(cacheKey, { items: filteredItems, timestamp: Date.now() })
+      } else {
+        setItems((prev) => [...prev, ...filteredItems])
+      }
+
+      // hasMore is based on original result (there might be more after filtering)
       setHasMore(result.hasMore)
 
-      // Update cursor for next page
+      // Update cursor for next page (use original items to not skip any)
       if (result.items.length > 0) {
         setCursor(result.items[result.items.length - 1].publishedAt)
       }
@@ -105,13 +116,13 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
     } finally {
       setLoading(false)
     }
-  }, [category, q, cursor, initialLimit])
+  }, [category, q, company, cursor, initialLimit])
 
   // Initial fetch and refetch on filter/search change
   useEffect(() => {
     setCursor(undefined)
     fetchData(true)
-  }, [category, q]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [category, q, company]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {

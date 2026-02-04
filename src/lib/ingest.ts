@@ -68,11 +68,10 @@ function classifySimple(
 
   const categoryKeywords: Record<Category, string[]> = {
     ai: ['ai', 'artificial intelligence', 'machine learning', 'llm', 'gpt', 'claude', 'chatbot', 'neural'],
-    startup: ['startup', 'funding', 'series a', 'series b', 'ipo', 'acquisition', 'unicorn', 'venture'],
-    science: ['research', 'study', 'scientists', 'discovery', 'experiment', 'medical', 'biology', 'physics'],
-    design: ['design', 'ui', 'ux', 'figma', 'adobe', 'creative', 'visual', 'interface'],
-    space: ['space', 'nasa', 'spacex', 'rocket', 'mars', 'moon', 'satellite', 'orbit', 'astronaut'],
+    startups: ['startup', 'funding', 'series a', 'series b', 'ipo', 'acquisition', 'unicorn', 'venture'],
     dev: ['developer', 'programming', 'code', 'github', 'javascript', 'python', 'react', 'api', 'framework'],
+    product: ['design', 'ui', 'ux', 'figma', 'adobe', 'creative', 'visual', 'interface', 'product', 'launch'],
+    research: ['research', 'study', 'scientists', 'discovery', 'experiment', 'medical', 'biology', 'physics', 'space', 'nasa', 'spacex', 'rocket', 'mars', 'moon', 'satellite'],
   }
 
   let bestCategory: Category = 'dev'

@@ -1,14 +1,16 @@
-import { useState, useCallback, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Header } from '@/components/layout/Header'
-import { FilterBar, TimelineFeed } from '@/components/news'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { useSearchParams, Navigate } from 'react-router-dom'
+import { Header, Sidebar, SidebarProvider } from '@/components/layout'
+import { FilterBar, TimelineFeed, CompanyFeedHeader } from '@/components/news'
+import type { TimelineFeedRef } from '@/components/news/TimelineFeed'
 import { ScrollToTop } from '@/components/ScrollToTop'
-import { SEO, CATEGORY_SEO, injectItemListSchema, injectBreadcrumbSchema } from '@/components/SEO'
+import { SEO, injectItemListSchema, injectBreadcrumbSchema } from '@/components/SEO'
 import { useNews } from '@/hooks/useNews'
+import { CATEGORIES, COMPANIES } from '@/lib/constants'
 import type { Category } from '@/types/news'
 
 // Valid categories for URL validation
-const VALID_CATEGORIES = ['ai', 'startup', 'science', 'design', 'space', 'dev'] as const
+const VALID_CATEGORIES = CATEGORIES.map(c => c.id)
 
 export function TimelinePage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -16,77 +18,59 @@ export function TimelinePage() {
   // Read initial state from URL
   const urlCategory = searchParams.get('category')
   const urlQuery = searchParams.get('q')
+  const urlCompany = searchParams.get('company')
 
-  // Validate category from URL
-  const initialCategory = urlCategory && VALID_CATEGORIES.includes(urlCategory as Category)
-    ? (urlCategory as Category)
-    : null
+  // Redirect legacy ?category= URLs to new /category paths
+  if (urlCategory && VALID_CATEGORIES.includes(urlCategory as Category)) {
+    return <Navigate to={`/${urlCategory}`} replace />
+  }
 
-  const [category, setCategory] = useState<Category | null>(initialCategory)
+  // Validate company from URL
+  const validCompanyIds = COMPANIES.map(c => c.id)
+  const initialCompany = urlCompany && validCompanyIds.includes(urlCompany) ? urlCompany : null
+
   const [query, setQuery] = useState(urlQuery || '')
+  const [company, setCompany] = useState<string | null>(initialCompany)
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const timelineFeedRef = useRef<TimelineFeedRef>(null)
 
   // Sync state when URL changes (browser back/forward)
   useEffect(() => {
-    const newCategory = searchParams.get('category')
     const newQuery = searchParams.get('q')
+    const newCompany = searchParams.get('company')
 
-    const validCategory = newCategory && VALID_CATEGORIES.includes(newCategory as Category)
-      ? (newCategory as Category)
-      : null
+    const validCompany = newCompany && validCompanyIds.includes(newCompany) ? newCompany : null
 
-    setCategory(validCategory)
     setQuery(newQuery || '')
-  }, [searchParams])
+    setCompany(validCompany)
+  }, [searchParams, validCompanyIds])
 
   // Fetch real data from Supabase (falls back to mock if not configured)
   const { items, hasMore, loading, error, loadMore, refresh } = useNews({
-    category,
+    category: null,
     q: query || undefined,
+    company,
   })
-
-  const handleQueryChange = useCallback((newQuery: string) => {
-    setQuery(newQuery)
-    // Update URL params
-    setSearchParams(prev => {
-      if (newQuery) {
-        prev.set('q', newQuery)
-        prev.delete('category') // Clear category when searching
-      } else {
-        prev.delete('q')
-      }
-      return prev
-    }, { replace: true })
-    // Clear category when searching
-    if (newQuery) {
-      setCategory(null)
-    }
-  }, [setSearchParams])
-
-  const handleCategoryChange = useCallback((newCategory: Category | null) => {
-    setCategory(newCategory)
-    // Update URL params
-    setSearchParams(prev => {
-      if (newCategory) {
-        prev.set('category', newCategory)
-      } else {
-        prev.delete('category')
-      }
-      prev.delete('q') // Clear search when filtering
-      return prev
-    }, { replace: true })
-    // Clear search when filtering
-    setQuery('')
-  }, [setSearchParams])
 
   const handleReset = useCallback(() => {
     setQuery('')
-    setCategory(null)
     // Clear URL params
     setSearchParams({}, { replace: true })
   }, [setSearchParams])
 
-  // Dynamic SEO based on category
-  const seo = category ? CATEGORY_SEO[category] : null
+  // Handle date selection from dropdown
+  const handleDateSelect = useCallback((date: Date) => {
+    setCurrentDate(date)
+    timelineFeedRef.current?.scrollToDate(date)
+  }, [])
+
+  // Handle visible date change from scroll
+  const handleVisibleDateChange = useCallback((date: Date) => {
+    setCurrentDate(date)
+  }, [])
+
+  // Company data for SEO
+  const companyData = company ? COMPANIES.find(c => c.id === company) : null
 
   // Inject structured data for SEO
   useEffect(() => {
@@ -95,10 +79,10 @@ export function TimelinePage() {
       { name: 'Home', url: 'https://updayapp.com' },
       { name: 'Timeline', url: 'https://updayapp.com/timeline' },
     ]
-    if (category) {
+    if (companyData) {
       breadcrumbs.push({
-        name: category.toUpperCase(),
-        url: `https://updayapp.com/timeline?category=${category}`,
+        name: companyData.name,
+        url: `https://updayapp.com/timeline?company=${company}`,
       })
     }
     injectBreadcrumbSchema(breadcrumbs)
@@ -113,35 +97,67 @@ export function TimelinePage() {
         }))
       )
     }
-  }, [category, items])
+  }, [company, companyData, items])
 
   return (
-    <div className="min-h-screen bg-background">
-      <SEO
-        title="Timeline"
-        description={seo?.description || 'Real-time tech news feed. AI-summarized, no noise.'}
-        url={category ? `/${category}` : '/timeline'}
-      />
-      <Header query={query} onQueryChange={handleQueryChange} />
-      <FilterBar
-        currentCategory={category}
-        onCategoryChange={handleCategoryChange}
-        disabled={!!query}
-      />
-      <main id="main-content">
-        <TimelineFeed
-          items={items}
-          hasMore={hasMore}
-          loading={loading}
-          error={error}
-          onLoadMore={loadMore}
-          onRetry={refresh}
-          searchQuery={query || undefined}
-          category={category}
-          onReset={handleReset}
+    <SidebarProvider>
+      <div className="min-h-screen bg-background flex">
+        <SEO
+          title={companyData ? `${companyData.name} News` : 'Timeline'}
+          description={
+            companyData
+              ? `Latest news about ${companyData.name}. AI-summarized tech updates.`
+              : 'Real-time tech news feed. AI-summarized, no noise.'
+          }
+          url={company ? `/timeline?company=${company}` : '/timeline'}
         />
-      </main>
-      <ScrollToTop />
-    </div>
+
+        {/* Sidebar - visible on lg+ */}
+        <Sidebar />
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <Header
+            showLogo={false}
+            showMobileMenu={!company}
+            pageTitle={company ? undefined : "All News"}
+            pageDescription={company ? undefined : "All categories, real-time updates"}
+            backLink={company ? { to: '/timeline/companies', label: 'Back to Companies' } : undefined}
+          />
+          {company ? (
+            <CompanyFeedHeader
+              companyId={company}
+              articleCount={items.length}
+              currentDate={currentDate}
+              onDateSelect={handleDateSelect}
+            />
+          ) : (
+            <FilterBar
+              currentCategory={null}
+              disabled={!!query}
+              currentDate={currentDate}
+              onDateSelect={handleDateSelect}
+            />
+          )}
+          <main id="main-content" className="flex-1">
+            <TimelineFeed
+              ref={timelineFeedRef}
+              items={items}
+              hasMore={hasMore}
+              loading={loading}
+              error={error}
+              onLoadMore={loadMore}
+              onRetry={refresh}
+              searchQuery={query || undefined}
+              category={null}
+              companyName={companyData?.name}
+              onReset={handleReset}
+              onVisibleDateChange={handleVisibleDateChange}
+            />
+          </main>
+        </div>
+        <ScrollToTop />
+      </div>
+    </SidebarProvider>
   )
 }

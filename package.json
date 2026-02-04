@@ -11,7 +11,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "seed": "tsx scripts/seed.ts",
-    "monitor": "tsx scripts/monitor.ts"
+    "monitor": "tsx scripts/monitor.ts",
+    "backfill:companies": "tsx scripts/backfill-companies.ts",
+    "backfill:companies:dry": "tsx scripts/backfill-companies.ts --dry-run",
+    "twitter:post": "tsx scripts/twitter/auto-post.ts",
+    "twitter:dry-run": "DRY_RUN=true tsx scripts/twitter/auto-post.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
@@ -43,6 +47,7 @@
     "globals": "^16.5.0",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",
+    "twitter-api-v2": "^1.29.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

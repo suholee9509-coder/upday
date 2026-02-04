@@ -97,7 +97,72 @@ const RSS_SOURCES = [
   { url: 'https://mashable.com/feeds/rss/all', source: 'Mashable', category: 'startup' },
   { url: 'https://www.techradar.com/rss', source: 'TechRadar', category: 'dev' },
   { url: 'https://arstechnica.com/feed/', source: 'Ars Technica', category: 'ai' },
+
+  // Company Official Blogs - Primary sources for company news (12 sources)
+  { url: 'https://openai.com/blog/rss.xml', source: 'OpenAI Blog', category: 'ai' },
+  { url: 'https://www.anthropic.com/rss.xml', source: 'Anthropic Blog', category: 'ai' },
+  { url: 'https://blog.google/technology/ai/rss/', source: 'Google AI Blog', category: 'ai' },
+  { url: 'https://blogs.microsoft.com/feed/', source: 'Microsoft Blog', category: 'ai' },
+  { url: 'https://ai.meta.com/blog/rss/', source: 'Meta AI Blog', category: 'ai' },
+  { url: 'https://blogs.nvidia.com/feed/', source: 'NVIDIA Blog', category: 'ai' },
+  { url: 'https://mistral.ai/feed.xml', source: 'Mistral Blog', category: 'ai' },
+  { url: 'https://vercel.com/atom', source: 'Vercel Blog', category: 'dev' },
+  { url: 'https://supabase.com/blog/rss.xml', source: 'Supabase Blog', category: 'dev' },
+  { url: 'https://blog.cloudflare.com/rss/', source: 'Cloudflare Blog', category: 'dev' },
+  { url: 'https://stripe.com/blog/feed.rss', source: 'Stripe Blog', category: 'dev' },
+  { url: 'https://shopify.engineering/blog.atom', source: 'Shopify Engineering', category: 'dev' },
 ]
+
+// Company list for keyword matching (synced with src/lib/constants.ts)
+// Maps company slug to search patterns (name variations)
+const COMPANY_PATTERNS: Record<string, RegExp> = {
+  'openai': /\bopen\s?ai\b/i,
+  'anthropic': /\banthropic\b/i,
+  'google': /\bgoogle\b/i,
+  'microsoft': /\bmicrosoft\b/i,
+  'meta': /\bmeta\b(?!\s*data)/i, // Avoid "metadata"
+  'nvidia': /\bnvidia\b/i,
+  'xai': /\bx\.?ai\b/i,
+  'mistral': /\bmistral\b/i,
+  'vercel': /\bvercel\b/i,
+  'supabase': /\bsupabase\b/i,
+  'cloudflare': /\bcloudflare\b/i,
+  'linear': /\blinear\b(?!\s*regression)/i, // Avoid "linear regression"
+  'figma': /\bfigma\b/i,
+  'notion': /\bnotion\b/i,
+  'cursor': /\bcursor\b(?!\s*position)/i, // Avoid "cursor position"
+  'github': /\bgithub\b/i,
+  'databricks': /\bdatabricks\b/i,
+  'apple': /\bapple\b(?!\s*(?:pie|cider|tree))/i, // Avoid food references
+  'amazon': /\bamazon\b/i,
+  'tesla': /\btesla\b/i,
+  'stripe': /\bstripe\b(?!\s*(?:pattern|shirt))/i, // Avoid fashion references
+  'shopify': /\bshopify\b/i,
+  'slack': /\bslack\b(?!\s*(?:off|time))/i, // Avoid "slack off"
+  'discord': /\bdiscord\b/i,
+  'reddit': /\breddit\b/i,
+}
+
+/**
+ * Extract companies mentioned in title/summary using keyword matching
+ * Returns all mentioned companies (filtering done on frontend)
+ */
+function extractCompanies(title: string, summary: string): string[] {
+  const text = `${title} ${summary}`.toLowerCase()
+  const companies: string[] = []
+
+  for (const [slug, pattern] of Object.entries(COMPANY_PATTERNS)) {
+    if (pattern.test(text)) {
+      companies.push(slug)
+    }
+  }
+
+  if (companies.length > 0) {
+    console.log(`[COMPANY] Matched: ${companies.join(', ')} for "${title.substring(0, 50)}..."`)
+  }
+
+  return companies
+}
 
 /**
  * Fetch with timeout using AbortController
@@ -262,11 +327,15 @@ async function processFeed(
 
         const summary = generateSummary(item.content)
 
+        // Extract companies using keyword matching
+        const companies = extractCompanies(item.title, summary)
+
         const { error } = await supabase.from('news_items').insert({
           title: item.title,
           summary: summary,
           body: item.content.substring(0, 5000),
           category: feed.category,
+          companies: companies,
           source: feed.source,
           source_url: item.link,
           published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
@@ -307,6 +376,7 @@ async function runIngestion(env: Env): Promise<{ stats: CrawlStats; feedResults:
   console.log(`[CRON] ========================================`)
   console.log(`[CRON] Starting crawl at ${new Date().toISOString()}`)
   console.log(`[CRON] Feeds to process: ${RSS_SOURCES.length}`)
+  console.log(`[CRON] Company tagging: enabled (keyword matching)`)
   console.log(`[CRON] ========================================`)
 
   const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)

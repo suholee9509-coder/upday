@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { NewsCard } from './NewsCard'
 import { DateSeparator } from './DateSeparator'
 import { NewsCardSkeleton } from './NewsCardSkeleton'
@@ -7,7 +7,11 @@ import { Button } from '@/components/ui'
 import { isSameDay, cn } from '@/lib/utils'
 import type { NewsItem, Category } from '@/types/news'
 
-type EmptyStateType = 'search' | 'filter' | 'error' | 'empty'
+type EmptyStateType = 'search' | 'filter' | 'error' | 'empty' | 'company'
+
+export interface TimelineFeedRef {
+  scrollToDate: (date: Date) => void
+}
 
 interface TimelineFeedProps {
   items: Omit<NewsItem, 'body'>[]
@@ -20,10 +24,12 @@ interface TimelineFeedProps {
   emptyStateType?: EmptyStateType
   searchQuery?: string
   category?: Category | null
+  companyName?: string
   className?: string
+  onVisibleDateChange?: (date: Date) => void
 }
 
-export function TimelineFeed({
+export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(function TimelineFeed({
   items,
   hasMore,
   loading = false,
@@ -34,8 +40,10 @@ export function TimelineFeed({
   emptyStateType,
   searchQuery,
   category,
+  companyName,
   className,
-}: TimelineFeedProps) {
+  onVisibleDateChange,
+}, ref) {
   // Generate status message for screen readers
   const getStatusMessage = () => {
     if (error) return 'Error loading news. Please try again.'
@@ -48,6 +56,59 @@ export function TimelineFeed({
     }
     return `${items.length} news items loaded.`
   }
+
+  // Refs for date groups (for scroll-to-date feature)
+  const dateGroupRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+
+  // Expose scrollToDate method via ref
+  useImperativeHandle(ref, () => ({
+    scrollToDate: (date: Date) => {
+      const dateKey = date.toISOString().split('T')[0]
+      // Find the matching date group
+      for (const [key, element] of dateGroupRefs.current) {
+        const groupDate = new Date(key).toISOString().split('T')[0]
+        if (groupDate === dateKey) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          return
+        }
+      }
+    }
+  }), [])
+
+  // Track visible date using IntersectionObserver
+  useEffect(() => {
+    if (!onVisibleDateChange || items.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the topmost visible date separator
+        const visibleEntries = entries.filter(e => e.isIntersecting)
+        if (visibleEntries.length > 0) {
+          // Sort by their position and get the topmost one
+          const topEntry = visibleEntries.reduce((top, entry) => {
+            const topRect = top.boundingClientRect
+            const entryRect = entry.boundingClientRect
+            return entryRect.top < topRect.top ? entry : top
+          })
+          const dateStr = (topEntry.target as HTMLElement).dataset.date
+          if (dateStr) {
+            onVisibleDateChange(new Date(dateStr))
+          }
+        }
+      },
+      {
+        threshold: 0,
+        rootMargin: '-110px 0px -80% 0px' // Account for header + filterbar, trigger when near top
+      }
+    )
+
+    // Observe all date group elements
+    dateGroupRefs.current.forEach((element) => {
+      observer.observe(element)
+    })
+
+    return () => observer.disconnect()
+  }, [items, onVisibleDateChange])
 
   // Infinite scroll using IntersectionObserver
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -122,7 +183,7 @@ export function TimelineFeed({
   // Empty state
   if (!loading && items.length === 0) {
     // Determine empty state type based on context
-    const type = emptyStateType || (searchQuery ? 'search' : category ? 'filter' : 'empty')
+    const type = emptyStateType || (searchQuery ? 'search' : companyName ? 'company' : category ? 'filter' : 'empty')
 
     return (
       <div className={cn('max-w-2xl mx-auto', className)}>
@@ -131,6 +192,7 @@ export function TimelineFeed({
           type={type}
           query={searchQuery}
           category={category || undefined}
+          companyName={companyName}
           onReset={onReset}
         />
       </div>
@@ -141,7 +203,17 @@ export function TimelineFeed({
     <div className={cn('max-w-2xl mx-auto', className)}>
       {liveRegion}
       {groupedItems.map((group) => (
-        <div key={group.date}>
+        <div
+          key={group.date}
+          ref={(el) => {
+            if (el) {
+              dateGroupRefs.current.set(group.date, el)
+            } else {
+              dateGroupRefs.current.delete(group.date)
+            }
+          }}
+          data-date={group.date}
+        >
           <DateSeparator date={group.date} />
           {group.items.map((item) => (
             <NewsCard key={item.id} item={item} />
@@ -177,4 +249,4 @@ export function TimelineFeed({
       )}
     </div>
   )
-}
+})

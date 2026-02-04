@@ -23,11 +23,11 @@ export function NotFoundPage() {
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button onClick={() => navigate('/')}>
-            <Home className="mr-2 h-4 w-4" />
+            <Home />
             Go home
           </Button>
           <Button variant="outline" onClick={() => navigate('/timeline')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft />
             View Timeline
           </Button>
         </div>

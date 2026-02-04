@@ -1,8 +1,40 @@
 import { useState, memo } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui'
-import { formatRelativeTime, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { NewsItem } from '@/types/news'
+
+// Format relative time (e.g., "5m ago", "2h ago", "Yesterday")
+function formatTimeAgo(date: Date): string {
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / (1000 * 60))
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays}d ago`
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+// NOW indicator for articles published within the last hour
+function TimeDisplay({ publishedAt }: { publishedAt: string | Date }) {
+  const date = typeof publishedAt === 'string' ? new Date(publishedAt) : publishedAt
+  const isNow = Date.now() - date.getTime() < 60 * 60 * 1000 // 1 hour
+  const timeAgo = formatTimeAgo(date)
+
+  return (
+    <time className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      {isNow && (
+        <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" aria-label="Recently published" />
+      )}
+      {timeAgo}
+    </time>
+  )
+}
 
 interface NewsCardProps {
   item: Omit<NewsItem, 'body'>
@@ -41,9 +73,7 @@ export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProp
 
             {/* 3rd: Time + Category - metadata */}
             <div className="flex items-center gap-2 mb-2">
-              <time className="text-xs text-muted-foreground">
-                {formatRelativeTime(item.publishedAt)}
-              </time>
+              <TimeDisplay publishedAt={item.publishedAt} />
               <Badge variant={item.category} className="text-[10px] uppercase tracking-wide">
                 {item.category}
               </Badge>

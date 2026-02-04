@@ -10,8 +10,7 @@ export const DateSeparator = memo(function DateSeparator({ date, className }: Da
   return (
     <div
       className={cn(
-        'sticky top-0 z-10 px-4 py-2.5',
-        'bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80',
+        'px-4 py-2.5',
         'border-b border-border',
         className
       )}

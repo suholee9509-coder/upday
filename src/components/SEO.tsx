@@ -83,31 +83,27 @@ export function SEO({
   return null
 }
 
-// Category SEO presets
+// Category SEO presets (5 categories)
 export const CATEGORY_SEO: Record<string, { title: string; description: string }> = {
   ai: {
     title: 'AI News',
     description: 'Breaking AI news: LLMs, machine learning, ChatGPT, and emerging AI trends updated in real-time.',
   },
-  startup: {
+  startups: {
     title: 'Startup News',
     description: 'Latest startup funding, acquisitions, IPOs, and founder stories as they happen.',
-  },
-  science: {
-    title: 'Science News',
-    description: 'Breaking scientific discoveries, research breakthroughs, and tech innovations.',
-  },
-  space: {
-    title: 'Space News',
-    description: 'Real-time updates on SpaceX, NASA, rocket launches, and space exploration.',
   },
   dev: {
     title: 'Developer News',
     description: 'Latest in programming, open source, GitHub updates, and developer tools.',
   },
-  design: {
-    title: 'Design News',
-    description: 'Breaking product design, UI/UX trends, and creative tool updates.',
+  product: {
+    title: 'Product News',
+    description: 'Breaking product design, UI/UX trends, launches, and creative tool updates.',
+  },
+  research: {
+    title: 'Research News',
+    description: 'Scientific discoveries, space exploration, and research breakthroughs in real-time.',
   },
 }
 
@@ -212,6 +208,51 @@ export function injectItemListSchema(items: { title: string; url: string; positi
   const script = document.createElement('script')
   script.type = 'application/ld+json'
   script.setAttribute('data-schema', 'item-list')
+  script.textContent = JSON.stringify(schema)
+  document.head.appendChild(script)
+}
+
+/**
+ * Inject CollectionPage structured data for category pages
+ * Following Google's guidelines for collection/category pages
+ */
+export function injectCollectionPageSchema(page: {
+  name: string
+  description: string
+  url: string
+  about: string
+}) {
+  const existingScript = document.querySelector('script[data-schema="collection-page"]')
+  if (existingScript) {
+    existingScript.remove()
+  }
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: page.name,
+    description: page.description,
+    url: page.url,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Upday',
+      url: 'https://updayapp.com',
+    },
+    about: {
+      '@type': 'Thing',
+      name: page.about,
+    },
+    inLanguage: 'en',
+    publisher: {
+      '@type': 'Organization',
+      name: 'Upday',
+      url: 'https://updayapp.com',
+    },
+  }
+
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.setAttribute('data-schema', 'collection-page')
   script.textContent = JSON.stringify(schema)
   document.head.appendChild(script)
 }

@@ -21,7 +21,8 @@ export interface RSSSource {
 
 /**
  * RSS feed sources organized by category
- * Total: ~45 feeds across 6 categories with global diversity
+ * Total: ~45 feeds across 5 categories with global diversity
+ * Categories: ai, startups, dev, product, research
  */
 export const RSS_SOURCES: RSSSource[] = [
   // ============================================
@@ -78,157 +79,157 @@ export const RSS_SOURCES: RSSSource[] = [
   },
 
   // ============================================
-  // Startup - 5 sources
+  // Startups - 5 sources
   // ============================================
   {
     url: 'https://techcrunch.com/category/startups/feed/',
     source: 'TechCrunch',
-    categories: ['startup'],
+    categories: ['startups'],
     region: 'us',
     priority: 5,
   },
   {
     url: 'https://news.crunchbase.com/feed/',
     source: 'Crunchbase News',
-    categories: ['startup'],
+    categories: ['startups'],
     region: 'us',
     priority: 4,
   },
   {
     url: 'https://restofworld.org/feed/latest/',
     source: 'Rest of World',
-    categories: ['startup'],
+    categories: ['startups'],
     region: 'global',
     priority: 4, // Global tech perspective
   },
   {
     url: 'https://thenextweb.com/feed',
     source: 'The Next Web',
-    categories: ['startup'],
+    categories: ['startups'],
     region: 'eu',
     priority: 4,
   },
   {
     url: 'https://mashable.com/feeds/rss/all',
     source: 'Mashable',
-    categories: ['startup'],
+    categories: ['startups'],
     region: 'us',
     priority: 3,
   },
 
   // ============================================
-  // Science - 5 sources
+  // Research - 5 sources (Science + Space combined)
   // ============================================
   {
     url: 'https://feeds.arstechnica.com/arstechnica/science',
     source: 'Ars Technica',
-    categories: ['science'],
+    categories: ['research'],
     region: 'us',
     priority: 4,
   },
   {
     url: 'https://www.sciencedaily.com/rss/all.xml',
     source: 'Science Daily',
-    categories: ['science'],
+    categories: ['research'],
     region: 'us',
     priority: 3,
   },
   {
     url: 'https://phys.org/rss-feed/',
     source: 'Phys.org',
-    categories: ['science'],
+    categories: ['research'],
     region: 'global',
     priority: 4,
   },
   {
     url: 'https://www.technologyreview.com/feed/',
     source: 'MIT Technology Review',
-    categories: ['science'],
+    categories: ['research'],
     region: 'us',
     priority: 5,
   },
   {
     url: 'https://www.wired.com/feed/rss',
     source: 'Wired',
-    categories: ['science'],
+    categories: ['research'],
     region: 'us',
     priority: 4,
   },
 
   // ============================================
-  // Design - 6 sources
+  // Product - 6 sources (formerly Design)
   // ============================================
   {
     url: 'https://feeds.feedburner.com/fastcompany/headlines',
     source: 'Fast Company',
-    categories: ['design'],
+    categories: ['product'],
     region: 'us',
     priority: 4,
   },
   {
     url: 'https://www.dezeen.com/feed/',
     source: 'Dezeen',
-    categories: ['design'],
+    categories: ['product'],
     region: 'eu',
     priority: 5,
   },
   {
     url: 'https://www.designboom.com/feed/',
     source: 'Designboom',
-    categories: ['design'],
+    categories: ['product'],
     region: 'global',
     priority: 3,
   },
   {
     url: 'https://feeds.feedburner.com/core77/blog',
     source: 'Core77',
-    categories: ['design'],
+    categories: ['product'],
     region: 'us',
     priority: 3,
   },
   {
     url: 'https://alistapart.com/main/feed/',
     source: 'A List Apart',
-    categories: ['design'],
+    categories: ['product'],
     region: 'us',
     priority: 4,
   },
   {
     url: 'https://smashingmagazine.com/feed',
     source: 'Smashing Magazine',
-    categories: ['design'],
+    categories: ['product'],
     region: 'eu',
     priority: 4,
   },
 
   // ============================================
-  // Space - 4 sources
+  // Research (Space) - 4 sources (merged into Research)
   // ============================================
   {
     url: 'https://spacenews.com/feed/',
     source: 'SpaceNews',
-    categories: ['space'],
+    categories: ['research'],
     region: 'us',
     priority: 5,
   },
   {
     url: 'https://feeds.arstechnica.com/arstechnica/space',
     source: 'Ars Technica',
-    categories: ['space'],
+    categories: ['research'],
     region: 'us',
     priority: 4,
   },
   {
     url: 'https://www.nasa.gov/feed/',
     source: 'NASA',
-    categories: ['space'],
+    categories: ['research'],
     region: 'us',
     priority: 5,
   },
   {
     url: 'https://www.space.com/feeds/all',
     source: 'Space.com',
-    categories: ['space'],
+    categories: ['research'],
     region: 'us',
     priority: 4,
   },
@@ -313,7 +314,7 @@ export const RSS_SOURCES: RSSSource[] = [
   {
     url: 'https://feeds.bbci.co.uk/news/technology/rss.xml',
     source: 'BBC Technology',
-    categories: ['ai', 'dev', 'science'],
+    categories: ['ai', 'dev', 'research'],
     region: 'eu',
     priority: 5, // High credibility global source
   },
@@ -327,7 +328,7 @@ export const RSS_SOURCES: RSSSource[] = [
   {
     url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
     source: 'NY Times Tech',
-    categories: ['ai', 'science'],
+    categories: ['ai', 'research'],
     region: 'us',
     priority: 5,
   },
@@ -355,9 +356,97 @@ export const RSS_SOURCES: RSSSource[] = [
   {
     url: 'https://arstechnica.com/feed/',
     source: 'Ars Technica',
-    categories: ['ai', 'dev', 'science'],
+    categories: ['ai', 'dev', 'research'],
     region: 'us',
     priority: 4,
+  },
+
+  // ============================================
+  // Company Official Blogs - Primary sources (12 sources)
+  // ============================================
+  {
+    url: 'https://openai.com/blog/rss.xml',
+    source: 'OpenAI Blog',
+    categories: ['ai'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://www.anthropic.com/rss.xml',
+    source: 'Anthropic Blog',
+    categories: ['ai'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://blog.google/technology/ai/rss/',
+    source: 'Google AI Blog',
+    categories: ['ai'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://blogs.microsoft.com/feed/',
+    source: 'Microsoft Blog',
+    categories: ['ai'],
+    region: 'us',
+    priority: 4,
+  },
+  {
+    url: 'https://ai.meta.com/blog/rss/',
+    source: 'Meta AI Blog',
+    categories: ['ai'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://blogs.nvidia.com/feed/',
+    source: 'NVIDIA Blog',
+    categories: ['ai'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://mistral.ai/feed.xml',
+    source: 'Mistral Blog',
+    categories: ['ai'],
+    region: 'eu',
+    priority: 4,
+  },
+  {
+    url: 'https://vercel.com/atom',
+    source: 'Vercel Blog',
+    categories: ['dev'],
+    region: 'us',
+    priority: 4,
+  },
+  {
+    url: 'https://supabase.com/blog/rss.xml',
+    source: 'Supabase Blog',
+    categories: ['dev'],
+    region: 'us',
+    priority: 4,
+  },
+  {
+    url: 'https://blog.cloudflare.com/rss/',
+    source: 'Cloudflare Blog',
+    categories: ['dev'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://stripe.com/blog/feed.rss',
+    source: 'Stripe Blog',
+    categories: ['dev'],
+    region: 'us',
+    priority: 4,
+  },
+  {
+    url: 'https://shopify.engineering/blog.atom',
+    source: 'Shopify Engineering',
+    categories: ['dev'],
+    region: 'us',
+    priority: 3,
   },
 ]
 

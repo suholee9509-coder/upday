@@ -3,10 +3,15 @@ import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { SkipLink } from '@/components/SkipLink'
+import { Toaster } from '@/components/ui'
+import { ToastProvider } from '@/hooks/useToast'
+import { CommandPaletteProvider } from '@/components/CommandPalette'
 
 // Code splitting - lazy load pages
 const LandingPage = lazy(() => import('@/pages/LandingPage').then(m => ({ default: m.LandingPage })))
 const TimelinePage = lazy(() => import('@/pages/TimelinePage').then(m => ({ default: m.TimelinePage })))
+const CategoryPage = lazy(() => import('@/pages/CategoryPage').then(m => ({ default: m.CategoryPage })))
+const CompanyBrowserPage = lazy(() => import('@/pages/CompanyBrowserPage').then(m => ({ default: m.CompanyBrowserPage })))
 const ComponentsPage = lazy(() => import('@/pages/ComponentsPage').then(m => ({ default: m.ComponentsPage })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 const AboutPage = lazy(() => import('@/pages/AboutPage').then(m => ({ default: m.AboutPage })))
@@ -47,6 +52,13 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/timeline" element={<TimelinePage />} />
+        {/* SEO-friendly category routes */}
+        <Route path="/ai" element={<CategoryPage />} />
+        <Route path="/startups" element={<CategoryPage />} />
+        <Route path="/dev" element={<CategoryPage />} />
+        <Route path="/product" element={<CategoryPage />} />
+        <Route path="/research" element={<CategoryPage />} />
+        <Route path="/timeline/companies" element={<CompanyBrowserPage />} />
         <Route path="/components" element={<ComponentsPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
@@ -61,10 +73,15 @@ function AppRoutes() {
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <SkipLink />
-        <AppRoutes />
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <CommandPaletteProvider>
+            <SkipLink />
+            <AppRoutes />
+            <Toaster />
+          </CommandPaletteProvider>
+        </BrowserRouter>
+      </ToastProvider>
     </ErrorBoundary>
   )
 }
