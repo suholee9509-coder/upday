@@ -106,7 +106,6 @@ export function DateDropdown({ currentDate, onDateSelect, className }: DateDropd
         className={cn(
           'inline-flex items-center gap-1 text-xs font-medium',
           'text-muted-foreground hover:text-foreground',
-          'transition-colors duration-150',
           'focus-visible:outline-none focus-visible:text-foreground'
         )}
         aria-expanded={isOpen}
@@ -144,7 +143,6 @@ export function DateDropdown({ currentDate, onDateSelect, className }: DateDropd
                 className={cn(
                   'relative w-full flex items-center rounded-sm px-2 py-1.5 text-xs',
                   'cursor-pointer select-none outline-none',
-                  'transition-colors duration-75',
                   isSelected
                     ? 'bg-accent text-accent-foreground'
                     : 'text-foreground/80 hover:bg-accent hover:text-accent-foreground'

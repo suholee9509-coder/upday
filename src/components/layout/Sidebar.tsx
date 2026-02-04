@@ -4,6 +4,7 @@ import { Radio, ChevronRight, ChevronLeft, Pin, Grid2X2, Menu, X } from 'lucide-
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
 import { CompanyLogo } from '@/components/CompanyLogo'
+import { UpdayWordmark } from '@/components/UpdayLogo'
 import { usePinnedCompanies } from '@/hooks/usePinnedCompanies'
 import { COMPANIES } from '@/lib/constants'
 
@@ -115,15 +116,12 @@ export function Sidebar() {
           <Link
             to="/"
             className={cn(
-              'flex items-center gap-2.5 text-sidebar-foreground hover:opacity-80',
+              'text-sidebar-foreground hover:opacity-80',
               springTransition,
               isCollapsed && 'hidden'
             )}
           >
-            <div className="w-6 h-6 bg-foreground rounded-md flex items-center justify-center">
-              <span className="text-background text-sm font-bold">U</span>
-            </div>
-            <span className="font-semibold text-base">upday</span>
+            <UpdayWordmark size="sm" />
           </Link>
 
           {/* Collapse Toggle - Desktop only */}

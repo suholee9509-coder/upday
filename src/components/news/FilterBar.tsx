@@ -15,7 +15,6 @@ interface FilterBarProps {
 
 const chipBase = cn(
   'inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium',
-  'transition-all duration-150 ease-out',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2',
   'h-7 px-3 text-xs'
 )

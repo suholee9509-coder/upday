@@ -52,8 +52,8 @@ export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProp
       rel="noopener noreferrer"
       className={cn(
         'block group p-4 border-b border-border',
-        'transition-colors duration-150 hover:bg-muted/50',
-        'cursor-pointer',
+        'hover:bg-muted/50 active:bg-muted/70',
+        'cursor-pointer contain-layout contain-paint',
         className
       )}
     >
