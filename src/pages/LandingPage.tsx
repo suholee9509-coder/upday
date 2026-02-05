@@ -1,7 +1,7 @@
 import { ArrowRight, Sparkles, Clock, Zap, Globe } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Badge, ThemeToggle, LanguageDropdown } from '@/components/ui'
+import { Button, Badge, ThemeToggle, LanguageToggle } from '@/components/ui'
 import { NewsCard } from '@/components/news'
 import { SEO } from '@/components/SEO'
 import { UpdayWordmark } from '@/components/UpdayLogo'
@@ -36,7 +36,7 @@ export function LandingPage() {
             <UpdayWordmark size="md" />
           </Link>
           <div className="flex items-center gap-2">
-            <LanguageDropdown />
+            <LanguageToggle />
             <ThemeToggle />
             <Button
               size="sm"

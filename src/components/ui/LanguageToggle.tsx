@@ -32,7 +32,7 @@ export function LanguageToggle() {
       title={nextLang === 'en' ? 'English' : '한국어'}
     >
       <span className="text-sm font-medium">
-        {currentLang === 'en' ? 'EN' : '한'}
+        {currentLang === 'en' ? 'EN' : 'KR'}
       </span>
     </Button>
   )

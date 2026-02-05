@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { SEO } from '@/components/SEO'
 
 /**
  * Redirect page for tracking outbound clicks
@@ -39,9 +40,12 @@ export function RedirectPage() {
   }, [targetUrl])
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
-      <p className="text-sm text-muted-foreground">Redirecting...</p>
-    </div>
+    <>
+      <SEO title="Redirecting" noindex />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
+        <p className="text-sm text-muted-foreground">Redirecting...</p>
+      </div>
+    </>
   )
 }

@@ -405,7 +405,7 @@ export function MyFeedPage() {
 
   return (
     <>
-      <SEO title="My Feed" description="Your personalized news feed based on your interests" />
+      <SEO title="My Feed" description="Your personalized news feed based on your interests" noindex />
 
       <SidebarProvider>
         <div className="min-h-screen bg-background flex">

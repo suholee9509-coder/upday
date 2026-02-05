@@ -10,6 +10,7 @@ interface SEOProps {
   type?: 'website' | 'article'
   publishedTime?: string
   section?: string
+  noindex?: boolean // Prevent search engine indexing for private pages
 }
 
 const BASE_URL = 'https://updayapp.com'
@@ -27,6 +28,7 @@ export function SEO({
   type = 'website',
   publishedTime,
   section,
+  noindex = false,
 }: SEOProps) {
   const fullTitle = title ? `${title} | Upday` : DEFAULT_TITLE
   const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`
@@ -64,6 +66,17 @@ export function SEO({
     // Primary meta tags (language-aware for search results)
     updateMeta('meta[name="description"]', metaDescription)
 
+    // Robots meta tag for noindex pages (private/utility pages)
+    if (noindex) {
+      updateMeta('meta[name="robots"]', 'noindex, nofollow')
+    } else {
+      // Reset to default indexable state for public pages
+      const robotsMeta = document.querySelector('meta[name="robots"]') as HTMLMetaElement
+      if (robotsMeta && robotsMeta.content === 'noindex, nofollow') {
+        robotsMeta.content = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+      }
+    }
+
     // Open Graph (always English for social sharing)
     updateMeta('meta[property="og:title"]', fullTitle)
     updateMeta('meta[property="og:description"]', socialDescription)
@@ -94,7 +107,7 @@ export function SEO({
     }
     canonical.href = fullUrl
 
-  }, [fullTitle, metaDescription, socialDescription, image, fullUrl, type, publishedTime, section, currentLang])
+  }, [fullTitle, metaDescription, socialDescription, image, fullUrl, type, publishedTime, section, currentLang, noindex])
 
   return null
 }
