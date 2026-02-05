@@ -28,9 +28,9 @@
 
 ---
 
-## 🔴 Critical 문제 - 즉시 해결 필요
+## ✅ 완료된 작업 (2026-02-06 추가)
 
-### 3. React SPA 문제 - Prerendering 추가
+### 3. React SPA 문제 - Prerendering 추가 ✅ SOLVED
 
 **문제:**
 ```html
@@ -40,73 +40,68 @@
 </body>
 ```
 
-**해결 옵션:**
+**해결 방법:** GitHub Actions + Puppeteer Pre-rendering
 
-#### Option A: Cloudflare Pages Prerendering (추천 ⭐)
-Cloudflare Pages는 자동 prerendering을 지원하지만 직접 설정 필요.
+**구현 완료:**
+- `.github/workflows/deploy.yml` 생성
+- Puppeteer로 빌드 시 주요 페이지 pre-render
+- Cloudflare Workers로 배포
 
-**설정 방법:**
-1. Cloudflare Dashboard > Workers & Pages > upday 선택
-2. Settings > Functions > Headers/Redirects 탭
-3. `_headers` 파일에 추가:
-```
-/
-  X-Robots-Tag: all
+**워크플로우:**
+```yaml
+- name: Install Chrome
+  uses: browser-actions/setup-chrome@v1
 
-/*
-  X-Robots-Tag: all
-```
+- name: Build with Pre-rendering
+  run: npm run build
+  env:
+    ENABLE_PRERENDER: 'true'
 
-4. **Cloudflare의 Crawler Hints 활용:**
-   - [Cloudflare Crawler Hints](https://blog.cloudflare.com/cloudflare-crawler-hints-support/)
-   - `<meta name="cf-2fa-verify" content="none" />` 추가하면 크롤러에게 정적 HTML 제공
-
-#### Option B: react-snap (로컬 prerendering)
-```bash
-npm install --save-dev react-snap
+- name: Deploy to Cloudflare Workers
+  uses: cloudflare/wrangler-action@v3
 ```
 
-**package.json:**
-```json
-{
-  "scripts": {
-    "postbuild": "react-snap"
-  },
-  "reactSnap": {
-    "include": [
-      "/",
-      "/timeline",
-      "/ai",
-      "/startups",
-      "/dev",
-      "/product",
-      "/research"
-    ],
-    "inlineCss": true,
-    "minifyHtml": {
-      "collapseWhitespace": true,
-      "removeComments": true
-    }
-  }
-}
+**검증:** Google Search Console "URL 검사" > "실시간 테스트" 통과 ✅
+
+### 4. noindex for Private Pages ✅ NEW
+
+**구현:** SEO 컴포넌트에 `noindex` prop 추가
+
+**적용된 페이지:**
+- `/settings` - 사용자 설정
+- `/timeline/my` - 개인 피드
+- `/components` - 컴포넌트 데모
+- `/go` - 리다이렉트 유틸리티
+
+**효과:** Crawl budget 절약, 불필요한 페이지 인덱싱 방지
+
+### 5. revisit-after 메타 태그 ✅ NEW
+
+**구현:** `index.html`에 추가
+```html
+<meta name="revisit-after" content="4 hours" />
 ```
 
-**리스크:**
-- 빌드 시간 증가
-- 동적 콘텐츠는 여전히 JS 필요
+**효과:** 크롤러에게 4시간마다 재방문 힌트 (뉴스 업데이트 주기와 일치)
 
-#### Option C: Next.js 마이그레이션 (장기)
-**장점:**
-- SSR/SSG 기본 지원
-- Automatic Static Optimization
-- Image Optimization
-- ISR (Incremental Static Regeneration)
+### 6. 검색엔진 등록 ✅ VERIFIED
 
-**단점:**
-- 완전한 리팩토링 필요 (2-3주)
-- React Router → Next.js Router 마이그레이션
+- **Google Search Console:** 등록 완료, 사이트맵 제출됨
+- **Bing Webmaster Tools:** 사이트맵으로 인증 완료
+- **Naver Search Advisor:** 등록 완료
 
-**권장:** Option A (Crawler Hints) → Option B (react-snap) → Option C (Next.js, 장기)
+---
+
+## 🔴 (이전) Critical 문제 - 해결됨
+
+### React SPA Prerendering - 참고용 이전 옵션들
+
+~~**권장:** Option A (Crawler Hints) → Option B (react-snap) → Option C (Next.js, 장기)~~
+
+**최종 선택:** GitHub Actions + Puppeteer (@prerenderer/rollup-plugin)
+- 무료 (GitHub Actions 무료 tier)
+- Cloudflare Workers와 호환
+- 빌드 시 pre-render하여 정적 HTML 제공
 
 ---
 
@@ -444,11 +439,14 @@ export default {
 
 ## 🚀 90일 실행 플랜
 
-### Week 1-2 (Foundation)
+### Week 1-2 (Foundation) ✅ COMPLETE
 - [x] 개별 뉴스 페이지 추가
 - [x] 회사별 페이지 추가
-- [ ] 동적 Sitemap Worker 배포
-- [ ] Prerendering 설정 (Cloudflare Crawler Hints)
+- [x] Sitemap 구성 (sitemap.xml, news-sitemap.xml)
+- [x] Prerendering 설정 (GitHub Actions + Puppeteer)
+- [x] noindex for private pages
+- [x] revisit-after 메타 태그
+- [x] Google/Bing/Naver 검색엔진 등록
 
 ### Week 3-4 (Optimization)
 - [ ] NewsCard 내부 링크 추가
@@ -481,17 +479,25 @@ export default {
 
 ## 🎯 Next Steps
 
-1. **즉시 (오늘):**
-   - [x] NewsDetailPage 및 CompanyPage 생성 완료
-   - [ ] App.tsx 라우트 추가 확인
-   - [ ] 로컬 테스트
+### ✅ 완료 (2026-02-06)
+- [x] NewsDetailPage 및 CompanyPage 생성 완료
+- [x] App.tsx 라우트 추가 확인
+- [x] GitHub Actions CI/CD 설정 (pre-rendering 포함)
+- [x] Cloudflare Workers 배포
+- [x] Google Search Console 실시간 테스트 통과
+- [x] noindex for private pages
+- [x] Bing/Naver 검색엔진 등록
 
-2. **내일:**
-   - [ ] workers/sitemap.ts 생성 및 배포
-   - [ ] Cloudflare Crawler Hints 설정
-   - [ ] NewsCard 내부 링크 수정
-
-3. **이번 주:**
+### 다음 작업
+1. **이번 주:**
+   - [ ] NewsCard 내부 링크 수정 (/news/:id로)
    - [ ] Google Discover FAQ 추가
    - [ ] Bundle size 분석 및 최적화
-   - [ ] 배포 및 GSC에서 색인 상태 모니터링
+
+2. **다음 주:**
+   - [ ] 동적 Sitemap Worker (실시간 뉴스 반영)
+   - [ ] 카테고리 페이지 랜딩 콘텐츠 강화
+
+3. **모니터링:**
+   - [ ] GSC에서 색인 상태 확인 (2-3일 후)
+   - [ ] Bing Webmaster에서 크롤링 현황 확인
