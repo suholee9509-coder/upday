@@ -18,61 +18,16 @@ interface TimelineNavigatorProps {
   weeks: TimelineWeek[]
   activeWeekIndex: number
   onWeekClick: (index: number) => void
-  className?: string
 }
 
 export function TimelineNavigator({
   weeks,
   activeWeekIndex,
   onWeekClick,
-  className,
 }: TimelineNavigatorProps) {
   return (
     <>
-      {/* Mobile: Horizontal scroll timeline at top */}
-      <nav
-        className={cn(
-          'fixed left-0 right-0 top-[60px] z-20',
-          'bg-background/98 backdrop-blur-md',
-          'border-b border-border/50',
-          'flex md:hidden',
-          'shadow-[0_2px_8px_rgba(0,0,0,0.04)]',
-          'dark:shadow-[0_2px_8px_rgba(0,0,0,0.16)]',
-          className
-        )}
-        aria-label="Timeline navigation"
-      >
-        <div className="flex gap-1 overflow-x-auto scrollbar-hide px-4 py-2">
-          {weeks.map((week, index) => {
-            const isActive = index === activeWeekIndex
-            const isCurrent = index === 0
-
-            return (
-              <button
-                key={week.weekStart}
-                onClick={() => onWeekClick(index)}
-                className={cn(
-                  'flex-shrink-0 px-3 py-1.5 rounded-full',
-                  'text-xs font-medium',
-                  'transition-all duration-200',
-                  isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
-                aria-label={`Jump to week of ${week.label}`}
-                aria-current={isActive ? 'true' : undefined}
-              >
-                {week.label}
-                {isCurrent && !isActive && (
-                  <span className="ml-1 text-[10px] text-primary">•</span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </nav>
-
-      {/* Desktop: Vertical timeline on right */}
+      {/* Desktop only: Vertical timeline on right */}
       <nav
         className={cn(
           'fixed right-0 top-[112px] bottom-0 z-20',

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { NewsCard } from './NewsCard'
+import { useLanguage } from '@/hooks/useLanguage'
 import { DateSeparator } from './DateSeparator'
 import { NewsCardSkeleton } from './NewsCardSkeleton'
 import { EmptyState } from './EmptyState'
@@ -47,8 +47,7 @@ export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(funct
   className,
   onVisibleDateChange,
 }, ref) {
-  const { i18n } = useTranslation()
-  const language = i18n.language
+  const { currentLanguage: language } = useLanguage()
 
   // Generate status message for screen readers
   const getStatusMessage = () => {

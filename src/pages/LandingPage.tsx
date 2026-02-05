@@ -7,10 +7,11 @@ import { SEO } from '@/components/SEO'
 import { UpdayWordmark } from '@/components/UpdayLogo'
 import { mockNews } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
+import { useLanguage } from '@/hooks/useLanguage'
 
 export function LandingPage() {
-  const { t, i18n } = useTranslation()
-  const language = i18n.language
+  const { t } = useTranslation()
+  const { currentLanguage: language } = useLanguage()
   const navigate = useNavigate()
   const previewItems = mockNews.slice(0, 3)
 

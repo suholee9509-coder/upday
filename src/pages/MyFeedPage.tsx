@@ -17,7 +17,6 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Navigate, Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import { AlertCircle, ChevronDown, ChevronUp, Inbox, Settings, TrendingUp } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Sidebar, SidebarProvider, useSidebar } from '@/components/layout/Sidebar'
@@ -27,6 +26,7 @@ import { TimelineNavigator } from '@/components/timeline/TimelineNavigator'
 import { Button } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
+import { useLanguage } from '@/hooks/useLanguage'
 import { useMyFeed } from '@/hooks/useMyFeed'
 import { useUserInterests } from '@/hooks/useUserInterests'
 import type { NewsCluster } from '@/lib/clustering'
@@ -208,7 +208,7 @@ function ClusterCard({ cluster, userKeywords, language }: { cluster: NewsCluster
 }
 
 /**
- * Weekly Insights Bar - Shows feed statistics and quick filters
+ * Weekly Insights Bar - Shows feed statistics (desktop only)
  */
 interface WeeklyInsightsBarProps {
   totalArticles: number
@@ -223,7 +223,8 @@ function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
     <div
       className={cn(
         'fixed top-[60px] left-0 z-10',
-        'right-0 md:right-[240px]', // Account for timeline navigator on right
+        'right-0 md:right-[240px]',
+        'hidden md:block', // Desktop only
         'transition-[padding] duration-200 ease-in-out',
         isCollapsed ? 'md:pl-[60px]' : 'md:pl-[240px]'
       )}
@@ -245,11 +246,74 @@ function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
 }
 
 /**
+ * Mobile Timeline Bar - Horizontal scrollable week list (mobile only)
+ * Styled similar to desktop but horizontal
+ */
+interface MobileTimelineProps {
+  weeks: { weekStart: string; label: string; totalItems: number }[]
+  activeWeekIndex: number
+  onWeekClick: (index: number) => void
+}
+
+function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineProps) {
+  return (
+    <nav
+      className="md:hidden sticky top-0 z-20 bg-background/98 backdrop-blur-md border-b border-border/50"
+      aria-label="Timeline navigation"
+    >
+      <div className="flex overflow-x-auto scrollbar-hide">
+        {weeks.map((week, index) => {
+          const isActive = index === activeWeekIndex
+          const isCurrent = index === 0
+
+          return (
+            <button
+              key={week.weekStart}
+              onClick={() => onWeekClick(index)}
+              className={cn(
+                'flex-shrink-0 px-4 py-3 border-b-2 -mb-px',
+                'transition-all duration-200',
+                isActive
+                  ? 'border-primary bg-primary/5'
+                  : 'border-transparent hover:bg-muted/50'
+              )}
+              aria-label={`Jump to week of ${week.label}`}
+              aria-current={isActive ? 'true' : undefined}
+            >
+              <div className="flex flex-col items-start gap-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span className={cn(
+                    'text-sm font-semibold',
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
+                  )}>
+                    {week.label}
+                  </span>
+                  {isCurrent && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-primary/15 text-primary">
+                      Now
+                    </span>
+                  )}
+                </div>
+                <span className={cn(
+                  'text-[11px]',
+                  isActive ? 'text-muted-foreground' : 'text-muted-foreground/60'
+                )}>
+                  {week.totalItems} articles
+                </span>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    </nav>
+  )
+}
+
+/**
  * My Feed Page Component
  */
 export function MyFeedPage() {
-  const { i18n } = useTranslation()
-  const language = i18n.language
+  const { currentLanguage: language } = useLanguage()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const myFeedResult = useMyFeed()
   const { interests } = useUserInterests()
@@ -447,7 +511,16 @@ export function MyFeedPage() {
             )}
 
             {/* News Content */}
-            <main id="main-content" className="mt-[96px] md:mt-[52px] h-[calc(100vh-156px)] md:h-[calc(100vh-112px)] md:mr-[240px] overflow-y-auto scrollbar-subtle">
+            <main id="main-content" className="mt-0 md:mt-[52px] h-[calc(100vh-60px)] md:h-[calc(100vh-112px)] md:mr-[240px] overflow-y-auto scrollbar-subtle">
+              {/* Mobile Timeline - inside scrollable area with sticky */}
+              {weeks.length > 0 && (
+                <MobileTimeline
+                  weeks={weeks.map(w => ({ weekStart: w.weekStart, label: w.label, totalItems: w.totalItems }))}
+                  activeWeekIndex={activeWeekIndex}
+                  onWeekClick={handleWeekClick}
+                />
+              )}
+
               <div className="max-w-3xl mx-auto">
                 {weeks.length > 0 ? (
                   <div>
@@ -455,10 +528,11 @@ export function MyFeedPage() {
                       <section
                         key={week.weekStart}
                         ref={(el) => { weekRefs.current[weekIndex] = el }}
-                        className="scroll-mt-0"
+                        className="scroll-mt-[60px] md:scroll-mt-0"
                       >
-                        {/* Week Header - Minimal design since timeline exists */}
+                        {/* Week Header - Desktop only (mobile has timeline bar) */}
                         <div className={cn(
+                          'hidden md:block',
                           'sticky top-0 z-[9]',
                           'bg-muted/20 backdrop-blur-sm',
                           'border-y border-border',
@@ -483,7 +557,7 @@ export function MyFeedPage() {
                             ))}
                           </div>
                         ) : (
-                          <div className="py-12 px-6 text-center">
+                          <div className="hidden md:block py-12 px-6 text-center">
                             <p className="text-sm text-muted-foreground">
                               No news this week
                             </p>
