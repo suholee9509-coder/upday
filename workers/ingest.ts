@@ -113,6 +113,49 @@ const RSS_SOURCES = [
   { url: 'https://shopify.engineering/blog.atom', source: 'Shopify Engineering', category: 'dev' },
 ]
 
+// Category keyword filters - articles must contain at least one keyword to be included
+// This filters out irrelevant articles from general tech feeds
+const CATEGORY_KEYWORDS: Record<string, RegExp> = {
+  ai: /\b(ai|artificial intelligence|machine learning|deep learning|neural network|llm|large language model|gpt|chatgpt|claude|gemini|copilot|generative ai|gen ai|openai|anthropic|midjourney|stable diffusion|transformer|nlp|natural language|computer vision|ml model|training data|fine-?tun|prompt|embedding|vector database|rag|retrieval augmented|ai agent|autonomous agent)\b/i,
+  startups: /\b(startup|funding|series [a-z]|seed round|venture capital|vc|raised|valuation|acquisition|acquire|ipo|unicorn|founder|co-?founder|incubator|accelerator|y combinator|techstars|pitch|investor|angel investor|exit|merger|m&a)\b/i,
+  dev: /\b(developer|programming|software|code|coding|api|sdk|framework|library|open source|github|git|devops|ci\/cd|kubernetes|docker|cloud|aws|azure|gcp|database|frontend|backend|fullstack|javascript|typescript|python|rust|go|react|vue|angular|node|web dev|mobile dev|ios|android|debug|deploy|infrastructure)\b/i,
+  product: /\b(ux|user experience|ui|user interface|design system|product design|product management|product strategy|growth|conversion|retention|onboarding|a\/b test|user research|usability|wireframe|prototype|figma|sketch|journey map|persona|analytics|metrics|kpi|okr|roadmap|feature|launch|saas|b2b|b2c|customer success|churn|ltv|cac|pmf|product-market fit)\b/i,
+  research: /\b(research|study|paper|journal|scientist|laboratory|experiment|discovery|breakthrough|nasa|space|satellite|rocket|mars|moon|asteroid|telescope|quantum|physics|biology|chemistry|climate|genome|dna|rna|vaccine|medical|scientific|peer-?review|arxiv|nature|science)\b/i,
+}
+
+// Sources that are category-specific (don't need keyword filtering)
+const CATEGORY_SPECIFIC_SOURCES = new Set([
+  // AI-specific
+  'OpenAI Blog', 'Google AI Blog', 'NVIDIA Blog', 'Meta Engineering', 'Microsoft Blog',
+  // Product-specific
+  'Product Hunt', 'Nielsen Norman Group', 'Intercom Blog', 'UX Collective', 'UX Planet',
+  'A List Apart', 'Smashing Magazine', 'HubSpot Marketing',
+  // Dev-specific
+  'GitHub Blog', 'Vercel Blog', 'Supabase Blog', 'Cloudflare Blog', 'Stripe Blog',
+  'Shopify Engineering', 'CSS-Tricks',
+  // Research-specific
+  'NASA', 'SpaceNews', 'Science Daily', 'Phys.org',
+  // Startups-specific
+  'Crunchbase News',
+])
+
+/**
+ * Check if article content matches its assigned category
+ * Returns true if the article should be included
+ */
+function matchesCategoryKeywords(title: string, content: string, category: string, source: string): boolean {
+  // Skip keyword check for category-specific sources
+  if (CATEGORY_SPECIFIC_SOURCES.has(source)) {
+    return true
+  }
+
+  const pattern = CATEGORY_KEYWORDS[category]
+  if (!pattern) return true // Unknown category, allow through
+
+  const text = `${title} ${content}`
+  return pattern.test(text)
+}
+
 // Company list for keyword matching (synced with src/lib/constants.ts)
 // Maps company slug to search patterns (name variations)
 const COMPANY_PATTERNS: Record<string, RegExp> = {
@@ -436,6 +479,13 @@ async function processFeed(
         // Skip non-English content
         if (!isEnglishContent(item.title)) {
           console.log(`[SKIP] Non-English: ${item.title.substring(0, 50)}...`)
+          result.skipped++
+          continue
+        }
+
+        // Skip articles that don't match category keywords (for general feeds)
+        if (!matchesCategoryKeywords(item.title, item.content, feed.category, feed.source)) {
+          console.log(`[SKIP] Off-topic for ${feed.category}: ${item.title.substring(0, 50)}...`)
           result.skipped++
           continue
         }
