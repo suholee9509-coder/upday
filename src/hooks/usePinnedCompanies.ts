@@ -12,6 +12,7 @@ const STORAGE_KEY = 'upday_pinned_companies'
  */
 export function usePinnedCompanies() {
   const { user, isAuthenticated } = useAuth()
+
   // Initialize immediately from localStorage to prevent flickering
   const [pinnedCompanies, setPinnedCompanies] = useState<string[]>(() => {
     try {
@@ -21,8 +22,9 @@ export function usePinnedCompanies() {
       return []
     }
   })
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false) // Start as false since we loaded from localStorage
   const [hasMigrated, setHasMigrated] = useState(false)
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false) // Prevent re-loading
 
   // Load pins from localStorage (for non-authenticated users)
   const loadFromLocalStorage = useCallback((): string[] => {
@@ -108,8 +110,11 @@ export function usePinnedCompanies() {
     }
   }, [user, hasMigrated, loadFromLocalStorage, loadFromServer])
 
-  // Initial load
+  // Initial load - only run once on mount or when auth status changes
   useEffect(() => {
+    // Skip if we've already loaded for this auth state
+    if (hasLoadedOnce) return
+
     const loadPins = async () => {
       setIsLoading(true)
 
@@ -123,22 +128,21 @@ export function usePinnedCompanies() {
           const newStr = JSON.stringify(serverPins.sort())
           return prevStr === newStr ? prev : serverPins
         })
-      } else {
-        // Non-authenticated: load from localStorage
-        const localPins = loadFromLocalStorage()
-        // Only update if different to prevent unnecessary re-renders
-        setPinnedCompanies(prev => {
-          const prevStr = JSON.stringify(prev.sort())
-          const newStr = JSON.stringify(localPins.sort())
-          return prevStr === newStr ? prev : localPins
-        })
       }
+      // For non-authenticated, we already loaded from localStorage in initializer
+      // No need to do it again
 
       setIsLoading(false)
+      setHasLoadedOnce(true)
     }
 
     loadPins()
-  }, [isAuthenticated, user, loadFromLocalStorage, loadFromServer, migrateToServer])
+  }, [isAuthenticated, user, hasLoadedOnce, loadFromServer, migrateToServer])
+
+  // Reset hasLoadedOnce when auth status changes
+  useEffect(() => {
+    setHasLoadedOnce(false)
+  }, [isAuthenticated])
 
   // Sync to localStorage for non-authenticated users
   useEffect(() => {
