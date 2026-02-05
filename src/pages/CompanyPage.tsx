@@ -7,7 +7,7 @@ import { SEO, injectBreadcrumbSchema, injectCollectionPageSchema } from '@/compo
 import { useNews } from '@/hooks/useNews'
 import { COMPANIES } from '@/lib/constants'
 import { CompanyLogo } from '@/components/CompanyLogo'
-import { Building2, ExternalLink } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 
 // Company information for SEO
 const COMPANY_INFO: Record<string, { fullName: string; description: string; website?: string }> = {
@@ -83,11 +83,10 @@ export function CompanyPage() {
   }
 
   const companyInfo = COMPANY_INFO[companyId]
-  const companyMeta = COMPANIES.find(c => c.id === companyId)
 
   // Fetch news for this company
   const { items, hasMore, loading, error, loadMore, refresh, jumpToDate } = useNews({
-    companyId,
+    company: companyId,
   })
 
   const handleDateSelect = useCallback((date: Date) => {
@@ -175,9 +174,8 @@ export function CompanyPage() {
 
             {/* Filter Bar */}
             <FilterBar
-              category={null}
-              onCategoryChange={() => {}}
-              onReset={() => {}}
+              currentCategory={null}
+              disabled
               currentDate={currentDate}
               onDateSelect={handleDateSelect}
             />
@@ -191,9 +189,11 @@ export function CompanyPage() {
                 loading={loading}
                 error={error}
                 onLoadMore={loadMore}
-                onRefresh={refresh}
+                onReset={refresh}
+                onRetry={refresh}
                 onJumpToDate={jumpToDate}
                 onVisibleDateChange={handleVisibleDateChange}
+                companyName={companyInfo.fullName}
               />
             </div>
           </main>
