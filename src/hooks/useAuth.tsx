@@ -37,6 +37,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Get initial session
     const initAuth = async () => {
       try {
+        // Check if there's an OAuth callback in the URL hash
+        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        const accessToken = hashParams.get('access_token')
+        const refreshToken = hashParams.get('refresh_token')
+
+        if (accessToken && refreshToken) {
+          // Set session from OAuth callback tokens
+          const { data, error } = await client.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+
+          if (error) {
+            console.error('Failed to set session from OAuth callback:', error)
+          } else {
+            setSession(data.session)
+            setUser(data.session?.user ?? null)
+            // Clean up URL hash and redirect to timeline
+            window.history.replaceState(null, '', '/timeline')
+            return
+          }
+        }
+
+        // No OAuth callback, get existing session
         const { data: { session } } = await client.auth.getSession()
         setSession(session)
         setUser(session?.user ?? null)
