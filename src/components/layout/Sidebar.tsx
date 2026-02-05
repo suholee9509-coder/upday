@@ -179,7 +179,7 @@ export function Sidebar() {
           springTransition,
           isCollapsed ? 'px-2' : 'px-3'
         )}>
-          {/* Main Section */}
+          {/* Feed Section */}
           <div className="space-y-1">
             <SectionTitle collapsed={isCollapsed}>{t('nav.feed')}</SectionTitle>
 
@@ -191,29 +191,22 @@ export function Sidebar() {
               collapsed={isCollapsed}
               onClick={() => setIsMobileOpen(false)}
             />
-
-            <NavItem
-              icon={<Grid2X2 className="h-4 w-4" />}
-              label={t('nav.companies')}
-              href="/timeline/companies"
-              active={location.pathname === '/timeline/companies'}
-              collapsed={isCollapsed}
-              onClick={() => setIsMobileOpen(false)}
-            />
           </div>
 
-          {/* Pinned Section - hidden when collapsed */}
-          {!isCollapsed && (
+          {/* Companies Section */}
           <div className="mt-6 space-y-1">
-            <ExpandableSection
-              title={t('nav.pinned')}
-              isExpanded={isPinnedExpanded}
-              onToggle={() => setIsPinnedExpanded(!isPinnedExpanded)}
-              collapsed={isCollapsed}
-              count={pinnedCompanyDetails.length}
-            >
-              {pinnedCompanyDetails.length > 0 ? (
-                pinnedCompanyDetails.map(company => company && (
+            <SectionTitle collapsed={isCollapsed}>{t('nav.companies')}</SectionTitle>
+
+            {/* Browse All - Expandable when has pinned companies, Link otherwise */}
+            {!isCollapsed && isAuthenticated && pinnedCompanyDetails.length > 0 ? (
+              <ExpandableSection
+                title={t('nav.browseCompanies')}
+                isExpanded={isPinnedExpanded}
+                onToggle={() => setIsPinnedExpanded(!isPinnedExpanded)}
+                collapsed={isCollapsed}
+                count={pinnedCompanyDetails.length}
+              >
+                {pinnedCompanyDetails.map(company => company && (
                   <CompanyItem
                     key={company.id}
                     company={company}
@@ -223,21 +216,21 @@ export function Sidebar() {
                     onClick={() => setIsMobileOpen(false)}
                     unpinLabel={t('aria.unpin', { name: company.name })}
                   />
-                ))
-              ) : (
-                <div className={cn(
-                  'text-xs text-muted-foreground/70 italic',
-                  springTransition,
-                  isCollapsed ? 'hidden' : 'px-2 py-2'
-                )}>
-                  {t('nav.noPinnedCompanies')}
-                </div>
-              )}
-            </ExpandableSection>
+                ))}
+              </ExpandableSection>
+            ) : (
+              <NavItem
+                icon={<Grid2X2 className="h-4 w-4" />}
+                label={t('nav.browseCompanies')}
+                href="/timeline/companies"
+                active={location.pathname === '/timeline/companies'}
+                collapsed={isCollapsed}
+                onClick={() => setIsMobileOpen(false)}
+              />
+            )}
           </div>
-          )}
 
-          {/* My Feed Section */}
+          {/* Personal Section */}
           <div className="mt-6 space-y-1">
             <SectionTitle collapsed={isCollapsed}>{t('nav.personal')}</SectionTitle>
 

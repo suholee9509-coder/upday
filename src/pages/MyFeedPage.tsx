@@ -41,20 +41,20 @@ function generateDummyWeeks(): WeekData[] {
   const now = new Date()
   const weeks: WeekData[] = []
 
-  const categories = ['Technology', 'Business', 'Science', 'Politics', 'Health']
+  const categories = ['ai', 'startups', 'dev', 'product', 'research']
   const sources = ['TechCrunch', 'Bloomberg', 'The Verge', 'Reuters', 'Wired']
 
   const sampleTitles = [
-    'OpenAI announces new breakthrough in language models',
-    'Tech giants face new regulatory challenges',
-    'Quantum computing reaches new milestone',
-    'Climate change: New research reveals urgent timeline',
-    'Major acquisition reshapes tech industry',
+    'React 19 introduces major AI-powered features',
+    'TypeScript 5.5 brings better type inference',
+    'New Design system revolutionizes Web3 interfaces',
     'AI safety concerns raised by researchers',
-    'Electric vehicle market continues rapid growth',
-    'Breakthrough in renewable energy storage',
-    'New study on remote work productivity',
-    'Cybersecurity threats evolve with AI',
+    'React Native updates transform mobile development',
+    'Web3 adoption accelerates in enterprise',
+    'Design trends: AI-generated UI components',
+    'TypeScript dominates JavaScript ecosystem',
+    'React Server Components change web development',
+    'AI and Web3 converge in new Design frameworks',
   ]
 
   const sampleSummaries = [
@@ -96,7 +96,7 @@ function generateDummyWeeks(): WeekData[] {
         id: `demo-${weekOffset}-${i}-rep`,
         title: sampleTitles[Math.floor(Math.random() * sampleTitles.length)],
         summary: sampleSummaries[Math.floor(Math.random() * sampleSummaries.length)],
-        category: category.toLowerCase() as any,
+        category: category as any,
         publishedAt: publishedDate.toISOString(),
         source,
         sourceUrl: '#',
@@ -112,7 +112,7 @@ function generateDummyWeeks(): WeekData[] {
         id: `demo-${weekOffset}-${i}-rel-${j}`,
         title: sampleTitles[Math.floor(Math.random() * sampleTitles.length)],
         summary: sampleSummaries[Math.floor(Math.random() * sampleSummaries.length)],
-        category: category.toLowerCase() as any,
+        category: category as any,
         publishedAt: new Date(publishedDate.getTime() + j * 3600000).toISOString(),
         source: sources[Math.floor(Math.random() * sources.length)],
         sourceUrl: '#',

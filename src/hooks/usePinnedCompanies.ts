@@ -2,50 +2,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/db'
 import { useAuth } from './useAuth'
 
-const STORAGE_KEY = 'upday_pinned_companies'
-
 /**
  * Hook for managing pinned companies
- * - Authenticated users: Server-synced via Supabase
- * - Non-authenticated users: localStorage only
- * - On login: Auto-migrate localStorage pins to server
+ * - Requires authentication
+ * - Server-synced via Supabase only
+ * - No localStorage fallback
  */
 export function usePinnedCompanies() {
   const { user, isAuthenticated } = useAuth()
+  const [pinnedCompanies, setPinnedCompanies] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Initialize immediately from localStorage to prevent flickering
-  const [pinnedCompanies, setPinnedCompanies] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? JSON.parse(stored) : []
-    } catch {
-      return []
-    }
-  })
-  const [isLoading, setIsLoading] = useState(false) // Start as false since we loaded from localStorage
-  const [hasMigrated, setHasMigrated] = useState(false)
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false) // Prevent re-loading
-
-  // Load pins from localStorage (for non-authenticated users)
-  const loadFromLocalStorage = useCallback((): string[] => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? JSON.parse(stored) : []
-    } catch {
-      return []
-    }
-  }, [])
-
-  // Save pins to localStorage
-  const saveToLocalStorage = useCallback((pins: string[]) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pins))
-    } catch {
-      // Storage not available
-    }
-  }, [])
-
-  // Load pins from server (for authenticated users)
+  // Load pins from server (authenticated users only)
   const loadFromServer = useCallback(async () => {
     if (!user) return []
 
@@ -67,102 +35,35 @@ export function usePinnedCompanies() {
     }
   }, [user])
 
-  // Migrate localStorage pins to server on login
-  const migrateToServer = useCallback(async () => {
-    if (!user || hasMigrated) return
-
-    const localPins = loadFromLocalStorage()
-    if (localPins.length === 0) {
-      setHasMigrated(true)
-      return
-    }
-
-    try {
-      const client = supabase
-      if (!client) throw new Error('Supabase client not initialized')
-
-      // Get existing server pins
-      const serverPins = await loadFromServer()
-
-      // Find pins that need to be migrated (in localStorage but not on server)
-      const pinsToMigrate = localPins.filter(slug => !serverPins.includes(slug))
-
-      if (pinsToMigrate.length > 0) {
-        const { error } = await client
-          .from('pinned_companies')
-          .insert(
-            pinsToMigrate.map(slug => ({
-              user_id: user.id,
-              company_slug: slug,
-            }))
-          )
-
-        if (error) throw error
-
-        console.log(`Migrated ${pinsToMigrate.length} pins to server`)
-      }
-
-      // Clear localStorage after successful migration
-      localStorage.removeItem(STORAGE_KEY)
-      setHasMigrated(true)
-    } catch (error) {
-      console.error('Failed to migrate pins to server:', error)
-    }
-  }, [user, hasMigrated, loadFromLocalStorage, loadFromServer])
-
-  // Initial load - only run once on mount or when auth status changes
+  // Load pins when authenticated
   useEffect(() => {
-    // Skip if we've already loaded for this auth state
-    if (hasLoadedOnce) return
-
     const loadPins = async () => {
       setIsLoading(true)
 
       if (isAuthenticated && user) {
-        // Authenticated: migrate then load from server
-        await migrateToServer()
         const serverPins = await loadFromServer()
-        // Only update if different to prevent unnecessary re-renders
-        setPinnedCompanies(prev => {
-          const prevStr = JSON.stringify(prev.sort())
-          const newStr = JSON.stringify(serverPins.sort())
-          return prevStr === newStr ? prev : serverPins
-        })
+        setPinnedCompanies(serverPins)
+      } else {
+        // Not authenticated: clear pins
+        setPinnedCompanies([])
       }
-      // For non-authenticated, we already loaded from localStorage in initializer
-      // No need to do it again
 
       setIsLoading(false)
-      setHasLoadedOnce(true)
     }
 
     loadPins()
-  }, [isAuthenticated, user, hasLoadedOnce, loadFromServer, migrateToServer])
-
-  // Reset hasLoadedOnce when auth status changes
-  useEffect(() => {
-    setHasLoadedOnce(false)
-  }, [isAuthenticated])
-
-  // Sync to localStorage for non-authenticated users
-  useEffect(() => {
-    if (!isAuthenticated) {
-      saveToLocalStorage(pinnedCompanies)
-    }
-  }, [pinnedCompanies, isAuthenticated, saveToLocalStorage])
+  }, [isAuthenticated, user, loadFromServer])
 
   const isPinned = useCallback((companyId: string) => {
     return pinnedCompanies.includes(companyId)
   }, [pinnedCompanies])
 
   const togglePin = useCallback(async (companyId: string) => {
-    // Require login for authenticated features
-    if (!isAuthenticated) {
+    // Require login
+    if (!isAuthenticated || !user) {
       window.dispatchEvent(new CustomEvent('open-login-modal'))
       return
     }
-
-    if (!user) return
 
     const isCurrentlyPinned = pinnedCompanies.includes(companyId)
 
@@ -210,12 +111,13 @@ export function usePinnedCompanies() {
   }, [isAuthenticated, user, pinnedCompanies])
 
   const pin = useCallback(async (companyId: string) => {
-    if (!isAuthenticated) {
+    // Require login
+    if (!isAuthenticated || !user) {
       window.dispatchEvent(new CustomEvent('open-login-modal'))
       return
     }
 
-    if (!user || pinnedCompanies.includes(companyId)) return
+    if (pinnedCompanies.includes(companyId)) return
 
     // Optimistic update
     setPinnedCompanies(prev => [...prev, companyId])
@@ -241,12 +143,11 @@ export function usePinnedCompanies() {
   }, [isAuthenticated, user, pinnedCompanies])
 
   const unpin = useCallback(async (companyId: string) => {
-    if (!isAuthenticated) {
+    // Require login
+    if (!isAuthenticated || !user) {
       window.dispatchEvent(new CustomEvent('open-login-modal'))
       return
     }
-
-    if (!user) return
 
     // Optimistic update
     setPinnedCompanies(prev => prev.filter(id => id !== companyId))
