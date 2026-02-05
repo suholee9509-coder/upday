@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Header, Sidebar, SidebarProvider } from '@/components/layout'
 import { SEO, injectNewsArticleSchema, injectBreadcrumbSchema } from '@/components/SEO'
 import { supabase } from '@/lib/db'
+import { stripHtml } from '@/lib/utils'
 import type { NewsItem } from '@/types/news'
 import { ExternalLink, Calendar, Building2 } from 'lucide-react'
 import { Badge } from '@/components/ui'
@@ -58,10 +59,12 @@ export function NewsDetailPage() {
 
         setNews(newsItem)
 
-        // Inject structured data for SEO
+        // Inject structured data for SEO (strip HTML from title/summary)
+        const seoTitle = stripHtml(newsItem.title)
+        const seoSummary = stripHtml(newsItem.summary)
         injectNewsArticleSchema({
-          title: newsItem.title,
-          summary: newsItem.summary,
+          title: seoTitle,
+          summary: seoSummary,
           imageUrl: newsItem.imageUrl,
           publishedAt: newsItem.publishedAt,
           source: newsItem.source,
@@ -74,7 +77,7 @@ export function NewsDetailPage() {
         injectBreadcrumbSchema([
           { name: 'Home', url: 'https://updayapp.com' },
           { name: categoryInfo?.label || 'News', url: `https://updayapp.com/${newsItem.category}` },
-          { name: newsItem.title, url: `https://updayapp.com/news/${newsItem.id}` },
+          { name: seoTitle, url: `https://updayapp.com/news/${newsItem.id}` },
         ])
       } catch (err) {
         console.error('Error fetching news:', err)
@@ -103,12 +106,14 @@ export function NewsDetailPage() {
 
   const categoryInfo = CATEGORIES.find(c => c.id === news.category)
   const publishedDate = new Date(news.publishedAt)
+  const cleanTitle = stripHtml(news.title)
+  const cleanSummary = stripHtml(news.summary)
 
   return (
     <SidebarProvider>
       <SEO
-        title={news.title}
-        description={news.summary}
+        title={cleanTitle}
+        description={cleanSummary}
         image={news.imageUrl || undefined}
         url={`/news/${news.id}`}
         type="article"
@@ -146,7 +151,7 @@ export function NewsDetailPage() {
 
               {/* Title */}
               <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-                {news.title}
+                {cleanTitle}
               </h1>
 
               {/* Meta */}
@@ -171,7 +176,7 @@ export function NewsDetailPage() {
               {news.imageUrl && (
                 <img
                   src={news.imageUrl}
-                  alt={news.title}
+                  alt={cleanTitle}
                   className="w-full rounded-lg mb-6"
                   loading="eager"
                 />
@@ -180,7 +185,7 @@ export function NewsDetailPage() {
               {/* Summary */}
               <div className="prose prose-lg dark:prose-invert mb-8">
                 <p className="text-lg leading-relaxed text-muted-foreground">
-                  {news.summary}
+                  {cleanSummary}
                 </p>
               </div>
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NewsCard } from './NewsCard'
 import { DateSeparator } from './DateSeparator'
 import { NewsCardSkeleton } from './NewsCardSkeleton'
@@ -46,6 +47,9 @@ export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(funct
   className,
   onVisibleDateChange,
 }, ref) {
+  const { i18n } = useTranslation()
+  const language = i18n.language
+
   // Generate status message for screen readers
   const getStatusMessage = () => {
     if (error) return 'Error loading news. Please try again.'
@@ -264,7 +268,7 @@ export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(funct
         >
           <DateSeparator date={group.date} />
           {group.items.map((item) => (
-            <NewsCard key={item.id} item={item} />
+            <NewsCard key={item.id} item={item} language={language} />
           ))}
         </div>
       ))}

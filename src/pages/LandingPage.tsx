@@ -9,7 +9,8 @@ import { mockNews } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
 
 export function LandingPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const language = i18n.language
   const navigate = useNavigate()
   const previewItems = mockNews.slice(0, 3)
 
@@ -290,7 +291,7 @@ export function LandingPage() {
               {/* News cards */}
               <div className="divide-y divide-border">
                 {previewItems.map((item) => (
-                  <NewsCard key={item.id} item={item} />
+                  <NewsCard key={item.id} item={item} language={language} />
                 ))}
               </div>
 

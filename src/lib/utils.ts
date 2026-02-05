@@ -49,3 +49,21 @@ export function isSameDay(date1: string, date2: string): boolean {
   const d2 = new Date(date2)
   return d1.toDateString() === d2.toDateString()
 }
+
+/**
+ * Strip HTML tags from a string
+ * Useful for displaying text content that may contain HTML markup
+ */
+export function stripHtml(html: string): string {
+  if (!html) return ''
+  return html
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+    .replace(/&amp;/g, '&')  // Decode &amp;
+    .replace(/&lt;/g, '<')   // Decode &lt;
+    .replace(/&gt;/g, '>')   // Decode &gt;
+    .replace(/&quot;/g, '"') // Decode &quot;
+    .replace(/&#39;/g, "'")  // Decode &#39;
+    .replace(/\s+/g, ' ')    // Normalize whitespace
+    .trim()
+}

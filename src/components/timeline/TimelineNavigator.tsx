@@ -28,18 +28,62 @@ export function TimelineNavigator({
   className,
 }: TimelineNavigatorProps) {
   return (
-    <nav
-      className={cn(
-        'fixed right-0 top-[112px] bottom-0 z-20',
-        'w-60 bg-background/98 backdrop-blur-md',
-        'border-l border-t border-border/50',
-        'hidden md:flex flex-col',
-        'shadow-[0_8px_16px_rgba(0,0,0,0.04),0_0_1px_rgba(0,0,0,0.04)]',
-        'dark:shadow-[0_8px_24px_rgba(0,0,0,0.24),0_0_1px_rgba(0,0,0,0.24)]',
-        className
-      )}
-      aria-label="Timeline navigation"
-    >
+    <>
+      {/* Mobile: Horizontal scroll timeline at top */}
+      <nav
+        className={cn(
+          'fixed left-0 right-0 top-[60px] z-20',
+          'bg-background/98 backdrop-blur-md',
+          'border-b border-border/50',
+          'flex md:hidden',
+          'shadow-[0_2px_8px_rgba(0,0,0,0.04)]',
+          'dark:shadow-[0_2px_8px_rgba(0,0,0,0.16)]',
+          className
+        )}
+        aria-label="Timeline navigation"
+      >
+        <div className="flex gap-1 overflow-x-auto scrollbar-hide px-4 py-2">
+          {weeks.map((week, index) => {
+            const isActive = index === activeWeekIndex
+            const isCurrent = index === 0
+
+            return (
+              <button
+                key={week.weekStart}
+                onClick={() => onWeekClick(index)}
+                className={cn(
+                  'flex-shrink-0 px-3 py-1.5 rounded-full',
+                  'text-xs font-medium',
+                  'transition-all duration-200',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
+                aria-label={`Jump to week of ${week.label}`}
+                aria-current={isActive ? 'true' : undefined}
+              >
+                {week.label}
+                {isCurrent && !isActive && (
+                  <span className="ml-1 text-[10px] text-primary">•</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </nav>
+
+      {/* Desktop: Vertical timeline on right */}
+      <nav
+        className={cn(
+          'fixed right-0 top-[112px] bottom-0 z-20',
+          'w-60 bg-background/98 backdrop-blur-md',
+          'border-l border-t border-border/50',
+          'hidden md:flex flex-col',
+          'shadow-[0_8px_16px_rgba(0,0,0,0.04),0_0_1px_rgba(0,0,0,0.04)]',
+          'dark:shadow-[0_8px_24px_rgba(0,0,0,0.24),0_0_1px_rgba(0,0,0,0.24)]',
+        )}
+        aria-label="Timeline navigation"
+      >
       {/* Continuous vertical line background */}
       <div className="absolute left-10 top-0 bottom-0 w-px bg-border/90" />
 
@@ -117,5 +161,6 @@ export function TimelineNavigator({
         })}
       </div>
     </nav>
+    </>
   )
 }

@@ -106,12 +106,12 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-screen-safe',
+          'fixed top-0 left-0 z-50 h-screen-safe pb-safe',
           'bg-sidebar border-r border-sidebar-border',
           'flex flex-col',
           springTransition,
           // Desktop
-          'md:sticky md:top-0 md:z-30 md:h-screen',
+          'md:sticky md:top-0 md:z-30 md:h-screen md:pb-0',
           isCollapsed ? 'md:w-[60px]' : 'md:w-[240px]',
           // Mobile
           'w-[280px] -translate-x-full md:translate-x-0',
@@ -362,7 +362,7 @@ export function Sidebar() {
             </button>
           )}
           {/* iOS Safari safe area spacer - mobile only */}
-          <div className="h-safe-bottom md:hidden" />
+          <div className="h-[env(safe-area-inset-bottom,20px)] min-h-5 md:hidden" />
         </div>
       </aside>
     </>

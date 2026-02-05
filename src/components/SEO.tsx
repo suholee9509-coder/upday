@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { getCurrentLanguage } from '@/lib/i18n'
+import { useTranslation } from 'react-i18next'
 
 interface SEOProps {
   title?: string
@@ -34,7 +34,8 @@ export function SEO({
   const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`
 
   // Use Korean description for meta (search results) when in Korean mode
-  const currentLang = getCurrentLanguage()
+  const { i18n } = useTranslation()
+  const currentLang = i18n.language
   const metaDescription = currentLang === 'ko'
     ? (descriptionKo || DEFAULT_DESCRIPTION_KO)
     : (description || DEFAULT_DESCRIPTION)

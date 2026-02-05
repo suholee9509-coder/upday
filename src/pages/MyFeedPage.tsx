@@ -17,6 +17,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Navigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { AlertCircle, ChevronDown, ChevronUp, Inbox, Settings, TrendingUp } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Sidebar, SidebarProvider, useSidebar } from '@/components/layout/Sidebar'
@@ -145,14 +146,14 @@ function generateDummyWeeks(): WeekData[] {
  * Cluster Card - Shows representative article + related articles
  * Enhanced design with badge, visual hierarchy, and clear separation
  */
-function ClusterCard({ cluster, userKeywords }: { cluster: NewsCluster; userKeywords: string[] }) {
+function ClusterCard({ cluster, userKeywords, language }: { cluster: NewsCluster; userKeywords: string[]; language: string }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const hasRelated = cluster.related.length > 0
 
   return (
     <div className="border-b border-border last:border-b-0">
       {/* Representative Article */}
-      <NewsCard item={cluster.representative} userKeywords={userKeywords} className={hasRelated ? 'border-b-0' : ''} />
+      <NewsCard item={cluster.representative} userKeywords={userKeywords} language={language} className={hasRelated ? 'border-b-0' : ''} />
 
       {/* Related Articles Toggle - Subtle design */}
       {hasRelated && (
@@ -193,6 +194,7 @@ function ClusterCard({ cluster, userKeywords }: { cluster: NewsCluster; userKeyw
                   <NewsCard
                     item={relatedItem}
                     userKeywords={userKeywords}
+                    language={language}
                     className="opacity-90 hover:opacity-100 border-b-0"
                   />
                 </div>
@@ -246,6 +248,8 @@ function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
  * My Feed Page Component
  */
 export function MyFeedPage() {
+  const { i18n } = useTranslation()
+  const language = i18n.language
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const myFeedResult = useMyFeed()
   const { interests } = useUserInterests()
@@ -443,7 +447,7 @@ export function MyFeedPage() {
             )}
 
             {/* News Content */}
-            <main id="main-content" className="mt-[52px] h-[calc(100vh-112px)] md:mr-[240px] overflow-y-auto scrollbar-subtle">
+            <main id="main-content" className="mt-[96px] md:mt-[52px] h-[calc(100vh-156px)] md:h-[calc(100vh-112px)] md:mr-[240px] overflow-y-auto scrollbar-subtle">
               <div className="max-w-3xl mx-auto">
                 {weeks.length > 0 ? (
                   <div>
@@ -475,7 +479,7 @@ export function MyFeedPage() {
                         {week.clusters.length > 0 ? (
                           <div>
                             {week.clusters.map(cluster => (
-                              <ClusterCard key={cluster.id} cluster={cluster} userKeywords={userKeywords} />
+                              <ClusterCard key={cluster.id} cluster={cluster} userKeywords={userKeywords} language={language} />
                             ))}
                           </div>
                         ) : (

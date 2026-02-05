@@ -246,13 +246,45 @@ export function useMyFeed(): UseMyFeedResult {
         return { ...item, score }
       })
 
-      // Step 3: Filter by importance threshold (40+)
+      // Step 3: Filter by importance threshold (45+)
       // Skip threshold if user has no keywords/companies (category-only mode)
-      // Threshold 40 allows: category(15) + company(25) = 40 to pass
+      // Threshold 45: category(15) + company(25) = 40 (not enough)
+      //   + tier1 boost(10) or event signal(10) or cluster boost needed
+      // This curates only truly important articles, not every mention
       const hasSpecificInterests = (interests.keywords?.length || 0) > 0 || (interests.companies?.length || 0) > 0
       const importantItems = hasSpecificInterests
-        ? filterByImportance(scoredItems, 40)
+        ? filterByImportance(scoredItems, 45)
         : scoredItems // Category-only: show all matched items
+
+      // DEBUG: Log scoring stats by week
+      const now = new Date()
+      const weekStats: Record<string, { total: number; passed: number; avgScore: number; companiesFound: number }> = {}
+      scoredItems.forEach(item => {
+        const itemDate = new Date(item.publishedAt)
+        const weekNum = Math.floor((now.getTime() - itemDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
+        const weekKey = `Week-${weekNum}`
+        if (!weekStats[weekKey]) {
+          weekStats[weekKey] = { total: 0, passed: 0, avgScore: 0, companiesFound: 0 }
+        }
+        weekStats[weekKey].total++
+        weekStats[weekKey].avgScore += item.score
+        if ((item.companies?.length || 0) > 0) {
+          weekStats[weekKey].companiesFound++
+        }
+      })
+      importantItems.forEach(item => {
+        const itemDate = new Date(item.publishedAt)
+        const weekNum = Math.floor((now.getTime() - itemDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
+        const weekKey = `Week-${weekNum}`
+        if (weekStats[weekKey]) {
+          weekStats[weekKey].passed++
+        }
+      })
+      Object.entries(weekStats).forEach(([_week, stats]) => {
+        stats.avgScore = Math.round(stats.avgScore / stats.total)
+      })
+      console.log('[MyFeed] Week stats:', weekStats)
+      console.log('[MyFeed] User companies:', interests.companies)
 
       // Update cache
       feedCache = {

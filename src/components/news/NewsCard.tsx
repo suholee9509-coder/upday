@@ -1,7 +1,6 @@
 import { useState, memo } from 'react'
 import { ExternalLink } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { getCurrentLanguage } from '@/lib/i18n'
+import { cn, stripHtml } from '@/lib/utils'
 import type { NewsItem, Category } from '@/types/news'
 
 // Category tag styles matching Badge component
@@ -49,16 +48,20 @@ interface NewsCardProps {
   item: Omit<NewsItem, 'body'>
   className?: string
   userKeywords?: string[]
+  language?: string
 }
 
-export const NewsCard = memo(function NewsCard({ item, className, userKeywords = [] }: NewsCardProps) {
+export const NewsCard = memo(function NewsCard({ item, className, userKeywords = [], language = 'en' }: NewsCardProps) {
   const [imageError, setImageError] = useState(false)
   const showImage = item.imageUrl && !imageError
 
   // Use Korean content when available and in Korean mode
-  const currentLang = getCurrentLanguage()
-  const displayTitle = currentLang === 'ko' && item.titleKo ? item.titleKo : item.title
-  const displaySummary = currentLang === 'ko' && item.summaryKo ? item.summaryKo : item.summary
+  // Strip HTML tags that may be present in the content
+  const currentLang = language
+  const rawTitle = currentLang === 'ko' && item.titleKo ? item.titleKo : item.title
+  const rawSummary = currentLang === 'ko' && item.summaryKo ? item.summaryKo : item.summary
+  const displayTitle = stripHtml(rawTitle)
+  const displaySummary = stripHtml(rawSummary)
 
   // Find matching user keywords in title or summary
   const matchingKeywords = userKeywords.filter(keyword => {

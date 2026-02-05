@@ -125,7 +125,13 @@
 @layer utilities {
   /* iOS/Android Safe Area */
   .pb-safe {
+    /* iOS home indicator ~34px */
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @supports not (padding-bottom: env(safe-area-inset-bottom)) {
+    .pb-safe {
+      padding-bottom: 34px;
+    }
   }
   .pt-safe {
     padding-top: env(safe-area-inset-top, 0px);
@@ -140,7 +146,13 @@
     margin-bottom: env(safe-area-inset-bottom, 0px);
   }
   .h-safe-bottom {
-    height: env(safe-area-inset-bottom, 0px);
+    /* iOS home indicator ~34px, fallback for older Safari */
+    height: env(safe-area-inset-bottom, 34px);
+  }
+  @supports not (height: env(safe-area-inset-bottom)) {
+    .h-safe-bottom {
+      height: 34px;
+    }
   }
   .min-h-safe-bottom {
     min-height: env(safe-area-inset-bottom, 0px);
