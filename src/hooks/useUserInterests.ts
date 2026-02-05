@@ -100,7 +100,9 @@ export function useUserInterests() {
     interests,
     isLoading,
     error,
-    hasCompletedOnboarding: interests?.onboarding_completed ?? false,
+    // CRITICAL: Only return false if user IS authenticated but hasn't completed onboarding
+    // Return true for unauthenticated users to prevent onboarding modal from showing
+    hasCompletedOnboarding: isAuthenticated ? (interests?.onboarding_completed ?? false) : true,
     refetch: fetchInterests,
     updateInterests,
   }

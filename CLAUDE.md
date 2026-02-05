@@ -192,6 +192,41 @@ import { UpdayWordmark } from '@/components/UpdayLogo'
 - `OnboardingModal` - first-time interest setup
 - `OnboardingManager` - auto-show onboarding after first login
 
+### ⚠️ Critical: Authentication Guard Pattern
+
+**모달/기능을 인증 사용자에게만 표시할 때 반드시 지켜야 할 패턴:**
+
+```typescript
+// ❌ WRONG: 미인증 시 false 반환 → 모달이 미인증 사용자에게 표시됨
+hasCompletedOnboarding: interests?.onboarding_completed ?? false
+
+// ✅ CORRECT: 미인증 시 true 반환 → 조건 !hasCompletedOnboarding이 false가 됨
+hasCompletedOnboarding: isAuthenticated ? (interests?.onboarding_completed ?? false) : true
+```
+
+**OnboardingManager 패턴:**
+```typescript
+useEffect(() => {
+  if (authLoading || interestsLoading) return
+
+  // 1. 먼저 인증 여부 확인 - 미인증이면 즉시 반환
+  if (!isAuthenticated) {
+    setShowOnboarding(false)
+    return
+  }
+
+  // 2. 인증된 사용자만 온보딩 필요 여부 확인
+  if (!hasCompletedOnboarding && !hasChecked) {
+    setShowOnboarding(true)
+  }
+}, [isAuthenticated, hasCompletedOnboarding, ...])
+```
+
+**핵심 원칙:**
+1. `isAuthenticated` 체크를 **항상 먼저** 수행
+2. Boolean 기본값 설정 시 미인증 케이스 고려 (true/false 중 어느 것이 안전한지)
+3. Optional chaining (`?.`) + nullish coalescing (`??`) 사용 시 미인증 상태의 반환값 확인
+
 ### Pin Sync Migration
 - **Non-authenticated**: localStorage only
 - **Authenticated**: Supabase sync
