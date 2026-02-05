@@ -1,9 +1,6 @@
 # Cloudflare Pages Redirects
 # https://developers.cloudflare.com/pages/configuration/redirects/
 
-# WWW to non-WWW redirect (URL canonicalization)
-https://www.updayapp.com/* https://updayapp.com/:splat 301
-
 # Trailing slash normalization
 /timeline/ /timeline 301
 /ai/ /ai 301
