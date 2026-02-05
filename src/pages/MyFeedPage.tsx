@@ -284,8 +284,8 @@ export function MyFeedPage() {
     if (weekRefs.current.length === 0) return
 
     const observerOptions = {
-      threshold: [0, 0.25, 0.5, 0.75, 1],
-      rootMargin: '-120px 0px -60% 0px',
+      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+      rootMargin: '-140px 0px -30% 0px', // Less aggressive bottom margin
     }
 
     const entries = new Map<Element, IntersectionObserverEntry>()
@@ -313,7 +313,7 @@ export function MyFeedPage() {
 
       if (bestEntry) {
         const index = weekRefs.current.findIndex(ref => ref === bestEntry!.target)
-        if (index !== -1 && index !== activeWeekIndex) {
+        if (index !== -1) {
           setActiveWeekIndex(index)
         }
       }
@@ -334,7 +334,7 @@ export function MyFeedPage() {
       observer.disconnect()
       entries.clear()
     }
-  }, [weeks.length, activeWeekIndex])
+  }, [weeks.length]) // Removed activeWeekIndex to prevent re-creation
 
   // Scroll to specific week
   const handleWeekClick = (index: number) => {
