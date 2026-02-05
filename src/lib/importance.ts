@@ -1,11 +1,15 @@
 /**
- * Importance Scoring Algorithm
- * Calculates importance score (0-100) based on objective criteria
+ * Importance Scoring Algorithm v2
+ *
+ * Core principle: Personal relevance trumps general importance
+ * - User's specific interests (keywords/companies) are weighted heavily
+ * - Category alone is not enough - needs additional relevance signals
+ * - Tier-1 companies only boost score if user has matching interests
  */
 
 import type { NewsItem, Category } from '@/types/news'
 
-// Tier 1 companies (AI Leaders) - highest importance
+// Tier 1 companies (AI Leaders) - only boost when user has related interests
 const TIER_1_COMPANIES = [
   'openai',
   'anthropic',
@@ -17,42 +21,34 @@ const TIER_1_COMPANIES = [
   'mistral',
 ]
 
-// Funding/M&A keywords
+// High-signal funding keywords (specific, not generic like "million")
 const FUNDING_KEYWORDS = [
-  'funding',
-  'raised',
   'series a',
   'series b',
   'series c',
+  'series d',
   'seed round',
+  'pre-seed',
+  'funding round',
+  'raised $',
   'acquisition',
-  'acquired',
+  'acquired by',
   'merger',
-  'bought',
-  'investment',
-  'valuation',
-  'unicorn',
-  'billion',
-  'million',
+  'ipo',
+  'unicorn status',
 ]
 
-// Product launch keywords
+// High-signal product launch keywords (specific phrases)
 const LAUNCH_KEYWORDS = [
-  'launch',
   'launches',
-  'launched',
-  'release',
-  'releases',
-  'released',
-  'announce',
-  'announces',
-  'announced',
-  'unveil',
-  'unveils',
-  'unveiled',
-  'introduce',
+  'launched today',
+  'now available',
   'introduces',
-  'introduced',
+  'unveils',
+  'releasing',
+  'general availability',
+  'public beta',
+  'open source',
 ]
 
 interface UserInterests {
@@ -62,16 +58,21 @@ interface UserInterests {
 }
 
 interface ImportanceFactors {
-  categoryMatch: number // 0-30
-  keywordMatch: number // 0-25
-  companyMatch: number // 0-20
-  tier1Company: number // 0-15
-  fundingOrMA: number // 0-10
-  productLaunch: number // 0-10
+  categoryMatch: number     // 0-15 (baseline, not enough alone)
+  keywordMatch: number      // 0-40 (highest weight - user's explicit interests)
+  companyMatch: number      // 0-35 (high weight - user's pinned companies)
+  tier1Boost: number        // 0-10 (only if user has related interests)
+  eventSignal: number       // 0-10 (funding/launch - newsworthy events)
 }
 
 /**
  * Calculate importance score for a news item based on user interests
+ *
+ * Scoring philosophy:
+ * - Personal relevance (keyword/company match) is required for high scores
+ * - Category match alone caps at ~25 points (below threshold)
+ * - Multiple matching factors create compounding effects
+ *
  * @param newsItem - The news item to score
  * @param userInterests - User's interest settings
  * @param clusterSize - Number of related articles (for multi-source factor)
@@ -86,93 +87,105 @@ export function calculateImportanceScore(
     categoryMatch: 0,
     keywordMatch: 0,
     companyMatch: 0,
-    tier1Company: 0,
-    fundingOrMA: 0,
-    productLaunch: 0,
+    tier1Boost: 0,
+    eventSignal: 0,
   }
 
   const content = `${newsItem.title} ${newsItem.summary}`.toLowerCase()
+  const newsCompanies = newsItem.companies || []
 
-  // 1. Category Match (0-30 points)
+  // Track if user has specific interests defined
+  const hasSpecificInterests =
+    userInterests.keywords.length > 0 || userInterests.companies.length > 0
+
+  // 1. Category Match (0-15 points) - baseline, not enough alone
   if (userInterests.categories.includes(newsItem.category)) {
-    factors.categoryMatch = 30
+    factors.categoryMatch = 15
   }
 
-  // 2. Keyword Match (0-25 points)
+  // 2. Keyword Match (0-40 points) - PRIMARY relevance signal
   if (userInterests.keywords.length > 0) {
     const matchingKeywords = userInterests.keywords.filter(keyword =>
       content.includes(keyword.toLowerCase())
     )
-    // Score based on number of matching keywords (max 25)
-    factors.keywordMatch = Math.min(matchingKeywords.length * 10, 25)
+    // Strong bonus for keyword matches - user explicitly cares about these
+    factors.keywordMatch = Math.min(matchingKeywords.length * 20, 40)
   }
 
-  // 3. Company Match (0-20 points)
-  const newsCompanies = newsItem.companies || []
+  // 3. Company Match (0-35 points) - user's pinned companies
   const matchingCompanies = newsCompanies.filter(company =>
     userInterests.companies.includes(company)
   )
   if (matchingCompanies.length > 0) {
-    factors.companyMatch = 20
+    // 25 base + 5 for each additional company match
+    factors.companyMatch = Math.min(25 + (matchingCompanies.length - 1) * 5, 35)
   }
 
-  // 4. Tier-1 Company Mention (0-15 points)
-  const hasTier1Company = newsCompanies.some(company =>
-    TIER_1_COMPANIES.includes(company)
-  )
-  if (hasTier1Company) {
-    factors.tier1Company = 15
+  // 4. Tier-1 Company Boost (0-10 points)
+  // ONLY applies if user has some personal relevance (keyword/company match)
+  const hasPersonalRelevance = factors.keywordMatch > 0 || factors.companyMatch > 0
+  if (hasPersonalRelevance) {
+    const hasTier1Company = newsCompanies.some(company =>
+      TIER_1_COMPANIES.includes(company)
+    )
+    if (hasTier1Company) {
+      factors.tier1Boost = 10
+    }
   }
 
-  // 5. Funding/M&A (0-10 points)
-  const hasFundingKeyword = FUNDING_KEYWORDS.some(keyword =>
-    content.includes(keyword)
-  )
-  if (hasFundingKeyword) {
-    factors.fundingOrMA = 10
+  // 5. Event Signal (0-10 points) - newsworthy events boost
+  // Only meaningful if there's already some relevance
+  if (factors.categoryMatch > 0) {
+    const hasFundingKeyword = FUNDING_KEYWORDS.some(keyword =>
+      content.includes(keyword)
+    )
+    const hasLaunchKeyword = LAUNCH_KEYWORDS.some(keyword =>
+      content.includes(keyword)
+    )
+    if (hasFundingKeyword || hasLaunchKeyword) {
+      factors.eventSignal = 10
+    }
   }
 
-  // 6. Product Launch (0-10 points)
-  const hasLaunchKeyword = LAUNCH_KEYWORDS.some(keyword =>
-    content.includes(keyword)
-  )
-  if (hasLaunchKeyword) {
-    factors.productLaunch = 10
-  }
+  // Calculate base score
+  let score = Object.values(factors).reduce((a, b) => a + b, 0)
 
-  // Base score (sum of all factors)
-  let score =
-    factors.categoryMatch +
-    factors.keywordMatch +
-    factors.companyMatch +
-    factors.tier1Company +
-    factors.fundingOrMA +
-    factors.productLaunch
+  // 6. Relevance multiplier
+  // If user has specific interests but none matched, heavily penalize
+  if (hasSpecificInterests && factors.keywordMatch === 0 && factors.companyMatch === 0) {
+    score = Math.floor(score * 0.5) // 50% penalty
+  }
 
   // 7. Multi-source boost (cluster size >= 3)
+  // Reduced from 20% to 10% - shouldn't be main factor
   if (clusterSize >= 3) {
-    score = Math.min(score * 1.2, 100) // 20% boost, capped at 100
+    score = Math.min(Math.floor(score * 1.1), 100)
   }
 
-  return Math.round(Math.min(score, 100))
+  return Math.min(score, 100)
 }
 
 /**
  * Filter news items by importance threshold
  * @param newsItems - Array of news items with scores
- * @param threshold - Minimum score to include (default 40)
+ * @param threshold - Minimum score to include (default 50)
  * @returns Filtered news items
  */
 export function filterByImportance<T extends { score: number }>(
   newsItems: T[],
-  threshold: number = 40
+  threshold: number = 50
 ): T[] {
   return newsItems.filter(item => item.score >= threshold)
 }
 
 /**
- * Check if a news item matches user interests (basic filter)
- * Used for initial filtering before importance scoring
+ * Check if a news item matches user interests (pre-filter)
+ *
+ * This is a lightweight filter to reduce items before detailed scoring.
+ * Rules:
+ * - Must match category
+ * - If user has keywords/companies: must match at least one
+ * - If no specific interests: category match is enough (will be scored low anyway)
  */
 export function matchesUserInterests(
   newsItem: NewsItem,
@@ -188,7 +201,9 @@ export function matchesUserInterests(
     userInterests.companies.length > 0 || userInterests.keywords.length > 0
 
   if (!hasSpecificInterests) {
-    return true // Category match is enough if no specific interests
+    // No specific interests - let all category matches through
+    // They'll get low scores anyway (max 25 without personal relevance)
+    return true
   }
 
   // Check company match
