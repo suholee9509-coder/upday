@@ -284,8 +284,9 @@ export function MyFeedPage() {
     if (weekRefs.current.length === 0) return
 
     const observerOptions = {
-      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
-      rootMargin: '-140px 0px -30% 0px', // Less aggressive bottom margin
+      // More granular thresholds for smoother tracking
+      threshold: Array.from({ length: 21 }, (_, i) => i * 0.05), // [0, 0.05, 0.1, ..., 1]
+      rootMargin: '-140px 0px -60% 0px', // Account for header, less aggressive bottom
     }
 
     const entries = new Map<Element, IntersectionObserverEntry>()
@@ -293,26 +294,28 @@ export function MyFeedPage() {
     const updateActiveWeek = () => {
       if (entries.size === 0) return
 
-      // Find the section that is most visible or closest to top
-      let bestEntry: IntersectionObserverEntry | null = null
-      let bestScore = -1
+      // Find the topmost intersecting section that's visible in the trigger zone
+      // Simpler algorithm: just find the section closest to top that's actually visible
+      let topMostEntry: IntersectionObserverEntry | null = null
+      let topMostPosition = Infinity
 
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // Score based on intersection ratio and distance from top
-          // Prioritize sections at the top of viewport
-          const distanceFromTop = Math.abs(entry.boundingClientRect.top)
-          const score = entry.intersectionRatio * 1000 - distanceFromTop
+        if (entry.isIntersecting && entry.intersectionRatio > 0) {
+          const rect = entry.boundingClientRect
+          // Distance from the trigger point (140px below viewport top)
+          const triggerPoint = 140
+          const distanceFromTrigger = Math.abs(rect.top - triggerPoint)
 
-          if (score > bestScore) {
-            bestScore = score
-            bestEntry = entry
+          // Prefer sections closest to trigger point
+          if (distanceFromTrigger < topMostPosition) {
+            topMostPosition = distanceFromTrigger
+            topMostEntry = entry
           }
         }
       })
 
-      if (bestEntry) {
-        const index = weekRefs.current.findIndex(ref => ref === bestEntry!.target)
+      if (topMostEntry) {
+        const index = weekRefs.current.findIndex(ref => ref === topMostEntry!.target)
         if (index !== -1) {
           setActiveWeekIndex(index)
         }
@@ -334,7 +337,7 @@ export function MyFeedPage() {
       observer.disconnect()
       entries.clear()
     }
-  }, [weeks.length]) // Removed activeWeekIndex to prevent re-creation
+  }, [weeks.length])
 
   // Scroll to specific week
   const handleWeekClick = (index: number) => {
