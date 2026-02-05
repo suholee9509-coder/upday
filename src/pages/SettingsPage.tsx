@@ -25,7 +25,7 @@ export function SettingsPage() {
   const [keywordInput, setKeywordInput] = useState('')
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
-  const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [saveMessage, setSaveMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -73,7 +73,7 @@ export function SettingsPage() {
 
   const handleSave = async () => {
     if (selectedCategories.length === 0) {
-      setSaveMessage(t('settings.selectAtLeastOne'))
+      setSaveMessage({ text: t('settings.selectAtLeastOne'), type: 'error' })
       return
     }
 
@@ -87,10 +87,10 @@ export function SettingsPage() {
         companies: selectedCompanies,
       })
 
-      setSaveMessage(t('settings.saveSuccess'))
+      setSaveMessage({ text: t('settings.saveSuccess'), type: 'success' })
       setTimeout(() => setSaveMessage(null), 3000)
     } catch (error) {
-      setSaveMessage(t('settings.saveFailed'))
+      setSaveMessage({ text: t('settings.saveFailed'), type: 'error' })
       console.error('Failed to save settings:', error)
     } finally {
       setIsSaving(false)
@@ -136,6 +136,7 @@ export function SettingsPage() {
       <SEO
         title={t('settings.title')}
         description={t('settings.description')}
+        noindex
       />
 
       <SidebarProvider>
@@ -346,10 +347,10 @@ export function SettingsPage() {
                       <p
                         className={cn(
                           'text-sm font-medium',
-                          saveMessage.includes('success') ? 'text-green-600' : 'text-destructive'
+                          saveMessage.type === 'success' ? 'text-green-600' : 'text-destructive'
                         )}
                       >
-                        {saveMessage}
+                        {saveMessage.text}
                       </p>
                     )}
                     <Button
