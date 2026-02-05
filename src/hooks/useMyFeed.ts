@@ -205,9 +205,9 @@ export function useMyFeed(): UseMyFeedResult {
         return { ...item, score }
       })
 
-      // Step 3: Filter by importance threshold (50+)
-      // Only items with personal relevance (keyword/company match) will pass
-      const importantItems = filterByImportance(scoredItems, 50)
+      // Step 3: Filter by importance threshold (35+)
+      // Allows single keyword or company match to pass
+      const importantItems = filterByImportance(scoredItems, 35)
 
       setNewsItems(importantItems)
     } catch (err) {
