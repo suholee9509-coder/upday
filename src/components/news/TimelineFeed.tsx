@@ -267,7 +267,7 @@ export const TimelineFeed = memo(forwardRef<TimelineFeedRef, TimelineFeedProps>(
         >
           <DateSeparator date={group.date} />
           {group.items.map((item) => (
-            <NewsCard key={item.id} item={item} language={language} />
+            <NewsCard key={`${item.id}-${language}`} item={item} language={language} />
           ))}
         </div>
       ))}

@@ -292,7 +292,7 @@ export function LandingPage() {
               {/* News cards */}
               <div className="divide-y divide-border">
                 {previewItems.map((item) => (
-                  <NewsCard key={item.id} item={item} language={language} />
+                  <NewsCard key={`${item.id}-${language}`} item={item} language={language} />
                 ))}
               </div>
 

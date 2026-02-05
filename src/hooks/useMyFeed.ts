@@ -264,34 +264,6 @@ export function useMyFeed(): UseMyFeedResult {
         ? filterByImportance(scoredItems, 55)
         : scoredItems // Category-only: show all matched items
 
-      // DEBUG: Log scoring stats by week
-      const now = new Date()
-      const weekStats: Record<string, { total: number; passed: number; avgScore: number; companiesFound: number }> = {}
-      scoredItems.forEach(item => {
-        const itemDate = new Date(item.publishedAt)
-        const weekNum = Math.floor((now.getTime() - itemDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
-        const weekKey = `Week-${weekNum}`
-        if (!weekStats[weekKey]) {
-          weekStats[weekKey] = { total: 0, passed: 0, avgScore: 0, companiesFound: 0 }
-        }
-        weekStats[weekKey].total++
-        weekStats[weekKey].avgScore += item.score
-        if ((item.companies?.length || 0) > 0) {
-          weekStats[weekKey].companiesFound++
-        }
-      })
-      importantItems.forEach(item => {
-        const itemDate = new Date(item.publishedAt)
-        const weekNum = Math.floor((now.getTime() - itemDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
-        const weekKey = `Week-${weekNum}`
-        if (weekStats[weekKey]) {
-          weekStats[weekKey].passed++
-        }
-      })
-      Object.entries(weekStats).forEach(([_week, stats]) => {
-        stats.avgScore = Math.round(stats.avgScore / stats.total)
-      })
-
       // Update cache
       feedCache = {
         key: cacheKey,

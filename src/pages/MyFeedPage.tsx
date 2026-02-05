@@ -561,7 +561,7 @@ export function MyFeedPage() {
                         {week.clusters.length > 0 ? (
                           <div>
                             {week.clusters.map(cluster => (
-                              <ClusterCard key={cluster.id} cluster={cluster} userKeywords={userKeywords} language={language} />
+                              <ClusterCard key={`${cluster.id}-${language}`} cluster={cluster} userKeywords={userKeywords} language={language} />
                             ))}
                           </div>
                         ) : (
