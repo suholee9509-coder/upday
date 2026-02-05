@@ -63,11 +63,11 @@ export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(funct
   // Expose scrollToDate method via ref
   useImperativeHandle(ref, () => ({
     scrollToDate: (date: Date) => {
-      const dateKey = date.toISOString().split('T')[0]
-      // Find the matching date group
+      // Find the matching date group using local date comparison (toDateString avoids timezone issues)
+      const targetDateStr = date.toDateString()
       for (const [key, element] of dateGroupRefs.current) {
-        const groupDate = new Date(key).toISOString().split('T')[0]
-        if (groupDate === dateKey) {
+        const groupDate = new Date(key)
+        if (groupDate.toDateString() === targetDateStr) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' })
           return
         }

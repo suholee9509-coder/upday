@@ -1,7 +1,8 @@
 import { useLocation, Navigate } from 'react-router-dom'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Header, Sidebar, SidebarProvider } from '@/components/layout'
 import { FilterBar, TimelineFeed } from '@/components/news'
+import type { TimelineFeedRef } from '@/components/news/TimelineFeed'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { SEO, CATEGORY_SEO, injectItemListSchema, injectBreadcrumbSchema, injectCollectionPageSchema } from '@/components/SEO'
 import { useNews } from '@/hooks/useNews'
@@ -62,6 +63,8 @@ export function CategoryPage() {
 
 function CategoryPageContent({ category }: { category: Category }) {
   const [query, setQuery] = useState('')
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const timelineFeedRef = useRef<TimelineFeedRef>(null)
 
   // Fetch real data from Supabase
   const { items, hasMore, loading, error, loadMore, refresh } = useNews({
@@ -75,6 +78,17 @@ function CategoryPageContent({ category }: { category: Category }) {
 
   const handleReset = useCallback(() => {
     setQuery('')
+  }, [])
+
+  // Handle date selection from dropdown
+  const handleDateSelect = useCallback((date: Date) => {
+    setCurrentDate(date)
+    timelineFeedRef.current?.scrollToDate(date)
+  }, [])
+
+  // Handle visible date change from scroll
+  const handleVisibleDateChange = useCallback((date: Date) => {
+    setCurrentDate(date)
   }, [])
 
   // Dynamic SEO
@@ -135,12 +149,15 @@ function CategoryPageContent({ category }: { category: Category }) {
             currentCategory={category}
             onCategoryChange={handleCategoryChange}
             disabled={!!query}
+            currentDate={currentDate}
+            onDateSelect={handleDateSelect}
           />
           <main id="main-content" className="flex-1">
             {/* Hidden h1 for SEO */}
             <h1 className="sr-only">{content.h1}</h1>
 
             <TimelineFeed
+              ref={timelineFeedRef}
               items={items}
               hasMore={hasMore}
               loading={loading}
@@ -150,6 +167,7 @@ function CategoryPageContent({ category }: { category: Category }) {
               searchQuery={query || undefined}
               category={category}
               onReset={handleReset}
+              onVisibleDateChange={handleVisibleDateChange}
             />
           </main>
         </div>

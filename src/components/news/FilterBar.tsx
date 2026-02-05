@@ -32,7 +32,7 @@ export function FilterBar({
   return (
     <nav
       className={cn(
-        'sticky top-[56px] z-10 -mt-px',
+        'sticky top-[61px] z-10 -mt-px',
         'bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80',
         'border-b border-border',
         'px-4 py-2.5',

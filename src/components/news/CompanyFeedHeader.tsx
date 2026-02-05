@@ -26,7 +26,7 @@ export function CompanyFeedHeader({
   if (!company) return null
 
   return (
-    <div className="sticky top-[56px] z-10 -mt-px border-b border-border bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
+    <div className="sticky top-[61px] z-10 -mt-px border-b border-border bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
       <div className="max-w-2xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Company Info */}
