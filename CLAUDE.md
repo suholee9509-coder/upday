@@ -302,6 +302,20 @@ openai, anthropic, google, microsoft, meta, nvidia, xai, mistral, vercel, supaba
 - `isEnglishContent()` 함수로 타이틀의 10% 이상이 비라틴 문자면 스킵
 - Dev.to 등 다국어 플랫폼에서 비영어 기사 유입 방지
 
+## Category Keyword Filtering
+
+- 일반 테크 피드(Engadget, Gizmodo, CNET 등)에서 카테고리와 무관한 기사 필터링
+- 카테고리별 필수 키워드 정의 (`CATEGORY_KEYWORDS`)
+- 카테고리 전용 소스는 필터링 스킵 (`CATEGORY_SPECIFIC_SOURCES`)
+
+| Category | 필수 키워드 예시 |
+|----------|------------------|
+| ai | ai, machine learning, llm, gpt, openai, neural network |
+| startups | startup, funding, series a, vc, acquisition, founder |
+| dev | developer, api, framework, github, kubernetes, react |
+| product | ux, product design, growth, analytics, saas, pmf |
+| research | research, paper, nasa, space, quantum, scientific |
+
 ## Cloudflare Workers
 
 | Worker | 역할 | 배포 명령어 |
