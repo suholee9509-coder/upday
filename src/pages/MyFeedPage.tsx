@@ -32,7 +32,7 @@ import type { NewsCluster } from '@/lib/clustering'
 import type { WeekData } from '@/hooks/useMyFeed'
 
 // DEMO MODE: Set to true to use dummy data for layout testing
-const DEMO_MODE = import.meta.env.DEV && true
+const DEMO_MODE = false
 
 /**
  * Generate dummy data for demo/testing purposes

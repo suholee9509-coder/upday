@@ -67,6 +67,13 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
       const client = supabase
       if (!client) throw new Error('Supabase client not initialized')
 
+      console.log('Saving onboarding data...', {
+        user_id: user.id,
+        categories: selectedCategories,
+        keywords,
+        companies: selectedCompanies
+      })
+
       // Save user interests (upsert to handle existing data)
       const { error: interestsError } = await client
         .from('user_interests')
@@ -80,15 +87,26 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
           onConflict: 'user_id'
         })
 
-      if (interestsError) throw interestsError
+      if (interestsError) {
+        console.error('Failed to save user interests:', interestsError)
+        throw interestsError
+      }
+
+      console.log('User interests saved successfully')
 
       // Save pinned companies (delete existing first to avoid duplicates)
       if (selectedCompanies.length > 0) {
+        console.log('Saving pinned companies...')
+
         // Delete existing pins first
-        await client
+        const { error: deleteError } = await client
           .from('pinned_companies')
           .delete()
           .eq('user_id', user.id)
+
+        if (deleteError) {
+          console.error('Failed to delete existing pins:', deleteError)
+        }
 
         // Insert new pins
         const { error: pinsError } = await client
@@ -100,13 +118,20 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
             }))
           )
 
-        if (pinsError) throw pinsError
+        if (pinsError) {
+          console.error('Failed to save pinned companies:', pinsError)
+          throw pinsError
+        }
+
+        console.log('Pinned companies saved successfully')
       }
 
+      console.log('Onboarding completed, calling onComplete()')
       onComplete()
     } catch (error) {
       console.error('Failed to save onboarding data:', error)
-      alert('Failed to save your preferences. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Failed to save your preferences: ${errorMessage}\n\nPlease try again or contact support.`)
     } finally {
       setIsSubmitting(false)
     }

@@ -10,6 +10,14 @@ export function OnboardingManager() {
   const [hasChecked, setHasChecked] = useState(false)
 
   useEffect(() => {
+    // Debug mode: Force show onboarding with URL parameter
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('showOnboarding') === 'true' && isAuthenticated && !authLoading) {
+      console.log('Debug mode: Forcing onboarding modal to show')
+      setShowOnboarding(true)
+      return
+    }
+
     // Wait for both auth and interests to load
     if (authLoading || interestsLoading) return
 
