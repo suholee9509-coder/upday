@@ -247,7 +247,7 @@ function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
 
 /**
  * Mobile Timeline Bar - Horizontal scrollable week list (mobile only)
- * Styled similar to desktop but horizontal
+ * Matches desktop timeline visual style with dots and clean typography
  */
 interface MobileTimelineProps {
   weeks: { weekStart: string; label: string; totalItems: number }[]
@@ -258,10 +258,13 @@ interface MobileTimelineProps {
 function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineProps) {
   return (
     <nav
-      className="md:hidden sticky top-0 z-20 bg-background/98 backdrop-blur-md border-b border-border/50"
+      className="md:hidden sticky top-0 z-20 bg-background/98 backdrop-blur-md"
       aria-label="Timeline navigation"
     >
-      <div className="flex overflow-x-auto scrollbar-hide">
+      {/* Horizontal timeline line */}
+      <div className="absolute bottom-3 left-0 right-0 h-px bg-border/60" />
+
+      <div className="flex overflow-x-auto scrollbar-hide px-2 pt-2 pb-4 gap-1">
         {weeks.map((week, index) => {
           const isActive = index === activeWeekIndex
           const isCurrent = index === 0
@@ -271,35 +274,49 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
               key={week.weekStart}
               onClick={() => onWeekClick(index)}
               className={cn(
-                'flex-shrink-0 px-4 py-3 border-b-2 -mb-px',
-                'transition-all duration-200',
-                isActive
-                  ? 'border-primary bg-primary/5'
-                  : 'border-transparent hover:bg-muted/50'
+                'group flex-shrink-0 flex flex-col items-center px-3 py-2',
+                'transition-colors duration-200',
+                'rounded-lg',
+                isActive ? 'bg-muted/50' : 'hover:bg-muted/30'
               )}
               aria-label={`Jump to week of ${week.label}`}
               aria-current={isActive ? 'true' : undefined}
             >
-              <div className="flex flex-col items-start gap-0.5">
-                <div className="flex items-center gap-1.5">
-                  <span className={cn(
-                    'text-sm font-semibold',
-                    isActive ? 'text-foreground' : 'text-muted-foreground'
-                  )}>
-                    {week.label}
-                  </span>
-                  {isCurrent && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase bg-primary/15 text-primary">
-                      Now
-                    </span>
-                  )}
-                </div>
+              {/* Week info */}
+              <div className="flex items-center gap-1 mb-1.5">
                 <span className={cn(
-                  'text-[11px]',
-                  isActive ? 'text-muted-foreground' : 'text-muted-foreground/60'
+                  'text-xs font-semibold whitespace-nowrap',
+                  isActive ? 'text-foreground' : 'text-muted-foreground'
                 )}>
-                  {week.totalItems} articles
+                  {week.label}
                 </span>
+                {isCurrent && (
+                  <span className="px-1 py-0.5 rounded text-[9px] font-semibold uppercase bg-primary/15 text-primary leading-none">
+                    Now
+                  </span>
+                )}
+              </div>
+
+              {/* Article count */}
+              <span className={cn(
+                'text-[10px] whitespace-nowrap mb-2',
+                isActive ? 'text-muted-foreground' : 'text-muted-foreground/60'
+              )}>
+                {week.totalItems}개
+              </span>
+
+              {/* Timeline dot */}
+              <div className="relative">
+                {isActive && (
+                  <div className="absolute inset-0 rounded-full bg-primary/20 blur-sm scale-[2]" />
+                )}
+                <div className={cn(
+                  'relative w-2 h-2 rounded-full z-10',
+                  'border-2 transition-all duration-200',
+                  isActive
+                    ? 'bg-primary border-primary'
+                    : 'bg-background border-border/80 group-hover:border-primary/60'
+                )} />
               </div>
             </button>
           )
@@ -528,7 +545,7 @@ export function MyFeedPage() {
                       <section
                         key={week.weekStart}
                         ref={(el) => { weekRefs.current[weekIndex] = el }}
-                        className="scroll-mt-[60px] md:scroll-mt-0"
+                        className="scroll-mt-[80px] md:scroll-mt-0"
                       >
                         {/* Week Header - Desktop only (mobile has timeline bar) */}
                         <div className={cn(

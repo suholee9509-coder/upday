@@ -283,8 +283,6 @@ export function useMyFeed(): UseMyFeedResult {
       Object.entries(weekStats).forEach(([_week, stats]) => {
         stats.avgScore = Math.round(stats.avgScore / stats.total)
       })
-      console.log('[MyFeed] Week stats:', weekStats)
-      console.log('[MyFeed] User companies:', interests.companies)
 
       // Update cache
       feedCache = {

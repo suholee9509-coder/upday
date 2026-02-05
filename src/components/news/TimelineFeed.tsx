@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react'
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo, memo } from 'react'
 import { NewsCard } from './NewsCard'
 import { useLanguage } from '@/hooks/useLanguage'
 import { DateSeparator } from './DateSeparator'
@@ -31,7 +31,7 @@ interface TimelineFeedProps {
   onVisibleDateChange?: (date: Date) => void
 }
 
-export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(function TimelineFeed({
+export const TimelineFeed = memo(forwardRef<TimelineFeedRef, TimelineFeedProps>(function TimelineFeed({
   items,
   hasMore,
   loading = false,
