@@ -19,7 +19,12 @@
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "personal": "Personal",
+    "myFeed": "My Feed",
+    "settings": "Settings",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
   },
   "date": {
     "today": "Today",

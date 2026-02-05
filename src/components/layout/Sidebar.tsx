@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { Radio, ChevronRight, ChevronLeft, Pin, Grid2X2, Menu, X } from 'lucide-react'
+import { Radio, ChevronRight, ChevronLeft, Pin, Grid2X2, Menu, X, LogIn, Settings, LogOut, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
 import { CompanyLogo } from '@/components/CompanyLogo'
 import { UpdayWordmark } from '@/components/UpdayLogo'
 import { usePinnedCompanies } from '@/hooks/usePinnedCompanies'
+import { useAuth } from '@/hooks/useAuth'
 import { COMPANIES } from '@/lib/constants'
 
 // Soft spring animation
@@ -71,10 +72,20 @@ export function Sidebar() {
   const [searchParams] = useSearchParams()
   const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
   const { pinnedCompanies, togglePin } = usePinnedCompanies()
+  const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth()
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true)
 
   const currentCompany = searchParams.get('company')
   const isLiveFeed = location.pathname === '/timeline' && !currentCompany
+
+  const handleSignIn = () => {
+    window.dispatchEvent(new CustomEvent('open-login-modal'))
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    setIsMobileOpen(false)
+  }
 
   const pinnedCompanyDetails = useMemo(() =>
     pinnedCompanies
@@ -218,8 +229,129 @@ export function Sidebar() {
             </ExpandableSection>
           </div>
           )}
+
+          {/* My Feed Section */}
+          <div className="mt-6 space-y-1">
+            <SectionTitle collapsed={isCollapsed}>{t('nav.personal')}</SectionTitle>
+
+            <NavItem
+              icon={<Zap className="h-4 w-4" />}
+              label={t('nav.myFeed')}
+              href={isAuthenticated ? '/timeline/my' : '#'}
+              active={location.pathname === '/timeline/my'}
+              collapsed={isCollapsed}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  handleSignIn()
+                } else {
+                  setIsMobileOpen(false)
+                }
+              }}
+            />
+          </div>
         </nav>
 
+        {/* User Section - Bottom */}
+        <div className={cn(
+          'border-t border-sidebar-border/50',
+          springTransition,
+          isCollapsed ? 'p-2' : 'p-3'
+        )}>
+          {authLoading ? (
+            <div className={cn(
+              'flex items-center rounded-lg',
+              isCollapsed ? 'h-10 justify-center' : 'h-12 px-3 gap-3'
+            )}>
+              <div className="w-8 h-8 rounded-full bg-sidebar-accent animate-pulse" />
+              {!isCollapsed && (
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3 w-20 bg-sidebar-accent rounded animate-pulse" />
+                  <div className="h-2 w-28 bg-sidebar-accent rounded animate-pulse" />
+                </div>
+              )}
+            </div>
+          ) : isAuthenticated && user ? (
+            <div className="space-y-1">
+              {/* User Info */}
+              <div className={cn(
+                'flex items-center rounded-lg',
+                isCollapsed ? 'h-10 justify-center' : 'h-12 px-3 gap-3'
+              )}>
+                {user.user_metadata?.avatar_url ? (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt=""
+                    className="w-8 h-8 rounded-full flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-medium text-primary">
+                      {(user.user_metadata?.name || user.email || '?')[0].toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                {!isCollapsed && (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-sidebar-foreground truncate">
+                      {user.user_metadata?.name || user.email?.split('@')[0]}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Settings & Logout */}
+              {!isCollapsed && (
+                <div className="flex gap-1">
+                  <Link
+                    to="/settings"
+                    onClick={() => setIsMobileOpen(false)}
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-2 h-9 rounded-md',
+                      'text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
+                      springTransition
+                    )}
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>{t('nav.settings')}</span>
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className={cn(
+                      'flex items-center justify-center w-9 h-9 rounded-md',
+                      'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
+                      springTransition
+                    )}
+                    title={t('nav.signOut')}
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={handleSignIn}
+              className={cn(
+                'w-full flex items-center rounded-lg',
+                'bg-primary text-primary-foreground hover:bg-primary/90',
+                springTransition,
+                isCollapsed ? 'h-10 justify-center' : 'h-10 px-3 gap-3'
+              )}
+            >
+              <LogIn className="h-4 w-4" />
+              <span className={cn(
+                'text-sm font-medium',
+                springTransition,
+                isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
+              )}>
+                {t('nav.signIn')}
+              </span>
+            </button>
+          )}
+        </div>
       </aside>
     </>
   )

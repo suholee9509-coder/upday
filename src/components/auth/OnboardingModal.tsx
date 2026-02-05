@@ -1,0 +1,248 @@
+import { useState, useEffect } from 'react'
+import { X, Plus } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui'
+import { supabase } from '@/lib/db'
+import { useAuth } from '@/hooks/useAuth'
+import { CATEGORIES, COMPANIES } from '@/lib/constants'
+
+interface OnboardingModalProps {
+  isOpen: boolean
+  onComplete: () => void
+}
+
+export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
+  const { user } = useAuth()
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [keywords, setKeywords] = useState<string[]>([])
+  const [keywordInput, setKeywordInput] = useState('')
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
+
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(categoryId)
+        ? prev.filter(c => c !== categoryId)
+        : [...prev, categoryId]
+    )
+  }
+
+  const addKeyword = () => {
+    const trimmed = keywordInput.trim()
+    if (trimmed && keywords.length < 10 && !keywords.includes(trimmed)) {
+      setKeywords([...keywords, trimmed])
+      setKeywordInput('')
+    }
+  }
+
+  const removeKeyword = (keyword: string) => {
+    setKeywords(keywords.filter(k => k !== keyword))
+  }
+
+  const toggleCompany = (companyId: string) => {
+    setSelectedCompanies(prev =>
+      prev.includes(companyId)
+        ? prev.filter(c => c !== companyId)
+        : [...prev, companyId]
+    )
+  }
+
+  const handleSubmit = async () => {
+    if (!user || selectedCategories.length === 0) return
+
+    setIsSubmitting(true)
+    try {
+      const client = supabase
+      if (!client) throw new Error('Supabase client not initialized')
+
+      // Save user interests
+      const { error: interestsError } = await client
+        .from('user_interests')
+        .insert({
+          user_id: user.id,
+          categories: selectedCategories,
+          keywords: keywords,
+          companies: selectedCompanies,
+          onboarding_completed: true,
+        })
+
+      if (interestsError) throw interestsError
+
+      // Save pinned companies
+      if (selectedCompanies.length > 0) {
+        const { error: pinsError } = await client
+          .from('pinned_companies')
+          .insert(
+            selectedCompanies.map(slug => ({
+              user_id: user.id,
+              company_slug: slug,
+            }))
+          )
+
+        if (pinsError) throw pinsError
+      }
+
+      onComplete()
+    } catch (error) {
+      console.error('Failed to save onboarding data:', error)
+      alert('Failed to save your preferences. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-2xl max-h-[90vh] m-4 bg-background rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-border">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Welcome to upday!</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Customize your news feed by selecting your interests
+              </p>
+            </div>
+            <button
+              onClick={onComplete}
+              className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"
+              aria-label="Skip onboarding"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Categories */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-3">
+              Categories <span className="text-destructive">*</span>
+              <span className="text-xs text-muted-foreground ml-2">(Select at least 1)</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              {CATEGORIES.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => toggleCategory(category.id)}
+                  className={cn(
+                    'px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all',
+                    selectedCategories.includes(category.id)
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-background text-foreground hover:border-primary/50'
+                  )}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Keywords */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-3">
+              Keywords <span className="text-xs text-muted-foreground">(Optional, max 10)</span>
+            </label>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    addKeyword()
+                  }
+                }}
+                placeholder="e.g., OpenAI, Series A, GPT"
+                className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                disabled={keywords.length >= 10}
+              />
+              <Button
+                onClick={addKeyword}
+                variant="outline"
+                size="icon"
+                disabled={!keywordInput.trim() || keywords.length >= 10}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+            {keywords.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {keywords.map(keyword => (
+                  <span
+                    key={keyword}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent text-accent-foreground rounded-md text-sm"
+                  >
+                    {keyword}
+                    <button
+                      onClick={() => removeKeyword(keyword)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Companies */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-3">
+              Companies <span className="text-xs text-muted-foreground">(Optional)</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+              {COMPANIES.map(company => (
+                <button
+                  key={company.id}
+                  onClick={() => toggleCompany(company.id)}
+                  className={cn(
+                    'px-3 py-2 rounded-lg border text-xs font-medium text-left transition-all',
+                    selectedCompanies.includes(company.id)
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border bg-background text-foreground hover:border-primary/50'
+                  )}
+                >
+                  {company.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-border flex justify-between items-center">
+          <p className="text-xs text-muted-foreground">
+            You can change these settings anytime in My Feed or Settings
+          </p>
+          <Button
+            onClick={handleSubmit}
+            disabled={selectedCategories.length === 0 || isSubmitting}
+            size="lg"
+          >
+            {isSubmitting ? 'Saving...' : 'Get Started'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}

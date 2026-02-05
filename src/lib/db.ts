@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import type { NewsItem, NewsQueryParams, NewsResponse, Category } from '@/types/news'
 
 // Environment variables
@@ -9,9 +9,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials not configured. Using mock data.')
 }
 
-// Create Supabase client (only if credentials exist)
-export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
+// Create Supabase client with auth persistence (only if credentials exist)
+export const supabase: SupabaseClient | null = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true, // Required for OAuth callback
+      },
+    })
   : null
 
 // Database row type (snake_case from DB)
@@ -19,6 +25,8 @@ interface NewsItemRow {
   id: string
   title: string
   summary: string
+  title_ko: string | null
+  summary_ko: string | null
   body: string
   category: Category
   companies: string[] | null
@@ -35,6 +43,8 @@ function transformRow(row: NewsItemRow): Omit<NewsItem, 'body'> {
     id: row.id,
     title: row.title,
     summary: row.summary,
+    titleKo: row.title_ko || undefined,
+    summaryKo: row.summary_ko || undefined,
     category: row.category,
     companies: row.companies || [],
     source: row.source,
@@ -57,7 +67,7 @@ export async function fetchNews(params: NewsQueryParams = {}): Promise<NewsRespo
 
   let query = supabase
     .from('news_items')
-    .select('id, title, summary, category, companies, source, source_url, image_url, published_at, created_at')
+    .select('id, title, summary, title_ko, summary_ko, category, companies, source, source_url, image_url, published_at, created_at')
     .order('published_at', { ascending: false })
     .limit(limit + 1) // Fetch one extra to check hasMore
 

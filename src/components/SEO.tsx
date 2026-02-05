@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
+import { getCurrentLanguage } from '@/lib/i18n'
 
 interface SEOProps {
   title?: string
   description?: string
+  descriptionKo?: string // Korean description for search results
   image?: string
   url?: string
   type?: 'website' | 'article'
@@ -13,11 +15,13 @@ interface SEOProps {
 const BASE_URL = 'https://updayapp.com'
 const DEFAULT_TITLE = 'Upday - Tech News, Faster'
 const DEFAULT_DESCRIPTION = 'AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev. No noise, just what matters.'
+const DEFAULT_DESCRIPTION_KO = 'AI가 요약한 테크 뉴스를 실시간으로. AI, 스타트업, 과학, 개발 뉴스를 빠르게 확인하세요.'
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`
 
 export function SEO({
   title,
-  description = DEFAULT_DESCRIPTION,
+  description,
+  descriptionKo,
   image = DEFAULT_IMAGE,
   url = BASE_URL,
   type = 'website',
@@ -27,9 +31,21 @@ export function SEO({
   const fullTitle = title ? `${title} | Upday` : DEFAULT_TITLE
   const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`
 
+  // Use Korean description for meta (search results) when in Korean mode
+  const currentLang = getCurrentLanguage()
+  const metaDescription = currentLang === 'ko'
+    ? (descriptionKo || DEFAULT_DESCRIPTION_KO)
+    : (description || DEFAULT_DESCRIPTION)
+
+  // Always use English for OG/social sharing
+  const socialDescription = description || DEFAULT_DESCRIPTION
+
   useEffect(() => {
     // Update document title
     document.title = fullTitle
+
+    // Update html lang attribute
+    document.documentElement.lang = currentLang
 
     // Helper to update or create meta tag
     const updateMeta = (selector: string, content: string, attr: string = 'content') => {
@@ -45,19 +61,19 @@ export function SEO({
       element.setAttribute(attr, content)
     }
 
-    // Primary meta tags
-    updateMeta('meta[name="description"]', description)
+    // Primary meta tags (language-aware for search results)
+    updateMeta('meta[name="description"]', metaDescription)
 
-    // Open Graph
+    // Open Graph (always English for social sharing)
     updateMeta('meta[property="og:title"]', fullTitle)
-    updateMeta('meta[property="og:description"]', description)
+    updateMeta('meta[property="og:description"]', socialDescription)
     updateMeta('meta[property="og:image"]', image)
     updateMeta('meta[property="og:url"]', fullUrl)
     updateMeta('meta[property="og:type"]', type)
 
-    // Twitter
+    // Twitter (always English for social sharing)
     updateMeta('meta[name="twitter:title"]', fullTitle)
-    updateMeta('meta[name="twitter:description"]', description)
+    updateMeta('meta[name="twitter:description"]', socialDescription)
     updateMeta('meta[name="twitter:image"]', image)
     updateMeta('meta[name="twitter:url"]', fullUrl)
 
@@ -78,32 +94,37 @@ export function SEO({
     }
     canonical.href = fullUrl
 
-  }, [fullTitle, description, image, fullUrl, type, publishedTime, section])
+  }, [fullTitle, metaDescription, socialDescription, image, fullUrl, type, publishedTime, section, currentLang])
 
   return null
 }
 
 // Category SEO presets (5 categories)
-export const CATEGORY_SEO: Record<string, { title: string; description: string }> = {
+export const CATEGORY_SEO: Record<string, { title: string; description: string; descriptionKo: string }> = {
   ai: {
     title: 'AI News',
     description: 'Breaking AI news: LLMs, machine learning, ChatGPT, and emerging AI trends updated in real-time.',
+    descriptionKo: 'AI 뉴스: LLM, 머신러닝, ChatGPT, 최신 AI 트렌드를 실시간으로 확인하세요.',
   },
   startups: {
     title: 'Startup News',
     description: 'Latest startup funding, acquisitions, IPOs, and founder stories as they happen.',
+    descriptionKo: '스타트업 뉴스: 투자, 인수합병, IPO, 창업자 스토리를 실시간으로.',
   },
   dev: {
     title: 'Developer News',
     description: 'Latest in programming, open source, GitHub updates, and developer tools.',
+    descriptionKo: '개발자 뉴스: 프로그래밍, 오픈소스, GitHub, 개발 도구 업데이트.',
   },
   product: {
     title: 'Product News',
     description: 'Breaking product design, UI/UX trends, launches, and creative tool updates.',
+    descriptionKo: '프로덕트 뉴스: 제품 디자인, UI/UX 트렌드, 런칭, 크리에이티브 도구.',
   },
   research: {
     title: 'Research News',
     description: 'Scientific discoveries, space exploration, and research breakthroughs in real-time.',
+    descriptionKo: '연구 뉴스: 과학 발견, 우주 탐사, 연구 성과를 실시간으로.',
   },
 }
 

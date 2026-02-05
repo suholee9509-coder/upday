@@ -6,7 +6,7 @@
 import { crawlAllSources, type RawArticle } from './crawl'
 import { deduplicateArticles } from './dedupe'
 import { cleanArticleBody, cleanTitle, isValidContent } from './clean'
-import { processArticleAI, isAIConfigured, getAIProvider } from './ai'
+import { processArticleAI, isAIConfigured, getAIProvider, translateToKorean } from './ai'
 import { supabase } from './db'
 import type { Category } from '@/types/news'
 
@@ -24,6 +24,8 @@ export interface IngestionResult {
 export interface ProcessedArticle {
   title: string
   summary: string
+  title_ko?: string
+  summary_ko?: string
   body: string
   category: Category
   source: string
@@ -101,12 +103,24 @@ async function processArticleWithAI(raw: RawArticle): Promise<ProcessedArticle |
 
   let summary: string
   let category: Category
+  let titleKo: string | undefined
+  let summaryKo: string | undefined
 
   if (isAIConfigured()) {
     try {
       const aiResult = await processArticleAI(title, body)
       summary = aiResult.summary
       category = aiResult.category
+
+      // Translate to Korean
+      try {
+        const translation = await translateToKorean(title, summary)
+        titleKo = translation.titleKo
+        summaryKo = translation.summaryKo
+      } catch (transError) {
+        console.warn('Korean translation failed:', transError)
+        // Continue without translation
+      }
     } catch (error) {
       console.warn('AI processing failed, using fallback:', error)
       summary = generateSimpleSummary(title, body)
@@ -120,6 +134,8 @@ async function processArticleWithAI(raw: RawArticle): Promise<ProcessedArticle |
   return {
     title,
     summary,
+    title_ko: titleKo,
+    summary_ko: summaryKo,
     body,
     category,
     source: raw.source,

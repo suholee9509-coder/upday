@@ -13,6 +13,8 @@ export interface NewsItem {
   id: string
   title: string
   summary: string
+  titleKo?: string        // Korean translation of title
+  summaryKo?: string      // Korean translation of summary
   body: string
   category: Category
   companies?: string[]    // associated company slugs (e.g., ["openai", "microsoft"])

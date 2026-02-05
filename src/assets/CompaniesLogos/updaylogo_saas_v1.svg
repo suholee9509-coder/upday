@@ -1,0 +1,27 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0" y1="100" x2="100" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#9333EA" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background (Optional, remove if transparency is desired) -->
+  <!-- <rect width="100" height="100" rx="20" fill="#F1F5F9" /> -->
+
+  <!-- U Shape with Arrow -->
+  <path d="M32 35 V62 C32 74 40 80 50 80 C60 80 68 74 68 62 V35" 
+        stroke="url(#grad1)" 
+        stroke-width="10" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none" />
+        
+  <!-- Arrow Head on the right stem -->
+  <path d="M54 49 L68 35 L82 49" 
+        stroke="url(#grad1)" 
+        stroke-width="10" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none" />
+</svg>

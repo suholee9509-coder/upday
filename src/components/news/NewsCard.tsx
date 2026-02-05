@@ -2,6 +2,7 @@ import { useState, memo } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
+import { getCurrentLanguage } from '@/lib/i18n'
 import type { NewsItem } from '@/types/news'
 
 // Format relative time (e.g., "5m ago", "2h ago", "Yesterday")
@@ -45,6 +46,11 @@ export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProp
   const [imageError, setImageError] = useState(false)
   const showImage = item.imageUrl && !imageError
 
+  // Use Korean content when available and in Korean mode
+  const currentLang = getCurrentLanguage()
+  const displayTitle = currentLang === 'ko' && item.titleKo ? item.titleKo : item.title
+  const displaySummary = currentLang === 'ko' && item.summaryKo ? item.summaryKo : item.summary
+
   return (
     <a
       href={item.sourceUrl}
@@ -63,12 +69,12 @@ export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProp
           <div className="flex-1 min-w-0">
             {/* 1st: Title - highest visual weight */}
             <h2 className="text-base font-semibold text-foreground leading-snug mb-2 group-hover:text-foreground/90">
-              {item.title}
+              {displayTitle}
             </h2>
 
             {/* 2nd: Summary - why it matters */}
             <p className="text-muted-foreground text-sm leading-relaxed mb-3 line-clamp-2">
-              {item.summary}
+              {displaySummary}
             </p>
 
             {/* 3rd: Time + Category - metadata */}

@@ -19,7 +19,12 @@
     "expandSidebar": "사이드바 펼치기",
     "collapseSidebar": "사이드바 접기",
     "openMenu": "메뉴 열기",
-    "closeMenu": "메뉴 닫기"
+    "closeMenu": "메뉴 닫기",
+    "personal": "개인",
+    "myFeed": "마이 피드",
+    "settings": "설정",
+    "signIn": "로그인",
+    "signOut": "로그아웃"
   },
   "date": {
     "today": "오늘",

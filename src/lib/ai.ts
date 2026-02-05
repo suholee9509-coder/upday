@@ -235,6 +235,62 @@ export async function classifyCategory(title: string, body: string): Promise<Cat
 }
 
 /**
+ * Translate text to Korean using OpenAI
+ */
+async function translateToKoreanOpenAI(title: string, summary: string): Promise<{ titleKo: string; summaryKo: string }> {
+  if (!openai) throw new Error('OpenAI client not configured')
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      {
+        role: 'system',
+        content: `You are a professional Korean translator for a tech news platform. Translate the given title and summary to natural, fluent Korean.
+Rules:
+- Maintain technical terms in English when commonly used (e.g., AI, API, GPT)
+- Keep proper nouns (company names, product names) in original form
+- Use formal but accessible Korean (합니다체)
+- Preserve the original meaning and tone
+- Return JSON format: {"titleKo": "...", "summaryKo": "..."}`
+      },
+      {
+        role: 'user',
+        content: `Title: ${title}\n\nSummary: ${summary}`
+      }
+    ],
+    max_tokens: 500,
+    temperature: 0.3,
+    response_format: { type: 'json_object' }
+  })
+
+  const content = response.choices[0]?.message?.content
+  if (!content) throw new Error('No translation response')
+
+  try {
+    const parsed = JSON.parse(content)
+    return {
+      titleKo: parsed.titleKo || title,
+      summaryKo: parsed.summaryKo || summary
+    }
+  } catch {
+    console.warn('Failed to parse translation JSON, using original')
+    return { titleKo: title, summaryKo: summary }
+  }
+}
+
+/**
+ * Translate title and summary to Korean
+ */
+export async function translateToKorean(title: string, summary: string): Promise<{ titleKo: string; summaryKo: string }> {
+  try {
+    return await withRetry(() => translateToKoreanOpenAI(title, summary))
+  } catch (error) {
+    console.error('Translation failed:', error)
+    return { titleKo: title, summaryKo: summary } // Fallback to original
+  }
+}
+
+/**
  * Process article with both summary and classification
  * Uses cache to avoid redundant AI calls for similar content
  */
@@ -261,6 +317,22 @@ export async function processArticleAI(
   }
 
   return result
+}
+
+/**
+ * Process article with summary, classification, and Korean translation
+ */
+export async function processArticleAIWithTranslation(
+  title: string,
+  body: string
+): Promise<{ summary: string; category: Category; titleKo: string; summaryKo: string }> {
+  // First get summary and category
+  const { summary, category } = await processArticleAI(title, body)
+
+  // Then translate to Korean
+  const { titleKo, summaryKo } = await translateToKorean(title, summary)
+
+  return { summary, category, titleKo, summaryKo }
 }
 
 // Batch processing configuration

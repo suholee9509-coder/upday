@@ -42,11 +42,14 @@ import { Header, Sidebar, SidebarProvider } from '@/components/layout'
 - `UpdayWordmark` - upday logo symbol + text combined
 
 ### Custom Hooks
-- `usePinnedCompanies` - manage pinned companies in localStorage
+- `usePinnedCompanies` - manage pinned companies (localStorage + Supabase sync, requires login)
 - `useSearchHistory` - manage search history in localStorage
 - `useToast` - toast notification system
 - `useCommandPalette` - access command palette state
 - `useNews` - news fetching with pagination, includes `jumpToDate` for instant date navigation
+- `useAuth` - authentication state management (Supabase Auth with OAuth)
+- `useUserInterests` - user interests management (categories, keywords, companies)
+- `useMyFeed` - personalized feed with importance scoring and clustering
 
 ### Date Navigation System
 
@@ -168,6 +171,103 @@ import { UpdayWordmark } from '@/components/UpdayLogo'
 - Use `UpdayLogo` for standalone symbol contexts (favicon already uses this design)
 - Both components use `fill-foreground` for automatic theme adaptation
 
+## Authentication & User Management
+
+### OAuth Authentication
+- **Providers**: GitHub, Google OAuth only (no email/password)
+- **Library**: Supabase Auth
+- **Login Triggers**: My Feed tab click, Pin button click
+- **Post-login**: Interest onboarding (first time only)
+
+### User Data
+```typescript
+// Supabase tables
+- profiles: user profile (linked to auth.users)
+- user_interests: categories, keywords, companies, onboarding_completed
+- pinned_companies: user's pinned companies (server-synced)
+```
+
+### Components
+- `LoginModal` - OAuth login modal (GitHub/Google)
+- `OnboardingModal` - first-time interest setup
+- `OnboardingManager` - auto-show onboarding after first login
+
+### Pin Sync Migration
+- **Non-authenticated**: localStorage only
+- **Authenticated**: Supabase sync
+- **On login**: Auto-migrate localStorage pins to server → clear localStorage
+- **Pin/Unpin**: Requires login (shows login modal if not authenticated)
+
+### Protected Routes
+- `/timeline/my` - My Feed (requires login)
+- `/settings` - Settings page (requires login)
+
+## My Feed (Personalized Timeline)
+
+### Overview
+개인화된 뉴스 피드로, 사용자 관심사 기반으로 중요한 뉴스를 **주 단위**로 제공.
+
+### Architecture
+```
+User Interests → Filter News → Score → Cluster → Group by Week → Display
+```
+
+### Importance Scoring (0-100점)
+```typescript
+// src/lib/importance.ts
+- Category match: 30점
+- Keyword match: 25점 (최대, 키워드당 10점)
+- Company match: 20점
+- Tier-1 company: 15점 (OpenAI, Google 등)
+- Funding/M&A: 10점 ($50M+, acquisition 키워드)
+- Product launch: 10점 (launch, release, announce 키워드)
+- Multi-source boost: +20% (3+ 소스에서 동일 이벤트)
+```
+
+**Display Threshold**: 40점 이상만 표시
+
+### News Clustering
+```typescript
+// src/lib/clustering.ts
+- 같은 이벤트 기사 자동 그룹화
+- 유사도 계산: 제목 단어 매칭, 카테고리, 회사, 시간 근접성 (48시간)
+- 대표 기사 1개 + 관련 기사 N개
+- Similarity threshold: 0.4 (40%)
+```
+
+### Weekly Timeline
+- **범위**: 최근 12주
+- **네비게이션**: 주간 타임라인 바 (가로 스크롤)
+- **기본 선택**: 현재 주 (Week 0)
+- **주 라벨**: "1/20-26" 또는 "1/27-2/2" 형식
+
+### Components
+- `WeeklyBar` - 주간 타임라인 바 (12주 가로 스크롤)
+- `MyFeedPage` - 메인 페이지 (클러스터 뷰, 확장/축소)
+- Hook: `useMyFeed` - 데이터 fetching, filtering, scoring, clustering, grouping
+
+### Data Flow
+```
+1. useUserInterests → 사용자 관심사 가져오기
+2. fetchNews → 최근 12주 뉴스 로드 (배치)
+3. matchesUserInterests → 카테고리/키워드/회사 필터링
+4. calculateImportanceScore → 각 기사 점수 계산
+5. filterByImportance → 40점 이상만 필터링
+6. clusterNews → 관련 기사 그룹화
+7. groupByWeeks → 주 단위 그룹화
+8. Display → WeeklyBar + ClusterCards
+```
+
+### Usage
+```tsx
+const { weeks, currentWeek, selectWeek } = useMyFeed()
+
+<WeeklyBar weeks={weeks} onSelectWeek={selectWeek} />
+{currentWeek.clusters.map(cluster => (
+  <ClusterCard key={cluster.id} cluster={cluster} />
+))}
+```
+
 ### Styling Rules
 - Use `cn()` from `@/lib/utils` for class merging
 - Use design tokens defined in `src/index.css` (oklch-based light/dark theme)
@@ -243,29 +343,47 @@ src/
 │   │   ├── TimelineFeed.tsx
 │   │   ├── CompanyFeedHeader.tsx
 │   │   └── DateDropdown.tsx
+│   ├── timeline/        # Timeline-specific components
+│   │   └── WeeklyBar.tsx       # My Feed 주간 네비게이션 바
+│   ├── auth/            # Authentication components
+│   │   ├── LoginModal.tsx      # OAuth 로그인 모달
+│   │   ├── OnboardingModal.tsx # 첫 로그인 시 관심사 설정
+│   │   ├── OnboardingManager.tsx # 온보딩 트리거
+│   │   └── index.ts
 │   ├── CommandPalette.tsx
 │   ├── CompanyLogo.tsx
 │   └── UpdayLogo.tsx      # UpdayLogo (symbol) + UpdayWordmark (symbol + text)
 ├── hooks/
-│   ├── usePinnedCompanies.ts
+│   ├── useAuth.ts           # Supabase Auth (OAuth)
+│   ├── useUserInterests.ts  # 사용자 관심사 관리
+│   ├── useMyFeed.ts         # My Feed 데이터 (scoring + clustering)
+│   ├── usePinnedCompanies.ts # Pin 관리 (localStorage + Supabase sync)
 │   ├── useSearchHistory.ts
 │   └── useToast.tsx
 ├── pages/
 │   ├── TimelinePage.tsx
+│   ├── MyFeedPage.tsx       # 개인화 피드 (로그인 필요)
+│   ├── SettingsPage.tsx     # 계정 및 관심사 설정
 │   ├── CompanyBrowserPage.tsx
 │   ├── CategoryPage.tsx
 │   ├── LandingPage.tsx
-│   ├── FeedbackPage.tsx    # 피드백 폼 (Resend 이메일)
-│   └── RedirectPage.tsx    # 트래킹 리다이렉트 (/go?url=...)
+│   ├── FeedbackPage.tsx     # 피드백 폼 (Resend 이메일)
+│   └── RedirectPage.tsx     # 트래킹 리다이렉트 (/go?url=...)
 ├── lib/
 │   ├── utils.ts         # cn() utility function
 │   ├── constants.ts     # COMPANIES, CATEGORIES
 │   ├── db.ts            # Supabase client
 │   ├── company-relevance.ts  # Company relevance scoring (keyword matching)
+│   ├── importance.ts    # Importance scoring algorithm (0-100점)
+│   ├── clustering.ts    # News clustering (같은 이벤트 그룹화)
 │   └── rss-feeds.ts     # RSS feed configuration
+├── types/
+│   └── news.ts          # TypeScript types (NewsItem, Category, Company)
 ├── public/
 │   ├── favicon.svg      # upday logo (same as UpdayLogo symbol)
 │   └── logos/           # Company SVG logos (25 files)
+├── scripts/
+│   └── schema-auth.sql  # Supabase Auth 스키마 (user_interests, pinned_companies)
 └── index.css            # Design system CSS variables
 ```
 
@@ -285,6 +403,42 @@ src/
 - Product Hunt, Nielsen Norman Group, Intercom Blog, UX Collective, UX Planet, A List Apart, Smashing Magazine, HubSpot Marketing
 - 타겟: PM, 개발자, 투자자, 창업가를 위한 UX/제품 전략 콘텐츠
 - 제외: 소비재 뉴스 (피자헛, 치토스 등), 건축/인테리어 (Dezeen, Designboom)
+
+## Supabase Database Schema
+
+### News Tables
+- `news_items` - 뉴스 기사 메인 테이블
+  - columns: id, title, summary, body, category, companies[], source, source_url, image_url, published_at
+  - indexes: published_at (DESC), category, companies (GIN), full-text search
+
+### Auth Tables (scripts/schema-auth.sql)
+- `profiles` - 사용자 프로필 (auth.users 연결)
+  - columns: id, name, avatar_url, provider
+  - RLS: users can read/update own profile
+
+- `user_interests` - 사용자 관심사 (My Feed용)
+  - columns: user_id, categories[], keywords[], companies[], onboarding_completed
+  - constraint: categories not empty (최소 1개 필수)
+  - RLS: users can read/insert/update own interests
+
+- `pinned_companies` - 핀 회사 (서버 동기화)
+  - columns: user_id, company_slug, pinned_at
+  - unique: (user_id, company_slug)
+  - RLS: users can read/insert/delete own pins
+
+### Triggers
+- `handle_new_user()` - 회원가입 시 profiles 자동 생성
+- `update_updated_at()` - profiles, user_interests 수정 시 updated_at 업데이트
+
+### Setup
+```bash
+# 스키마 적용
+npx supabase db push
+
+# 또는 SQL Editor에서 직접 실행
+# 1. scripts/schema.sql (news_items)
+# 2. scripts/schema-auth.sql (auth tables)
+```
 
 ## Company Tagging
 
@@ -315,6 +469,64 @@ openai, anthropic, google, microsoft, meta, nvidia, xai, mistral, vercel, supaba
 | dev | developer, api, framework, github, kubernetes, react |
 | product | ux, product design, growth, analytics, saas, pmf |
 | research | research, paper, nasa, space, quantum, scientific |
+
+## SEO Configuration
+
+### Search Engine Registration
+
+**Status:**
+- ✅ Google Search Console - Verified
+- ✅ Naver Search Advisor - Verified (2026-02-05)
+- ✅ Bing Webmaster Tools - Verified (via GSC import)
+
+**Verification Tags (index.html):**
+```html
+<meta name="google-site-verification" content="ok6zTvWVtTnnjqE0vSitYIvplZHUKlr3sDTrN7RM23I" />
+<meta name="naver-site-verification" content="857faaa983a39204542e17a3bbedcf1f4fccc52f" />
+<!-- Bing: No tag needed (GSC import) -->
+```
+
+### Sitemaps
+
+**Submitted URLs:**
+- `https://updayapp.com/sitemap.xml` - Main sitemap (10 URLs)
+- `https://updayapp.com/news-sitemap.xml` - News sitemap
+
+**robots.txt Configuration:**
+```txt
+# Google, Bing, Naver bot rules configured
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Yeti  # Naver bot
+
+Sitemap: https://updayapp.com/sitemap.xml
+Sitemap: https://updayapp.com/news-sitemap.xml
+```
+
+### Indexing Timeline
+
+| Search Engine | Crawling | Indexing | Search Visibility |
+|---------------|----------|----------|-------------------|
+| Google | 1-7 days | 1-2 weeks | 2-4 weeks |
+| Naver | 3-14 days | 2-4 weeks | 4-8 weeks |
+| Bing | 3-14 days | 2-4 weeks | 4-8 weeks |
+
+**Check Indexing Status:**
+```
+site:updayapp.com
+```
+
+### SEO Best Practices Applied
+
+- ✅ Meta descriptions (210 chars, keyword-rich)
+- ✅ Open Graph tags (og:image, og:title, og:description)
+- ✅ Twitter Cards (summary_large_image)
+- ✅ Structured data (WebSite, NewsMediaOrganization, CollectionPage)
+- ✅ hreflang tags (en, ko, x-default)
+- ✅ Canonical URLs
+- ✅ robots.txt with sitemap declarations
+- ✅ HSTS headers (max-age=31536000)
+- ✅ Favicon optimization (ICO format)
 
 ## Cloudflare Workers
 

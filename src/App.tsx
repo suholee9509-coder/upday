@@ -6,6 +6,8 @@ import { SkipLink } from '@/components/SkipLink'
 import { Toaster } from '@/components/ui'
 import { ToastProvider } from '@/hooks/useToast'
 import { CommandPaletteProvider } from '@/components/CommandPalette'
+import { AuthProvider } from '@/hooks/useAuth'
+import { LoginModal, OnboardingManager } from '@/components/auth'
 
 // Code splitting - lazy load pages
 const LandingPage = lazy(() => import('@/pages/LandingPage').then(m => ({ default: m.LandingPage })))
@@ -19,6 +21,8 @@ const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then(m => ({ defa
 const DiversityPage = lazy(() => import('@/pages/DiversityPage').then(m => ({ default: m.DiversityPage })))
 const EthicsPage = lazy(() => import('@/pages/EthicsPage').then(m => ({ default: m.EthicsPage })))
 const RedirectPage = lazy(() => import('@/pages/RedirectPage').then(m => ({ default: m.RedirectPage })))
+const SettingsPage = lazy(() => import('@/pages/SettingsPage').then(m => ({ default: m.SettingsPage })))
+const MyFeedPage = lazy(() => import('@/pages/MyFeedPage').then(m => ({ default: m.MyFeedPage })))
 
 // Prefetch timeline page when on landing page (improves navigation speed)
 function usePrefetchRoutes() {
@@ -53,6 +57,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/timeline" element={<TimelinePage />} />
+        <Route path="/timeline/my" element={<MyFeedPage />} />
         {/* SEO-friendly category routes */}
         <Route path="/ai" element={<CategoryPage />} />
         <Route path="/startups" element={<CategoryPage />} />
@@ -65,6 +70,7 @@ function AppRoutes() {
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/diversity" element={<DiversityPage />} />
         <Route path="/ethics" element={<EthicsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/go" element={<RedirectPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
@@ -75,15 +81,19 @@ function AppRoutes() {
 function App() {
   return (
     <ErrorBoundary>
-      <ToastProvider>
-        <BrowserRouter>
-          <CommandPaletteProvider>
-            <SkipLink />
-            <AppRoutes />
-            <Toaster />
-          </CommandPaletteProvider>
-        </BrowserRouter>
-      </ToastProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <CommandPaletteProvider>
+              <SkipLink />
+              <AppRoutes />
+              <Toaster />
+              <LoginModal />
+              <OnboardingManager />
+            </CommandPaletteProvider>
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
     </ErrorBoundary>
   )
 }
