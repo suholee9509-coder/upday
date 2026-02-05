@@ -281,9 +281,10 @@ src/
 | product | UX/Product Strategy, 제품 전략, 마케팅, 디자인 시스템 |
 | research | Scientific research, papers, space |
 
-**Product 카테고리 소스:**
-- Fast Company, UX Collective, UX Planet, Creative Bloq, A List Apart, Smashing Magazine
-- 건축/인테리어 사이트(Dezeen, Designboom)는 제외됨
+**Product 카테고리 소스 (8개):**
+- Product Hunt, Nielsen Norman Group, Intercom Blog, UX Collective, UX Planet, A List Apart, Smashing Magazine, HubSpot Marketing
+- 타겟: PM, 개발자, 투자자, 창업가를 위한 UX/제품 전략 콘텐츠
+- 제외: 소비재 뉴스 (피자헛, 치토스 등), 건축/인테리어 (Dezeen, Designboom)
 
 ## Company Tagging
 

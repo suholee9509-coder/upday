@@ -157,11 +157,25 @@ export const RSS_SOURCES: RSSSource[] = [
   },
 
   // ============================================
-  // Product (UX/Product Strategy) - 6 sources
+  // Product (UX/Product Strategy) - 8 sources
   // ============================================
   {
-    url: 'https://feeds.feedburner.com/fastcompany/headlines',
-    source: 'Fast Company',
+    url: 'https://www.producthunt.com/feed',
+    source: 'Product Hunt',
+    categories: ['product'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://www.nngroup.com/feed/rss/',
+    source: 'Nielsen Norman Group',
+    categories: ['product'],
+    region: 'us',
+    priority: 5,
+  },
+  {
+    url: 'https://www.intercom.com/blog/feed/',
+    source: 'Intercom Blog',
     categories: ['product'],
     region: 'us',
     priority: 4,
@@ -181,13 +195,6 @@ export const RSS_SOURCES: RSSSource[] = [
     priority: 4,
   },
   {
-    url: 'https://www.creativebloq.com/feed',
-    source: 'Creative Bloq',
-    categories: ['product'],
-    region: 'global',
-    priority: 4,
-  },
-  {
     url: 'https://alistapart.com/main/feed/',
     source: 'A List Apart',
     categories: ['product'],
@@ -200,6 +207,13 @@ export const RSS_SOURCES: RSSSource[] = [
     categories: ['product'],
     region: 'eu',
     priority: 4,
+  },
+  {
+    url: 'https://blog.hubspot.com/marketing/rss.xml',
+    source: 'HubSpot Marketing',
+    categories: ['product'],
+    region: 'us',
+    priority: 3,
   },
 
   // ============================================

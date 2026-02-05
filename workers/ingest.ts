@@ -62,13 +62,15 @@ const RSS_SOURCES = [
   { url: 'https://www.technologyreview.com/feed/', source: 'MIT Technology Review', category: 'research' },
   { url: 'https://www.wired.com/feed/rss', source: 'Wired', category: 'research' },
 
-  // Product (UX/Product Strategy) - 6 sources
-  { url: 'https://feeds.feedburner.com/fastcompany/headlines', source: 'Fast Company', category: 'product' },
+  // Product (UX/Product Strategy) - 8 sources
+  { url: 'https://www.producthunt.com/feed', source: 'Product Hunt', category: 'product' },
+  { url: 'https://www.nngroup.com/feed/rss/', source: 'Nielsen Norman Group', category: 'product' },
+  { url: 'https://www.intercom.com/blog/feed/', source: 'Intercom Blog', category: 'product' },
   { url: 'https://uxdesign.cc/feed', source: 'UX Collective', category: 'product' },
   { url: 'https://uxplanet.org/feed', source: 'UX Planet', category: 'product' },
-  { url: 'https://www.creativebloq.com/feed', source: 'Creative Bloq', category: 'product' },
   { url: 'https://alistapart.com/main/feed/', source: 'A List Apart', category: 'product' },
   { url: 'https://smashingmagazine.com/feed', source: 'Smashing Magazine', category: 'product' },
+  { url: 'https://blog.hubspot.com/marketing/rss.xml', source: 'HubSpot Marketing', category: 'product' },
 
   // Research (Space) - 4 sources
   { url: 'https://spacenews.com/feed/', source: 'SpaceNews', category: 'research' },
