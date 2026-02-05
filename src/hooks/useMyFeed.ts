@@ -182,6 +182,18 @@ export function useMyFeed(): UseMyFeedResult {
         body: '',
       }))
 
+      // Debug: log fetched data
+      console.log(`[MY_FEED] Fetched ${allItems.length} items, ${recentItems.length} within 12 weeks`)
+      console.log(`[MY_FEED] User interests: categories=${interests.categories}, companies=${interests.companies}, keywords=${interests.keywords}`)
+
+      // Check date range of fetched items
+      if (recentItems.length > 0) {
+        const dates = recentItems.map(i => new Date(i.publishedAt))
+        const oldest = new Date(Math.min(...dates.map(d => d.getTime())))
+        const newest = new Date(Math.max(...dates.map(d => d.getTime())))
+        console.log(`[MY_FEED] Date range: ${oldest.toISOString().split('T')[0]} to ${newest.toISOString().split('T')[0]}`)
+      }
+
       // Step 1: Filter by user interests (basic match)
       const matchedItems = fullItems.filter(item =>
         matchesUserInterests(item, {
@@ -190,6 +202,7 @@ export function useMyFeed(): UseMyFeedResult {
           companies: interests.companies || [],
         })
       )
+      console.log(`[MY_FEED] After interest filter: ${matchedItems.length} items`)
 
       // Step 2: Calculate importance score (pre-clustering, clusterSize=1)
       const scoredItems: NewsItemWithScore[] = matchedItems.map(item => {
@@ -205,12 +218,24 @@ export function useMyFeed(): UseMyFeedResult {
         return { ...item, score }
       })
 
-      // Step 3: Filter by importance threshold (50+)
+      // Step 3: Filter by importance threshold (40+)
       // Skip threshold if user has no keywords/companies (category-only mode)
+      // Threshold 40 allows: category(15) + company(25) = 40 to pass
       const hasSpecificInterests = (interests.keywords?.length || 0) > 0 || (interests.companies?.length || 0) > 0
       const importantItems = hasSpecificInterests
-        ? filterByImportance(scoredItems, 50)
+        ? filterByImportance(scoredItems, 40)
         : scoredItems // Category-only: show all matched items
+
+      console.log(`[MY_FEED] After importance filter: ${importantItems.length} items (threshold: ${hasSpecificInterests ? 40 : 'none'})`)
+
+      // Debug: log per-week breakdown
+      const weekBreakdown: Record<string, number> = {}
+      for (const item of importantItems) {
+        const weekStart = getWeekStart(new Date(item.publishedAt))
+        const key = getWeekLabel(weekStart)
+        weekBreakdown[key] = (weekBreakdown[key] || 0) + 1
+      }
+      console.log('[MY_FEED] Per-week breakdown:', weekBreakdown)
 
       setNewsItems(importantItems)
     } catch (err) {
