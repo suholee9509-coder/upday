@@ -7,6 +7,8 @@ compatibility_date = "2026-02-01"
 [assets]
 directory = "./dist"
 html_handling = "auto-trailing-slash"
+# Using SPA mode for React Router - 404 handling is done in React app
+# For static file 404s, public/404.html is served by Cloudflare Pages
 not_found_handling = "single-page-application"
 
 # Environment variables (set via Cloudflare dashboard or wrangler secret)

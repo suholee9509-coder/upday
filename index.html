@@ -12,36 +12,46 @@
     <!-- Preload critical assets for better LCP -->
     <link rel="preload" href="/og-image.png" as="image" type="image/png" />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V9D2MZEH6N"></script>
+    <!-- Analytics scripts - loaded after page content -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-V9D2MZEH6N');
-    </script>
+      // Defer analytics loading to improve FCP/LCP
+      window.addEventListener('load', function() {
+        // Google Analytics
+        var gtag = document.createElement('script');
+        gtag.async = true;
+        gtag.src = 'https://www.googletagmanager.com/gtag/js?id=G-V9D2MZEH6N';
+        document.head.appendChild(gtag);
 
-    <!-- Microsoft Clarity -->
-    <script type="text/javascript">
-      (function(c,l,a,r,i,t,y){
-          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "vbc7be65ff");
+        window.dataLayer = window.dataLayer || [];
+        function gtagFn(){dataLayer.push(arguments);}
+        window.gtag = gtagFn;
+        gtagFn('js', new Date());
+        gtagFn('config', 'G-V9D2MZEH6N');
+
+        // Microsoft Clarity
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "vbc7be65ff");
+      });
     </script>
 
     <!-- Primary Meta Tags -->
     <title>Upday - Tech News, Faster</title>
     <meta name="title" content="Upday - Tech News, Faster" />
-    <meta name="description" content="AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev. No noise, just what matters." />
+    <meta name="description" content="AI-summarized tech news delivered in real-time. Stay ahead with breaking news in AI, startups, science, and software development. Curated from trusted sources like TechCrunch, The Verge, and more. No noise, just what matters." />
     <meta name="keywords" content="tech news, AI news, startup news, breaking tech, developer news, science news, real-time updates" />
     <meta name="author" content="Upday" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://updayapp.com" />
 
-    <!-- Favicon -->
+    <!-- Favicon - Multiple formats for better compatibility -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
 
     <!-- RSS Feed -->
     <link rel="alternate" type="application/rss+xml" title="Upday RSS Feed" href="/feed.xml" />
@@ -54,7 +64,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://updayapp.com" />
     <meta property="og:title" content="Upday - Tech News, Faster" />
-    <meta property="og:description" content="AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev." />
+    <meta property="og:description" content="AI-summarized tech news delivered in real-time. Stay ahead with breaking news in AI, startups, science, and software development. No noise, just what matters." />
     <meta property="og:image" content="https://updayapp.com/og-image.png" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Upday" />
@@ -63,7 +73,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://updayapp.com" />
     <meta name="twitter:title" content="Upday - Tech News, Faster" />
-    <meta name="twitter:description" content="AI-summarized tech news in real-time. Stay ahead with the latest in AI, startups, science, and dev." />
+    <meta name="twitter:description" content="AI-summarized tech news delivered in real-time. Stay ahead with breaking news in AI, startups, science, and software development. No noise, just what matters." />
     <meta name="twitter:image" content="https://updayapp.com/og-image.png" />
 
     <!-- Google Verification (구글 서치 콘솔) -->

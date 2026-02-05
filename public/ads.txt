@@ -1,0 +1,6 @@
+# Upday Ads.txt
+# This file declares authorized digital sellers for updayapp.com
+# Currently no programmatic advertising is enabled
+#
+# Format: <SSP/Exchange domain>, <Publisher ID>, <Relationship type>, <Certification Authority ID>
+# Example: google.com, pub-1234567890, DIRECT, f08c47fec0942fa0
