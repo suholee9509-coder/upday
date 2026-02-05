@@ -114,7 +114,7 @@ function CompanyCard({ company, isPinned, onTogglePin }: CompanyCardProps) {
       <Link
         to={`/timeline?company=${company.id}`}
         className={cn(
-          'block p-4 rounded-lg border transition-all',
+          'block p-4 rounded-lg border transition-[border-color,box-shadow] duration-150',
           'hover:border-primary/50 hover:shadow-sm',
           isPinned
             ? 'border-primary/30 bg-primary/5'
@@ -145,7 +145,7 @@ function CompanyCard({ company, isPinned, onTogglePin }: CompanyCardProps) {
           onTogglePin()
         }}
         className={cn(
-          'absolute top-3 right-3 p-1.5 rounded-md transition-all',
+          'absolute top-3 right-3 p-1.5 rounded-md transition-[opacity,color,background-color] duration-150',
           isPinned
             ? 'text-primary hover:bg-primary/10'
             : 'text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted opacity-0 group-hover:opacity-100'

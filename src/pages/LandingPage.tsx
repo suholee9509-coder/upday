@@ -151,7 +151,7 @@ export function LandingPage() {
               >
                 <Badge
                   variant={cat.id as 'ai' | 'startups' | 'dev' | 'product' | 'research'}
-                  className="px-4 py-2 text-sm font-medium transition-all hover:scale-105 hover:shadow-md cursor-pointer"
+                  className="px-4 py-2 text-sm font-medium transition-[transform,box-shadow] duration-200 ease-out hover:scale-105 hover:shadow-md cursor-pointer"
                 >
                   {cat.label}
                 </Badge>
@@ -184,7 +184,7 @@ export function LandingPage() {
           <div className="grid md:grid-cols-3 gap-4">
             {/* Large card */}
             <div className="md:col-span-2 group">
-              <div className="relative h-full p-8 rounded-2xl border border-border bg-card overflow-hidden transition-all hover:shadow-xl hover:border-primary/30">
+              <div className="relative h-full p-8 rounded-2xl border border-border bg-card overflow-hidden transition-[box-shadow,border-color] duration-200 ease-out hover:shadow-xl hover:border-primary/30">
                 {/* Card gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-rose-50/50 via-background to-violet-50/30 dark:from-muted/30 dark:via-card dark:to-muted/20" />
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-2xl" />
@@ -217,7 +217,7 @@ export function LandingPage() {
 
             {/* Small cards */}
             <div className="space-y-4">
-              <div className="group relative p-6 rounded-2xl border border-border bg-card overflow-hidden transition-all hover:shadow-xl hover:border-primary/30">
+              <div className="group relative p-6 rounded-2xl border border-border bg-card overflow-hidden transition-[box-shadow,border-color] duration-200 ease-out hover:shadow-xl hover:border-primary/30">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mb-4 border border-emerald-500/10">
@@ -230,7 +230,7 @@ export function LandingPage() {
                 </div>
               </div>
 
-              <div className="group relative p-6 rounded-2xl border border-border bg-card overflow-hidden transition-all hover:shadow-xl hover:border-primary/30">
+              <div className="group relative p-6 rounded-2xl border border-border bg-card overflow-hidden transition-[box-shadow,border-color] duration-200 ease-out hover:shadow-xl hover:border-primary/30">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center mb-4 border border-blue-500/10">
@@ -382,7 +382,7 @@ export function LandingPage() {
             ].map((name) => (
               <span
                 key={name}
-                className="inline-flex items-center h-9 px-4 rounded-full text-sm font-medium bg-card border border-border hover:border-primary/30 hover:bg-muted/50 transition-all cursor-default"
+                className="inline-flex items-center h-9 px-4 rounded-full text-sm font-medium bg-card border border-border hover:border-primary/30 hover:bg-muted/50 transition-[border-color,background-color] duration-150 cursor-default"
               >
                 {name}
               </span>

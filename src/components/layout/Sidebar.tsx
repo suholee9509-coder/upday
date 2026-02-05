@@ -352,14 +352,8 @@ interface CompanyItemProps {
 }
 
 function CompanyItem({ company, active, collapsed, onUnpin, onClick }: CompanyItemProps) {
-  const [isHovered, setIsHovered] = useState(false)
-
   return (
-    <div
-      className="relative group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="relative group">
       <Link
         to={`/timeline?company=${company.id}`}
         onClick={onClick}
@@ -369,7 +363,7 @@ function CompanyItem({ company, active, collapsed, onUnpin, onClick }: CompanyIt
           active
             ? 'bg-sidebar-accent text-sidebar-accent-foreground'
             : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
-          collapsed ? 'h-10 justify-center' : 'h-10 px-3 gap-3'
+          collapsed ? 'h-10 justify-center' : 'h-10 px-3 gap-3 pr-10'
         )}
         aria-current={active ? 'page' : undefined}
         title={collapsed ? company.name : undefined}
@@ -391,8 +385,8 @@ function CompanyItem({ company, active, collapsed, onUnpin, onClick }: CompanyIt
         </span>
       </Link>
 
-      {/* Unpin button */}
-      {isHovered && !collapsed && (
+      {/* Unpin button - CSS hover instead of useState */}
+      {!collapsed && (
         <button
           onClick={(e) => {
             e.preventDefault()
@@ -402,7 +396,7 @@ function CompanyItem({ company, active, collapsed, onUnpin, onClick }: CompanyIt
           className={cn(
             'absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md',
             'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent',
-            springTransition
+            'opacity-0 group-hover:opacity-100 transition-opacity duration-150'
           )}
           aria-label={`Unpin ${company.name}`}
         >
