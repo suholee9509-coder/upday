@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { Radio, ChevronLeft, ChevronUp, Grid2X2, Menu, X, LogIn, Settings, LogOut, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
@@ -72,11 +72,13 @@ export function MobileMenuButton() {
 export function Sidebar() {
   const { t } = useTranslation()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
   const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth()
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
 
-  const isLiveFeed = location.pathname === '/timeline'
+  const currentCompany = searchParams.get('company')
+  const isLiveFeed = location.pathname === '/timeline' && !currentCompany
 
   const handleSignIn = () => {
     window.dispatchEvent(new CustomEvent('open-login-modal'))
