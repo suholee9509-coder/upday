@@ -149,20 +149,11 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
       <div className="relative z-10 w-full max-w-2xl max-h-[90vh] m-4 bg-background rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">Welcome to upday!</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Customize your news feed by selecting your interests
-              </p>
-            </div>
-            <button
-              onClick={onComplete}
-              className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"
-              aria-label="Skip onboarding"
-            >
-              <X className="h-5 w-5" />
-            </button>
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Welcome to upday!</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Customize your news feed by selecting your interests
+            </p>
           </div>
         </div>
 
