@@ -30,11 +30,10 @@ export function TimelineNavigator({
   return (
     <nav
       className={cn(
-        'fixed right-0 top-[110px] bottom-0 z-20',
+        'fixed right-0 top-[112px] bottom-0 z-20',
         'w-60 bg-background/98 backdrop-blur-md',
         'border-l border-t border-border/50',
         'hidden md:flex flex-col',
-        'py-8',
         'shadow-[0_8px_16px_rgba(0,0,0,0.04),0_0_1px_rgba(0,0,0,0.04)]',
         'dark:shadow-[0_8px_24px_rgba(0,0,0,0.24),0_0_1px_rgba(0,0,0,0.24)]',
         className
@@ -42,9 +41,9 @@ export function TimelineNavigator({
       aria-label="Timeline navigation"
     >
       {/* Continuous vertical line background */}
-      <div className="absolute left-10 top-8 bottom-8 w-px bg-border/90" />
+      <div className="absolute left-10 top-0 bottom-0 w-px bg-border/90" />
 
-      <div className="flex-1 flex flex-col justify-start gap-6 overflow-y-auto scrollbar-subtle relative pr-8">
+      <div className="flex-1 flex flex-col justify-start gap-6 overflow-y-auto scrollbar-subtle relative pr-8 py-8">
         {weeks.map((week, index) => {
           const isActive = index === activeWeekIndex
           const isCurrent = index === 0

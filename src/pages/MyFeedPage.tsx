@@ -152,16 +152,16 @@ function ClusterCard({ cluster, userKeywords }: { cluster: NewsCluster; userKeyw
   return (
     <div className="border-b border-border last:border-b-0">
       {/* Representative Article */}
-      <NewsCard item={cluster.representative} userKeywords={userKeywords} />
+      <NewsCard item={cluster.representative} userKeywords={userKeywords} className={hasRelated ? 'border-b-0' : ''} />
 
       {/* Related Articles Toggle - Subtle design */}
       {hasRelated && (
-        <div className="pb-2">
+        <div className="pb-3">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className={cn(
-              'flex items-center gap-1.5 w-full',
-              'px-6 py-1.5',
+              'flex items-center justify-center gap-1.5 w-full',
+              'py-2',
               'text-xs',
               'text-muted-foreground/70 hover:text-muted-foreground',
               'transition-colors'
@@ -182,19 +182,18 @@ function ClusterCard({ cluster, userKeywords }: { cluster: NewsCluster; userKeyw
 
           {/* Expanded Related Articles */}
           {isExpanded && (
-            <div className="mt-3 space-y-0 border-l-2 border-primary/20 ml-6">
+            <div className="mt-2 border-l-2 border-primary/20 ml-6">
               {cluster.related.map((relatedItem, index) => (
                 <div
                   key={relatedItem.id}
                   className={cn(
-                    'pl-6',
                     index > 0 && 'border-t border-border/50'
                   )}
                 >
                   <NewsCard
                     item={relatedItem}
                     userKeywords={userKeywords}
-                    className="opacity-90 hover:opacity-100"
+                    className="opacity-90 hover:opacity-100 border-b-0"
                   />
                 </div>
               ))}
@@ -221,7 +220,8 @@ function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
   return (
     <div
       className={cn(
-        'fixed top-[61px] left-0 right-0 z-10',
+        'fixed top-[60px] left-0 z-10',
+        'right-0 md:right-[240px]', // Account for timeline navigator on right
         'transition-[padding] duration-200 ease-in-out',
         isCollapsed ? 'md:pl-[60px]' : 'md:pl-[240px]'
       )}
@@ -440,7 +440,7 @@ export function MyFeedPage() {
             )}
 
             {/* News Content */}
-            <main id="main-content" className="flex-1 md:mr-[240px] overflow-y-auto scrollbar-subtle pt-[49px]">
+            <main id="main-content" className="mt-[52px] h-[calc(100vh-112px)] md:mr-[240px] overflow-y-auto scrollbar-subtle">
               <div className="max-w-3xl mx-auto">
                 {weeks.length > 0 ? (
                   <div>
@@ -470,7 +470,7 @@ export function MyFeedPage() {
 
                         {/* Week Content */}
                         {week.clusters.length > 0 ? (
-                          <div className="border-b border-border">
+                          <div>
                             {week.clusters.map(cluster => (
                               <ClusterCard key={cluster.id} cluster={cluster} userKeywords={userKeywords} />
                             ))}
