@@ -23,6 +23,11 @@ export function NewsDetailPage() {
 
     async function fetchNews() {
       try {
+        if (!supabase) {
+          setNotFound(true)
+          return
+        }
+
         const { data, error } = await supabase
           .from('news_items')
           .select('*')
@@ -34,25 +39,42 @@ export function NewsDetailPage() {
           return
         }
 
-        setNews(data as NewsItem)
+        // Convert snake_case to camelCase
+        const newsItem: NewsItem = {
+          id: data.id,
+          title: data.title,
+          summary: data.summary,
+          body: data.body,
+          source: data.source,
+          sourceUrl: data.source_url,
+          imageUrl: data.image_url,
+          publishedAt: data.published_at,
+          createdAt: data.created_at,
+          category: data.category,
+          companies: data.companies,
+          titleKo: data.title_ko,
+          summaryKo: data.summary_ko,
+        }
+
+        setNews(newsItem)
 
         // Inject structured data for SEO
         injectNewsArticleSchema({
-          title: data.title,
-          summary: data.summary,
-          imageUrl: data.image_url,
-          publishedAt: data.published_at,
-          source: data.source,
-          sourceUrl: data.source_url,
-          category: data.category,
+          title: newsItem.title,
+          summary: newsItem.summary,
+          imageUrl: newsItem.imageUrl,
+          publishedAt: newsItem.publishedAt,
+          source: newsItem.source,
+          sourceUrl: newsItem.sourceUrl,
+          category: newsItem.category,
         })
 
         // Inject breadcrumb
-        const categoryInfo = CATEGORIES.find(c => c.id === data.category)
+        const categoryInfo = CATEGORIES.find(c => c.id === newsItem.category)
         injectBreadcrumbSchema([
           { name: 'Home', url: 'https://updayapp.com' },
-          { name: categoryInfo?.name || 'News', url: `https://updayapp.com/${data.category}` },
-          { name: data.title, url: `https://updayapp.com/news/${data.id}` },
+          { name: categoryInfo?.label || 'News', url: `https://updayapp.com/${newsItem.category}` },
+          { name: newsItem.title, url: `https://updayapp.com/news/${newsItem.id}` },
         ])
       } catch (err) {
         console.error('Error fetching news:', err)
@@ -80,18 +102,18 @@ export function NewsDetailPage() {
   if (!news) return null
 
   const categoryInfo = CATEGORIES.find(c => c.id === news.category)
-  const publishedDate = new Date(news.published_at)
+  const publishedDate = new Date(news.publishedAt)
 
   return (
     <SidebarProvider>
       <SEO
         title={news.title}
         description={news.summary}
-        image={news.image_url || undefined}
+        image={news.imageUrl || undefined}
         url={`/news/${news.id}`}
         type="article"
-        publishedTime={news.published_at}
-        section={categoryInfo?.name}
+        publishedTime={news.publishedAt}
+        section={categoryInfo?.label}
       />
 
       <div className="min-h-screen bg-background">
@@ -115,11 +137,10 @@ export function NewsDetailPage() {
               {/* Category Badge */}
               {categoryInfo && (
                 <Badge
-                  variant="secondary"
+                  variant={news.category}
                   className="mb-4"
-                  style={{ backgroundColor: `${categoryInfo.color}20`, color: categoryInfo.color }}
                 >
-                  {categoryInfo.name}
+                  {categoryInfo.label}
                 </Badge>
               )}
 
@@ -132,7 +153,7 @@ export function NewsDetailPage() {
               <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  <time dateTime={news.published_at}>
+                  <time dateTime={news.publishedAt}>
                     {publishedDate.toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -147,9 +168,9 @@ export function NewsDetailPage() {
               </div>
 
               {/* Image */}
-              {news.image_url && (
+              {news.imageUrl && (
                 <img
-                  src={news.image_url}
+                  src={news.imageUrl}
                   alt={news.title}
                   className="w-full rounded-lg mb-6"
                   loading="eager"
@@ -195,7 +216,7 @@ export function NewsDetailPage() {
 
               {/* Read Original */}
               <a
-                href={news.source_url}
+                href={news.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"

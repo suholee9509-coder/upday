@@ -17,7 +17,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Navigate, Link } from 'react-router-dom'
-import { AlertCircle, ChevronDown, ChevronUp, Inbox, Settings, TrendingUp, Calendar } from 'lucide-react'
+import { AlertCircle, ChevronDown, ChevronUp, Inbox, Settings, TrendingUp } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Sidebar, SidebarProvider, useSidebar } from '@/components/layout/Sidebar'
 import { SEO } from '@/components/SEO'
@@ -211,11 +211,11 @@ function ClusterCard({ cluster, userKeywords }: { cluster: NewsCluster; userKeyw
  */
 interface WeeklyInsightsBarProps {
   totalArticles: number
-  totalWeeks: number
-  dateRange: { start: string; end: string } | null
+  totalWeeks?: number
+  dateRange?: { start: string; end: string } | null
 }
 
-function WeeklyInsightsBar({ totalArticles, totalWeeks, dateRange }: WeeklyInsightsBarProps) {
+function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
   const { isCollapsed } = useSidebar()
 
   return (
