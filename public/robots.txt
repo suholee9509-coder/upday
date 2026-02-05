@@ -25,6 +25,13 @@ Disallow: /api/
 Disallow: /admin/
 Crawl-delay: 1
 
+# Naver (Yeti bot)
+User-agent: Yeti
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 1
+
 # Sitemaps
 Sitemap: https://updayapp.com/sitemap.xml
 Sitemap: https://updayapp.com/news-sitemap.xml
