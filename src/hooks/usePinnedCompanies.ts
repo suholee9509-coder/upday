@@ -12,7 +12,15 @@ const STORAGE_KEY = 'upday_pinned_companies'
  */
 export function usePinnedCompanies() {
   const { user, isAuthenticated } = useAuth()
-  const [pinnedCompanies, setPinnedCompanies] = useState<string[]>([])
+  // Initialize immediately from localStorage to prevent flickering
+  const [pinnedCompanies, setPinnedCompanies] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      return stored ? JSON.parse(stored) : []
+    } catch {
+      return []
+    }
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [hasMigrated, setHasMigrated] = useState(false)
 

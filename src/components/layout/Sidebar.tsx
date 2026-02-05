@@ -71,7 +71,7 @@ export function Sidebar() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
-  const { pinnedCompanies, togglePin, isLoading: pinsLoading } = usePinnedCompanies()
+  const { pinnedCompanies, togglePin } = usePinnedCompanies()
   const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth()
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(false) // Default collapsed
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
@@ -204,7 +204,7 @@ export function Sidebar() {
               isExpanded={isPinnedExpanded}
               onToggle={() => setIsPinnedExpanded(!isPinnedExpanded)}
               collapsed={isCollapsed}
-              count={pinsLoading ? undefined : pinnedCompanyDetails.length}
+              count={pinnedCompanyDetails.length}
             >
               {pinnedCompanyDetails.length > 0 ? (
                 pinnedCompanyDetails.map(company => company && (

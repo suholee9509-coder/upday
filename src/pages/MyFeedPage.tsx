@@ -281,26 +281,60 @@ export function MyFeedPage() {
 
   // Intersection Observer to track which week is in view
   useEffect(() => {
-    const observers = weekRefs.current.map((ref, index) => {
-      if (!ref) return null
+    if (weekRefs.current.length === 0) return
 
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setActiveWeekIndex(index)
+    const observerOptions = {
+      threshold: [0, 0.25, 0.5, 0.75, 1],
+      rootMargin: '-120px 0px -60% 0px',
+    }
+
+    const entries = new Map<Element, IntersectionObserverEntry>()
+
+    const updateActiveWeek = () => {
+      if (entries.size === 0) return
+
+      // Find the section that is most visible or closest to top
+      let bestEntry: IntersectionObserverEntry | null = null
+      let bestScore = -1
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Score based on intersection ratio and distance from top
+          // Prioritize sections at the top of viewport
+          const distanceFromTop = Math.abs(entry.boundingClientRect.top)
+          const score = entry.intersectionRatio * 1000 - distanceFromTop
+
+          if (score > bestScore) {
+            bestScore = score
+            bestEntry = entry
           }
-        },
-        { threshold: 0.5, rootMargin: '-100px 0px -50% 0px' }
-      )
+        }
+      })
 
-      observer.observe(ref)
-      return observer
+      if (bestEntry) {
+        const index = weekRefs.current.findIndex(ref => ref === bestEntry!.target)
+        if (index !== -1 && index !== activeWeekIndex) {
+          setActiveWeekIndex(index)
+        }
+      }
+    }
+
+    const observer = new IntersectionObserver((observerEntries) => {
+      observerEntries.forEach((entry) => {
+        entries.set(entry.target, entry)
+      })
+      updateActiveWeek()
+    }, observerOptions)
+
+    weekRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref)
     })
 
     return () => {
-      observers.forEach(observer => observer?.disconnect())
+      observer.disconnect()
+      entries.clear()
     }
-  }, [weeks.length])
+  }, [weeks.length, activeWeekIndex])
 
   // Scroll to specific week
   const handleWeekClick = (index: number) => {
