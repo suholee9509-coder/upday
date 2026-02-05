@@ -166,8 +166,9 @@ export function useMyFeed(): UseMyFeedResult {
       const twelveWeeksAgo = new Date()
       twelveWeeksAgo.setDate(twelveWeeksAgo.getDate() - 12 * 7)
 
-      // Fetch more items to ensure good coverage across all 12 weeks (fetch 800 items)
-      const limit = 800
+      // Fetch more items to ensure good coverage across all 12 weeks
+      // Week-0 alone can have 1200+ items, so we need higher limit for 12 weeks
+      const limit = 2500
 
       let allItems: Omit<NewsItem, 'body'>[] = []
 
