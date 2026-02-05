@@ -218,7 +218,7 @@ export function LandingPage() {
             {/* Small cards */}
             <div className="space-y-4">
               <div className="group relative p-6 rounded-2xl border border-border bg-card overflow-hidden transition-[box-shadow,border-color] duration-200 ease-out hover:shadow-xl hover:border-primary/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mb-4 border border-emerald-500/10">
                     <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -231,7 +231,7 @@ export function LandingPage() {
               </div>
 
               <div className="group relative p-6 rounded-2xl border border-border bg-card overflow-hidden transition-[box-shadow,border-color] duration-200 ease-out hover:shadow-xl hover:border-primary/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-500/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 <div className="relative">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center mb-4 border border-blue-500/10">
                     <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
