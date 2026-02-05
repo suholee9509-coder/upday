@@ -1,9 +1,17 @@
 import { useState, memo } from 'react'
 import { ExternalLink } from 'lucide-react'
-import { Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { getCurrentLanguage } from '@/lib/i18n'
-import type { NewsItem } from '@/types/news'
+import type { NewsItem, Category } from '@/types/news'
+
+// Category tag styles matching Badge component
+const categoryStyles: Record<Category, string> = {
+  ai: 'border-transparent bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+  startups: 'border-transparent bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+  dev: 'border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  product: 'border-transparent bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+  research: 'border-transparent bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
+}
 
 // Format relative time (e.g., "5m ago", "2h ago", "Yesterday")
 function formatTimeAgo(date: Date): string {
@@ -86,14 +94,17 @@ export const NewsCard = memo(function NewsCard({ item, className, userKeywords =
               {displaySummary}
             </p>
 
-            {/* 3rd: Time + Category + User Keywords - metadata */}
+            {/* 3rd: Time + Tags - metadata */}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <TimeDisplay publishedAt={item.publishedAt} />
-              {/* Category Badge (prominent) */}
-              <Badge variant={item.category} className="text-[10px] uppercase tracking-wide">
+              {/* Category Tag (colored) */}
+              <span className={cn(
+                "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border uppercase tracking-wide",
+                categoryStyles[item.category]
+              )}>
                 {item.category}
-              </Badge>
-              {/* User Keywords (subtle) */}
+              </span>
+              {/* User Keywords (highlighted) */}
               {matchingKeywords.map(keyword => (
                 <span
                   key={keyword}
