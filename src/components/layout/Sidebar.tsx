@@ -79,6 +79,9 @@ export function Sidebar() {
 
   const currentCompany = searchParams.get('company')
   const isLiveFeed = location.pathname === '/timeline' && !currentCompany
+  const isBrowseCompaniesActive =
+    location.pathname === '/timeline/companies' ||
+    (location.pathname === '/timeline' && currentCompany)
 
   const handleSignIn = () => {
     window.dispatchEvent(new CustomEvent('open-login-modal'))
@@ -189,7 +192,7 @@ export function Sidebar() {
               icon={<Grid2X2 className="h-4 w-4" />}
               label={t('nav.browseCompanies')}
               href="/timeline/companies"
-              active={location.pathname === '/timeline/companies'}
+              active={isBrowseCompaniesActive}
               collapsed={isCollapsed}
               onClick={() => setIsMobileOpen(false)}
             />
