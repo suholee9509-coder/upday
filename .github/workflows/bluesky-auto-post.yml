@@ -44,7 +44,7 @@ jobs:
         env:
           BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-          RSS_FEED_URL: https://updayapp.com/feed.xml
+          RSS_FEED_URL: https://upday-feed.suholee9509-98c.workers.dev
           STATE_FILE_PATH: /tmp/bluesky-auto-post-state.json
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: npm run bluesky:post
