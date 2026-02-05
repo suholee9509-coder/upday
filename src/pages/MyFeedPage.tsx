@@ -260,7 +260,7 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
     <nav
       className={cn(
         'md:hidden fixed top-[60px] left-0 right-0 z-20',
-        'bg-muted/80 backdrop-blur-xl',
+        'bg-muted/70 backdrop-blur-md',
         'border-b border-border'
       )}
       aria-label="Timeline navigation"
@@ -285,17 +285,15 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
             >
               {/* Week info */}
               <div className="flex items-center gap-1">
+                {isCurrent && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                )}
                 <span className={cn(
                   'text-xs font-semibold whitespace-nowrap',
                   isActive ? 'text-foreground' : 'text-muted-foreground'
                 )}>
                   {week.label}
                 </span>
-                {isCurrent && (
-                  <span className="px-1 py-0.5 rounded text-[9px] font-semibold uppercase bg-primary/15 text-primary leading-none">
-                    Now
-                  </span>
-                )}
               </div>
 
               {/* Article count */}
