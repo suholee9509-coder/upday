@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { X, Plus, LogOut, Trash2 } from 'lucide-react'
+import { X, Plus, LogOut, Trash2, Globe, Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Header } from '@/components/layout/Header'
 import { Sidebar, SidebarProvider } from '@/components/layout/Sidebar'
@@ -10,6 +10,7 @@ import { CompanyLogo } from '@/components/CompanyLogo'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserInterests } from '@/hooks/useUserInterests'
+import { useLanguage, type LanguageCode } from '@/hooks/useLanguage'
 import { CATEGORIES, COMPANIES } from '@/lib/constants'
 
 export function SettingsPage() {
@@ -17,6 +18,7 @@ export function SettingsPage() {
   const navigate = useNavigate()
   const { user, isAuthenticated, isLoading: authLoading, signOut, deleteAccount } = useAuth()
   const { interests, isLoading: interestsLoading, updateInterests } = useUserInterests()
+  const { currentLanguage, languages, changeLanguage } = useLanguage()
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [keywords, setKeywords] = useState<string[]>([])
@@ -193,6 +195,39 @@ export function SettingsPage() {
                 </div>
               </section>
 
+              {/* Language Section */}
+              <section className="mb-12">
+                <h2 className="text-xl font-semibold text-foreground mb-4">{t('settings.language')}</h2>
+                <div className="bg-card border border-border rounded-lg p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Globe className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground mb-3">{t('settings.selectLanguage')}</p>
+                      <div className="flex gap-2" role="group" aria-label={t('settings.language')}>
+                        {languages.map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={() => changeLanguage(lang.code as LanguageCode)}
+                            aria-pressed={currentLanguage === lang.code}
+                            className={cn(
+                              'px-4 py-2.5 rounded-lg border text-sm font-medium transition-all flex items-center gap-2',
+                              currentLanguage === lang.code
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border bg-background text-foreground hover:border-primary/50'
+                            )}
+                          >
+                            {currentLanguage === lang.code && <Check className="h-4 w-4" aria-hidden="true" />}
+                            {lang.nativeLabel}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               {/* Interest Settings Section */}
               <section>
                 <h2 className="text-xl font-semibold text-foreground mb-4">{t('settings.interestSettings')}</h2>
@@ -203,11 +238,12 @@ export function SettingsPage() {
                       {t('onboarding.categories')} <span className="text-destructive">*</span>
                       <span className="text-xs text-muted-foreground ml-2">{t('onboarding.categoriesRequired')}</span>
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" role="group" aria-label={t('onboarding.categories')}>
                       {CATEGORIES.map(category => (
                         <button
                           key={category.id}
                           onClick={() => toggleCategory(category.id)}
+                          aria-pressed={selectedCategories.includes(category.id)}
                           className={cn(
                             'px-4 py-3 rounded-lg border text-sm font-medium transition-all',
                             selectedCategories.includes(category.id)
@@ -244,6 +280,7 @@ export function SettingsPage() {
                       <button
                         onClick={addKeyword}
                         disabled={!keywordInput.trim() || keywords.length >= 10}
+                        aria-label="Add keyword"
                         className={cn(
                           'h-[42px] w-[42px] rounded-lg shrink-0 flex items-center justify-center',
                           'border border-border bg-background',
@@ -251,7 +288,7 @@ export function SettingsPage() {
                           'transition-all disabled:opacity-50 disabled:pointer-events-none'
                         )}
                       >
-                        <Plus className="h-5 w-5 text-foreground" />
+                        <Plus className="h-5 w-5 text-foreground" aria-hidden="true" />
                       </button>
                     </div>
                     {keywords.length > 0 && (
@@ -264,9 +301,10 @@ export function SettingsPage() {
                             {keyword}
                             <button
                               onClick={() => removeKeyword(keyword)}
+                              aria-label={`Remove ${keyword}`}
                               className="text-muted-foreground hover:text-foreground"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-3 w-3" aria-hidden="true" />
                             </button>
                           </span>
                         ))}
@@ -280,11 +318,12 @@ export function SettingsPage() {
                       {t('onboarding.companies')}{' '}
                       <span className="text-xs text-muted-foreground">{t('settings.companiesSynced')}</span>
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto scrollbar-subtle">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto scrollbar-subtle" role="group" aria-label={t('onboarding.companies')}>
                       {COMPANIES.map(company => (
                         <button
                           key={company.id}
                           onClick={() => toggleCompany(company.id)}
+                          aria-pressed={selectedCompanies.includes(company.id)}
                           className={cn(
                             'flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all',
                             selectedCompanies.includes(company.id)

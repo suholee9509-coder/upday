@@ -35,7 +35,7 @@ export function OnboardingManager() {
   // Navigate to My Feed after interests are loaded
   useEffect(() => {
     if (shouldNavigate && !interestsLoading && hasCompletedOnboarding) {
-      navigate('/my-feed')
+      navigate('/timeline/my')
       setShouldNavigate(false)
     }
   }, [shouldNavigate, interestsLoading, hasCompletedOnboarding, navigate])

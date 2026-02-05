@@ -156,6 +156,8 @@
     "title": "Settings",
     "description": "Manage your account and preferences",
     "account": "Account",
+    "language": "Language",
+    "selectLanguage": "Select your preferred language",
     "signedInWith": "Signed in with",
     "interestSettings": "Interest Settings",
     "saveChanges": "Save Changes",

@@ -145,14 +145,19 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-2xl max-h-[90vh] m-4 bg-background rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="onboarding-modal-title"
+        className="relative z-10 w-full max-w-2xl max-h-[90vh] m-4 bg-background rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+      >
         {/* Header */}
         <div className="p-6 border-b border-border">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">{t('onboarding.welcome')}</h2>
+            <h2 id="onboarding-modal-title" className="text-2xl font-bold text-foreground">{t('onboarding.welcome')}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {t('onboarding.customize')}
             </p>
@@ -167,11 +172,12 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
               {t('onboarding.categories')} <span className="text-destructive">*</span>
               <span className="text-xs text-muted-foreground ml-2">{t('onboarding.categoriesRequired')}</span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3" role="group" aria-label={t('onboarding.categories')}>
               {CATEGORIES.map(category => (
                 <button
                   key={category.id}
                   onClick={() => toggleCategory(category.id)}
+                  aria-pressed={selectedCategories.includes(category.id)}
                   className={cn(
                     'px-4 py-3 rounded-lg border text-sm font-medium transition-all',
                     selectedCategories.includes(category.id)
@@ -208,6 +214,7 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
               <button
                 onClick={addKeyword}
                 disabled={!keywordInput.trim() || keywords.length >= 10}
+                aria-label="Add keyword"
                 className={cn(
                   'h-[42px] w-[42px] rounded-lg shrink-0 flex items-center justify-center',
                   'border border-border bg-background',
@@ -215,7 +222,7 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                   'transition-all disabled:opacity-50 disabled:pointer-events-none'
                 )}
               >
-                <Plus className="h-5 w-5 text-foreground" />
+                <Plus className="h-5 w-5 text-foreground" aria-hidden="true" />
               </button>
             </div>
             {keywords.length > 0 && (
@@ -228,9 +235,10 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                     {keyword}
                     <button
                       onClick={() => removeKeyword(keyword)}
+                      aria-label={`Remove ${keyword}`}
                       className="text-muted-foreground hover:text-foreground"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3 w-3" aria-hidden="true" />
                     </button>
                   </span>
                 ))}
@@ -243,11 +251,12 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
             <label className="block text-sm font-medium text-foreground mb-3">
               {t('onboarding.companies')} <span className="text-xs text-muted-foreground">{t('onboarding.companiesOptional')}</span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto scrollbar-subtle">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto scrollbar-subtle" role="group" aria-label={t('onboarding.companies')}>
               {COMPANIES.map(company => (
                 <button
                   key={company.id}
                   onClick={() => toggleCompany(company.id)}
+                  aria-pressed={selectedCompanies.includes(company.id)}
                   className={cn(
                     'flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all',
                     selectedCompanies.includes(company.id)

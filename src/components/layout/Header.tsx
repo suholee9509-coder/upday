@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Search, ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Button, ThemeToggle } from '@/components/ui'
+import { Button, ThemeToggle, LanguageToggle } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { MobileMenuButton } from './Sidebar'
 import { useCommandPalette } from '@/components/CommandPalette'
@@ -95,6 +95,7 @@ export function Header({
             <Search className="h-5 w-5" aria-hidden="true" />
           </Button>
 
+          <LanguageToggle />
           <ThemeToggle />
         </div>
       </div>
