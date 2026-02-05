@@ -11,6 +11,7 @@ interface AuthContextType {
   signInWithGithub: () => Promise<{ error: AuthError | null }>
   signInWithGoogle: () => Promise<{ error: AuthError | null }>
   signOut: () => Promise<{ error: AuthError | null }>
+  deleteAccount: () => Promise<{ error: Error | null }>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -111,6 +112,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return { error }
   }, [])
 
+  // Delete account
+  const deleteAccount = useCallback(async () => {
+    if (!supabase) {
+      return { error: new Error('Supabase not configured') }
+    }
+
+    if (!user) {
+      return { error: new Error('No user logged in') }
+    }
+
+    try {
+      // Call RPC function to delete user account
+      const { error } = await supabase.rpc('delete_user_account')
+
+      if (error) throw error
+
+      // Sign out after successful deletion
+      await supabase.auth.signOut()
+
+      return { error: null }
+    } catch (error) {
+      return { error: error as Error }
+    }
+  }, [user])
+
   const value: AuthContextType = {
     user,
     session,
@@ -119,6 +145,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signInWithGithub,
     signInWithGoogle,
     signOut,
+    deleteAccount,
   }
 
   return (

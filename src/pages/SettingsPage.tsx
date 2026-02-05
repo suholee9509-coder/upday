@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
-import { X, Plus, LogOut } from 'lucide-react'
+import { Navigate, useNavigate } from 'react-router-dom'
+import { X, Plus, LogOut, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Header } from '@/components/layout/Header'
 import { Sidebar, SidebarProvider } from '@/components/layout/Sidebar'
 import { SEO } from '@/components/SEO'
 import { Button } from '@/components/ui'
+import { CompanyLogo } from '@/components/CompanyLogo'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserInterests } from '@/hooks/useUserInterests'
 import { CATEGORIES, COMPANIES } from '@/lib/constants'
 
 export function SettingsPage() {
-  const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth()
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const { user, isAuthenticated, isLoading: authLoading, signOut, deleteAccount } = useAuth()
   const { interests, isLoading: interestsLoading, updateInterests } = useUserInterests()
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
@@ -20,6 +24,8 @@ export function SettingsPage() {
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Load initial values from interests
   useEffect(() => {
@@ -93,6 +99,28 @@ export function SettingsPage() {
     await signOut()
   }
 
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true)
+
+    try {
+      const { error } = await deleteAccount()
+
+      if (error) {
+        alert('Failed to delete account. Please try again or contact support.')
+        console.error('Failed to delete account:', error)
+      } else {
+        // Redirect to home page after successful deletion
+        navigate('/timeline')
+      }
+    } catch (error) {
+      alert('Failed to delete account. Please try again.')
+      console.error('Failed to delete account:', error)
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteModal(false)
+    }
+  }
+
   if (authLoading || interestsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -159,7 +187,7 @@ export function SettingsPage() {
                       className="gap-2"
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign Out
+                      {t('nav.logOut')}
                     </Button>
                   </div>
                 </div>
@@ -252,19 +280,22 @@ export function SettingsPage() {
                       Companies{' '}
                       <span className="text-xs text-muted-foreground">(Optional, synced with pinned)</span>
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto scrollbar-subtle">
                       {COMPANIES.map(company => (
                         <button
                           key={company.id}
                           onClick={() => toggleCompany(company.id)}
                           className={cn(
-                            'px-3 py-2 rounded-lg border text-xs font-medium text-left transition-all',
+                            'flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all',
                             selectedCompanies.includes(company.id)
                               ? 'border-primary bg-primary/10 text-primary'
                               : 'border-border bg-background text-foreground hover:border-primary/50'
                           )}
                         >
-                          {company.name}
+                          <div className="w-6 h-6 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                            <CompanyLogo companyId={company.id} size="xs" />
+                          </div>
+                          <span className="truncate">{company.name}</span>
                         </button>
                       ))}
                     </div>
@@ -293,6 +324,71 @@ export function SettingsPage() {
                   </div>
                 </div>
               </section>
+
+              {/* Danger Zone Section */}
+              <section className="mt-12">
+                <h2 className="text-xl font-semibold text-destructive mb-4">Danger Zone</h2>
+                <div className="bg-card border border-destructive/50 rounded-lg p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-semibold text-foreground mb-1">
+                        {t('nav.deleteAccount')}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Permanently delete your account and all associated data. This action cannot be undone.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => setShowDeleteModal(true)}
+                      variant="destructive"
+                      className="gap-2 shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t('nav.deleteAccount')}
+                    </Button>
+                  </div>
+                </div>
+              </section>
+
+              {/* Delete Confirmation Modal */}
+              {showDeleteModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                  <div className="bg-card border border-border rounded-xl p-6 max-w-md w-full shadow-lg">
+                    <h3 className="text-xl font-semibold text-foreground mb-3">
+                      Confirm Account Deletion
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Are you sure you want to delete your account? This will permanently remove:
+                    </p>
+                    <ul className="text-sm text-muted-foreground mb-6 space-y-2 list-disc list-inside">
+                      <li>Your profile and account information</li>
+                      <li>All saved preferences and interests</li>
+                      <li>Pinned companies and personalized feed</li>
+                    </ul>
+                    <p className="text-sm font-medium text-destructive mb-6">
+                      This action cannot be undone.
+                    </p>
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => setShowDeleteModal(false)}
+                        variant="outline"
+                        className="flex-1"
+                        disabled={isDeleting}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleDeleteAccount}
+                        variant="destructive"
+                        className="flex-1"
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete Account'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
               </div>
             </main>
           </div>

@@ -25,7 +25,8 @@
     "myFeed": "My Feed",
     "settings": "Settings",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "logOut": "Log out",
+    "deleteAccount": "Delete account"
   },
   "date": {
     "today": "Today",

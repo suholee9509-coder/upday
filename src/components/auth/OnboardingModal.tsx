@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { X, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
+import { CompanyLogo } from '@/components/CompanyLogo'
 import { supabase } from '@/lib/db'
 import { useAuth } from '@/hooks/useAuth'
 import { CATEGORIES, COMPANIES } from '@/lib/constants'
@@ -66,21 +67,30 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
       const client = supabase
       if (!client) throw new Error('Supabase client not initialized')
 
-      // Save user interests
+      // Save user interests (upsert to handle existing data)
       const { error: interestsError } = await client
         .from('user_interests')
-        .insert({
+        .upsert({
           user_id: user.id,
           categories: selectedCategories,
           keywords: keywords,
           companies: selectedCompanies,
           onboarding_completed: true,
+        }, {
+          onConflict: 'user_id'
         })
 
       if (interestsError) throw interestsError
 
-      // Save pinned companies
+      // Save pinned companies (delete existing first to avoid duplicates)
       if (selectedCompanies.length > 0) {
+        // Delete existing pins first
+        await client
+          .from('pinned_companies')
+          .delete()
+          .eq('user_id', user.id)
+
+        // Insert new pins
         const { error: pinsError } = await client
           .from('pinned_companies')
           .insert(
@@ -211,19 +221,22 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
             <label className="block text-sm font-medium text-foreground mb-3">
               Companies <span className="text-xs text-muted-foreground">(Optional)</span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto scrollbar-subtle">
               {COMPANIES.map(company => (
                 <button
                   key={company.id}
                   onClick={() => toggleCompany(company.id)}
                   className={cn(
-                    'px-3 py-2 rounded-lg border text-xs font-medium text-left transition-all',
+                    'flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all',
                     selectedCompanies.includes(company.id)
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border bg-background text-foreground hover:border-primary/50'
                   )}
                 >
-                  {company.name}
+                  <div className="w-6 h-6 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                    <CompanyLogo companyId={company.id} size="xs" />
+                  </div>
+                  <span className="truncate">{company.name}</span>
                 </button>
               ))}
             </div>

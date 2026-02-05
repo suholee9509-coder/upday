@@ -25,7 +25,8 @@
     "myFeed": "마이 피드",
     "settings": "설정",
     "signIn": "로그인",
-    "signOut": "로그아웃"
+    "logOut": "로그아웃",
+    "deleteAccount": "회원 탈퇴"
   },
   "date": {
     "today": "오늘",

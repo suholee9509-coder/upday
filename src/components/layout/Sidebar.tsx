@@ -81,7 +81,7 @@ export function Sidebar() {
   const isLiveFeed = location.pathname === '/timeline' && !currentCompany
   const isBrowseCompaniesActive =
     location.pathname === '/timeline/companies' ||
-    (location.pathname === '/timeline' && currentCompany)
+    (location.pathname === '/timeline' && !!currentCompany)
 
   const handleSignIn = () => {
     window.dispatchEvent(new CustomEvent('open-login-modal'))
@@ -292,7 +292,7 @@ export function Sidebar() {
                     )}
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>{t('nav.signOut')}</span>
+                    <span>{t('nav.logOut')}</span>
                   </button>
                 </div>
               )}
