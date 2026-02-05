@@ -46,6 +46,89 @@ import { Header, Sidebar, SidebarProvider } from '@/components/layout'
 - `useSearchHistory` - manage search history in localStorage
 - `useToast` - toast notification system
 - `useCommandPalette` - access command palette state
+- `useNews` - news fetching with pagination, includes `jumpToDate` for instant date navigation
+
+### Date Navigation System
+
+날짜 드롭다운과 스크롤 연동 시스템:
+
+**Components:**
+- `DateDropdown` - 최근 7일 날짜 선택 드롭다운
+- `FilterBar` - 카테고리 필터 + 날짜 드롭다운 (우측)
+- `CompanyFeedHeader` - 회사 정보 + 날짜 드롭다운 (우측)
+- `TimelineFeed` - 날짜별 그룹핑, 스크롤 감지, 날짜 점프
+
+**Data Flow:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Page (TimelinePage / CategoryPage)                         │
+│  - currentDate state                                        │
+│  - useNews({ jumpToDate })                                  │
+└────────────────┬──────────────────────┬─────────────────────┘
+                 │                      │
+    ┌────────────▼────────────┐   ┌─────▼──────────────────────┐
+    │  FilterBar/CompanyHeader │   │  TimelineFeed              │
+    │  - DateDropdown          │   │  - onVisibleDateChange     │
+    │  - onDateSelect ─────────┼───│  - scrollToDate (via ref)  │
+    └──────────────────────────┘   │  - onJumpToDate            │
+                                   └──────────────────────────────┘
+```
+
+**스크롤 → 드롭다운 업데이트:**
+- IntersectionObserver가 화면 상단의 DateSeparator 감지
+- `onVisibleDateChange` 콜백으로 currentDate 업데이트
+- 드롭다운 텍스트 자동 변경 (Today, Yesterday, Feb 4 등)
+
+**드롭다운 → 스크롤 이동:**
+- 날짜 선택 시 `timelineFeedRef.current.scrollToDate(date)` 호출
+- 이미 로드된 날짜: 즉시 `scrollIntoView`
+- 미로드 날짜: `jumpToDate`로 해당 날짜 데이터 직접 fetch → 병합 → 스크롤
+
+**jumpToDate 구현 (useNews):**
+```tsx
+// 중간 페이지 로드 없이 특정 날짜로 즉시 점프
+const jumpToDate = async (targetDate: Date) => {
+  // 타겟 날짜+1일을 cursor로 사용 (해당 날짜 포함)
+  const nextDay = new Date(targetDate)
+  nextDay.setDate(nextDay.getDate() + 1)
+  const jumpCursor = nextDay.toISOString()
+
+  // 해당 cursor부터 데이터 fetch
+  const result = await fetchNews({ cursor: jumpCursor, ... })
+
+  // 기존 데이터와 병합 (중복 제거, 날짜순 정렬)
+  setItems(prev => {
+    const merged = [...prev, ...newItems]
+    merged.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+    return merged
+  })
+}
+```
+
+**Usage:**
+```tsx
+const { items, loadMore, jumpToDate } = useNews({ category })
+const timelineFeedRef = useRef<TimelineFeedRef>(null)
+const [currentDate, setCurrentDate] = useState(new Date())
+
+// FilterBar에서 날짜 선택
+const handleDateSelect = (date: Date) => {
+  setCurrentDate(date)
+  timelineFeedRef.current?.scrollToDate(date)
+}
+
+// 스크롤 시 날짜 업데이트
+const handleVisibleDateChange = (date: Date) => {
+  setCurrentDate(date)
+}
+
+<FilterBar currentDate={currentDate} onDateSelect={handleDateSelect} />
+<TimelineFeed
+  ref={timelineFeedRef}
+  onJumpToDate={jumpToDate}
+  onVisibleDateChange={handleVisibleDateChange}
+/>
+```
 
 ### Company Logos
 25 company logos are stored in `public/logos/` as SVG files.

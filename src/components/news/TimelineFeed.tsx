@@ -19,6 +19,7 @@ interface TimelineFeedProps {
   loading?: boolean
   error?: string | null
   onLoadMore?: () => void
+  onJumpToDate?: (date: Date) => Promise<boolean>
   onReset?: () => void
   onRetry?: () => void
   emptyStateType?: EmptyStateType
@@ -35,6 +36,7 @@ export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(funct
   loading = false,
   error = null,
   onLoadMore,
+  onJumpToDate,
   onReset,
   onRetry,
   emptyStateType,
@@ -59,21 +61,64 @@ export const TimelineFeed = forwardRef<TimelineFeedRef, TimelineFeedProps>(funct
 
   // Refs for date groups (for scroll-to-date feature)
   const dateGroupRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  // Pending scroll target when date is not yet loaded
+  const pendingScrollDate = useRef<Date | null>(null)
+
+  // Try to scroll to a date, returns true if found
+  const tryScrollToDate = useCallback((date: Date): boolean => {
+    const targetDateStr = date.toDateString()
+    for (const [key, element] of dateGroupRefs.current) {
+      const groupDate = new Date(key)
+      if (groupDate.toDateString() === targetDateStr) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return true
+      }
+    }
+    return false
+  }, [])
 
   // Expose scrollToDate method via ref
   useImperativeHandle(ref, () => ({
-    scrollToDate: (date: Date) => {
-      // Find the matching date group using local date comparison (toDateString avoids timezone issues)
-      const targetDateStr = date.toDateString()
-      for (const [key, element] of dateGroupRefs.current) {
-        const groupDate = new Date(key)
-        if (groupDate.toDateString() === targetDateStr) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          return
+    scrollToDate: async (date: Date) => {
+      // Try to scroll immediately if already loaded
+      if (tryScrollToDate(date)) {
+        pendingScrollDate.current = null
+        return
+      }
+
+      // Use jumpToDate for instant access (skips intermediate loads)
+      if (onJumpToDate) {
+        pendingScrollDate.current = date
+        const success = await onJumpToDate(date)
+        if (!success) {
+          pendingScrollDate.current = null
         }
+        // After jump, items will update and trigger the effect below
+        return
+      }
+
+      // Fallback: iterative load (slower, for backwards compatibility)
+      if (hasMore && onLoadMore && !loading) {
+        pendingScrollDate.current = date
+        onLoadMore()
       }
     }
-  }), [])
+  }), [tryScrollToDate, hasMore, onLoadMore, onJumpToDate, loading])
+
+  // When items change, check if we have a pending scroll target
+  useEffect(() => {
+    if (pendingScrollDate.current && !loading) {
+      if (tryScrollToDate(pendingScrollDate.current)) {
+        pendingScrollDate.current = null
+      } else if (!onJumpToDate && hasMore && onLoadMore) {
+        // Only use iterative load if jumpToDate is not available
+        onLoadMore()
+      } else {
+        // No more data or jumpToDate handled it, clear pending
+        pendingScrollDate.current = null
+      }
+    }
+  }, [items, loading, hasMore, onLoadMore, onJumpToDate, tryScrollToDate])
 
   // Track visible date using IntersectionObserver
   useEffect(() => {

@@ -26,6 +26,7 @@ interface UseNewsResult {
   error: string | null
   loadMore: () => void
   refresh: () => void
+  jumpToDate: (date: Date) => Promise<boolean>
 }
 
 /**
@@ -144,6 +145,63 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
     fetchData(true)
   }, [fetchData])
 
+  // Jump to a specific date by fetching from that date directly
+  const jumpToDate = useCallback(async (targetDate: Date): Promise<boolean> => {
+    // Create cursor for the day after target (to include target date)
+    const nextDay = new Date(targetDate)
+    nextDay.setDate(nextDay.getDate() + 1)
+    nextDay.setHours(0, 0, 0, 0)
+    const jumpCursor = nextDay.toISOString()
+
+    try {
+      const params: NewsQueryParams = {
+        limit: initialLimit,
+        category: category || undefined,
+        q: q || undefined,
+        company: company || undefined,
+        cursor: jumpCursor,
+      }
+
+      let result: { items: Omit<NewsItem, 'body'>[]; hasMore: boolean }
+
+      if (supabase) {
+        result = await fetchNews(params)
+      } else {
+        result = getMockNews(params)
+      }
+
+      // Apply relevance filter for company queries
+      let filteredItems = result.items
+      if (company) {
+        filteredItems = result.items.filter(item => isRelevantForCompany(item, company))
+      }
+
+      if (filteredItems.length === 0) {
+        return false
+      }
+
+      // Merge with existing items (dedupe by id, sort by date)
+      setItems((prev) => {
+        const existingIds = new Set(prev.map(item => item.id))
+        const newItems = filteredItems.filter(item => !existingIds.has(item.id))
+        const merged = [...prev, ...newItems]
+        // Sort by date descending
+        merged.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+        return merged
+      })
+
+      // Update cursor to continue pagination from the new position
+      if (result.items.length > 0) {
+        cursorRef.current = result.items[result.items.length - 1].publishedAt
+      }
+      setHasMore(result.hasMore)
+
+      return true
+    } catch {
+      return false
+    }
+  }, [category, q, company, initialLimit])
+
   return {
     items,
     hasMore,
@@ -151,5 +209,6 @@ export function useNews(options: UseNewsOptions = {}): UseNewsResult {
     error,
     loadMore,
     refresh,
+    jumpToDate,
   }
 }

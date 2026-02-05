@@ -46,7 +46,7 @@ export function TimelinePage() {
   }, [searchParams, validCompanyIds])
 
   // Fetch real data from Supabase (falls back to mock if not configured)
-  const { items, hasMore, loading, error, loadMore, refresh } = useNews({
+  const { items, hasMore, loading, error, loadMore, refresh, jumpToDate } = useNews({
     category: null,
     q: query || undefined,
     company,
@@ -147,6 +147,7 @@ export function TimelinePage() {
               loading={loading}
               error={error}
               onLoadMore={loadMore}
+              onJumpToDate={jumpToDate}
               onRetry={refresh}
               searchQuery={query || undefined}
               category={null}

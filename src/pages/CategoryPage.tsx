@@ -67,7 +67,7 @@ function CategoryPageContent({ category }: { category: Category }) {
   const timelineFeedRef = useRef<TimelineFeedRef>(null)
 
   // Fetch real data from Supabase
-  const { items, hasMore, loading, error, loadMore, refresh } = useNews({
+  const { items, hasMore, loading, error, loadMore, refresh, jumpToDate } = useNews({
     category,
     q: query || undefined,
   })
@@ -163,6 +163,7 @@ function CategoryPageContent({ category }: { category: Category }) {
               loading={loading}
               error={error}
               onLoadMore={loadMore}
+              onJumpToDate={jumpToDate}
               onRetry={refresh}
               searchQuery={query || undefined}
               category={category}
