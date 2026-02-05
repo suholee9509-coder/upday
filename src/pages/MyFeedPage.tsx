@@ -260,10 +260,8 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
     <nav
       className={cn(
         'md:hidden fixed top-[60px] left-0 right-0 z-20',
-        'bg-muted/40 backdrop-blur-md',
-        'border-b border-border',
-        'shadow-[0_1px_3px_rgba(0,0,0,0.05)]',
-        'dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)]'
+        'bg-muted/80 backdrop-blur-xl',
+        'border-b border-border'
       )}
       aria-label="Timeline navigation"
     >
