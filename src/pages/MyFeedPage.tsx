@@ -15,7 +15,7 @@
  * - Animations and transitions
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, memo } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { AlertCircle, ChevronDown, ChevronUp, Inbox, Settings, TrendingUp } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
@@ -146,7 +146,7 @@ function generateDummyWeeks(): WeekData[] {
  * Cluster Card - Shows representative article + related articles
  * Enhanced design with badge, visual hierarchy, and clear separation
  */
-function ClusterCard({ cluster, userKeywords, language }: { cluster: NewsCluster; userKeywords: string[]; language: string }) {
+const ClusterCard = memo(function ClusterCard({ cluster, userKeywords, language }: { cluster: NewsCluster; userKeywords: string[]; language: string }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const hasRelated = cluster.related.length > 0
 
@@ -205,7 +205,7 @@ function ClusterCard({ cluster, userKeywords, language }: { cluster: NewsCluster
       )}
     </div>
   )
-}
+})
 
 /**
  * Weekly Insights Bar - Shows feed statistics (desktop only)
