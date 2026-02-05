@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { SearchX, Filter, AlertCircle, Inbox, RefreshCw, Newspaper, ArrowLeft, Home } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
@@ -24,6 +25,7 @@ export function EmptyState({
   onRetry,
   className,
 }: EmptyStateProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   // Company empty state - 404 style layout
@@ -52,23 +54,23 @@ export function EmptyState({
 
           {/* Title with company name */}
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            No news yet
+            {t('empty.noNewsYet')}
           </h2>
           <p className="text-muted-foreground mb-8">
             {companyName
-              ? `We don't have any news about ${companyName} at the moment. Check back later for updates.`
-              : 'No news available for this company yet.'}
+              ? t('empty.noCompanyNews', { company: companyName })
+              : t('empty.noCompanyNewsGeneric')}
           </p>
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={() => navigate('/timeline')}>
               <Home />
-              View All News
+              {t('common.viewAll')}
             </Button>
             <Button variant="outline" onClick={() => navigate('/timeline/companies')}>
               <ArrowLeft />
-              Browse Companies
+              {t('common.browseCompanies')}
             </Button>
           </div>
         </div>
@@ -79,51 +81,51 @@ export function EmptyState({
   const states = {
     search: {
       icon: <SearchX className="h-12 w-12 text-muted-foreground/50" />,
-      title: 'No results found',
+      title: t('empty.noResults'),
       description: query
-        ? `No news matching "${query}". Try a different search term.`
-        : 'Enter a search term to find news.',
+        ? t('empty.noResultsFor', { query })
+        : t('empty.enterSearchTerm'),
       action: onReset && (
         <Button variant="outline" onClick={onReset}>
-          Clear search
+          {t('common.clearSearch')}
         </Button>
       ),
     },
     filter: {
       icon: <Filter className="h-12 w-12 text-muted-foreground/50" />,
-      title: 'No news in this category',
+      title: t('empty.noNewsInCategory'),
       description: category
-        ? `No ${category.toUpperCase()} news available yet. Check back later or try another category.`
-        : 'Select a category to filter news.',
+        ? t('empty.noCategoryNews', { category: category.toUpperCase() })
+        : t('empty.selectCategory'),
       action: onReset && (
         <Button variant="outline" onClick={onReset}>
-          Show all news
+          {t('common.showAllNews')}
         </Button>
       ),
     },
     error: {
       icon: <AlertCircle className="h-12 w-12 text-destructive/50" />,
-      title: 'Something went wrong',
-      description: "We couldn't load the news. Please try again.",
+      title: t('empty.somethingWentWrong'),
+      description: t('empty.couldntLoad'),
       action: (
         <Button variant="outline" onClick={onRetry || (() => window.location.reload())}>
           <RefreshCw />
-          Try again
+          {t('common.tryAgain')}
         </Button>
       ),
     },
     empty: {
       icon: <Inbox className="h-12 w-12 text-muted-foreground/50" />,
-      title: 'No news yet',
-      description: 'News will appear here once our sources are updated.',
+      title: t('empty.noNewsYet'),
+      description: t('empty.newsWillAppear'),
       action: null,
     },
     loading: {
       icon: (
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
       ),
-      title: 'Loading...',
-      description: 'Fetching the latest news for you.',
+      title: t('common.loading'),
+      description: t('empty.fetchingNews'),
       action: null,
     },
   }

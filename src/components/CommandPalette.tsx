@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Radio, Building2, Pin, ArrowRight, X, Clock, Sparkles } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { COMPANIES } from '@/lib/constants'
 import { usePinnedCompanies } from '@/hooks/usePinnedCompanies'
@@ -20,15 +21,8 @@ type ResultItem = {
   section: 'pages' | 'pinned' | 'companies' | 'recommended'
 }
 
-// Recommended articles (curated picks)
-const RECOMMENDED_ARTICLES = [
-  { id: 'rec-1', title: 'AI & LLM News', query: 'AI' },
-  { id: 'rec-2', title: 'Startup Funding', query: 'funding' },
-  { id: 'rec-3', title: 'Developer Tools', query: 'developer' },
-  { id: 'rec-4', title: 'Product Launches', query: 'launch' },
-]
-
 export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -41,16 +35,16 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     const pages: ResultItem[] = [
       {
         id: 'timeline',
-        label: 'Live Feed',
-        description: 'All news in real-time',
+        label: t('nav.liveFeed'),
+        description: t('command.allNewsRealtime'),
         icon: <Radio className="h-4 w-4" />,
         href: '/timeline',
         section: 'pages',
       },
       {
         id: 'companies',
-        label: 'Browse Companies',
-        description: 'Explore all tracked companies',
+        label: t('common.browseCompanies'),
+        description: t('command.exploreCompanies'),
         icon: <Building2 className="h-4 w-4" />,
         href: '/timeline/companies',
         section: 'pages',
@@ -81,7 +75,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       defaultItems: [...pages, ...pinned],
       allCompanies: companies,
     }
-  }, [pinnedCompanies])
+  }, [pinnedCompanies, t])
 
   // Filter items based on query
   const filteredItems = useMemo(() => {
@@ -219,7 +213,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search..."
+              placeholder={t('common.search')}
               className="flex-1 h-12 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               autoComplete="off"
               autoCorrect="off"
@@ -238,13 +232,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 <div className="flex items-center justify-between px-2 py-1.5">
                   <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <Clock className="h-3 w-3" />
-                    Recent
+                    {t('command.recent')}
                   </div>
                   <button
                     onClick={clearHistory}
                     className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
                   >
-                    Clear
+                    {t('command.clear')}
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-1.5 px-2">
@@ -277,10 +271,15 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
               <div className="mb-3">
                 <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-muted-foreground">
                   <Sparkles className="h-3 w-3" />
-                  Explore
+                  {t('command.explore')}
                 </div>
                 <div className="flex flex-wrap gap-1.5 px-2">
-                  {RECOMMENDED_ARTICLES.map(rec => (
+                  {[
+                    { id: 'rec-1', title: t('command.aiLlmNews'), query: 'AI' },
+                    { id: 'rec-2', title: t('command.startupFunding'), query: 'funding' },
+                    { id: 'rec-3', title: t('command.developerTools'), query: 'developer' },
+                    { id: 'rec-4', title: t('command.productLaunches'), query: 'launch' },
+                  ].map(rec => (
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendedClick(rec.query)}
@@ -301,13 +300,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             {filteredItems.length === 0 && query.trim() ? (
               <div className="py-6 text-center">
                 <div className="text-sm text-muted-foreground mb-2">
-                  No results for "{query}"
+                  {t('command.noResultsFor', { query })}
                 </div>
                 <button
                   onClick={() => handleSearch(query)}
                   className="text-xs text-primary hover:underline"
                 >
-                  Search "{query}" in articles →
+                  {t('command.searchInArticles', { query })}
                 </button>
               </div>
             ) : (
@@ -316,7 +315,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 {groupedItems.pages.length > 0 && (
                   <div className="mb-2">
                     <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                      Pages
+                      {t('command.pages')}
                     </div>
                     {groupedItems.pages.map(item => {
                       currentIndex++
@@ -338,7 +337,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 {groupedItems.pinned.length > 0 && (
                   <div className="mb-2">
                     <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                      Pinned
+                      {t('nav.pinned')}
                     </div>
                     {groupedItems.pinned.map(item => {
                       currentIndex++
@@ -360,7 +359,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 {groupedItems.companies.length > 0 && (
                   <div className="mb-2">
                     <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                      Companies
+                      {t('nav.companies')}
                     </div>
                     {groupedItems.companies.map(item => {
                       currentIndex++
@@ -386,15 +385,15 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             <span className="flex items-center gap-1">
               <kbd className="inline-flex h-5 items-center rounded border border-border bg-background px-1 text-[10px]">↑</kbd>
               <kbd className="inline-flex h-5 items-center rounded border border-border bg-background px-1 text-[10px]">↓</kbd>
-              <span className="ml-1">Navigate</span>
+              <span className="ml-1">{t('command.navigate')}</span>
             </span>
             <span className="flex items-center gap-1">
               <kbd className="inline-flex h-5 items-center rounded border border-border bg-background px-1 text-[10px]">↵</kbd>
-              <span className="ml-1">Open</span>
+              <span className="ml-1">{t('command.open')}</span>
             </span>
             <span className="flex items-center gap-1">
               <kbd className="inline-flex h-5 items-center rounded border border-border bg-background px-1 text-[10px]">esc</kbd>
-              <span className="ml-1">Close</span>
+              <span className="ml-1">{t('command.close')}</span>
             </span>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Search, ArrowLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button, ThemeToggle } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { MobileMenuButton } from './Sidebar'
@@ -25,6 +26,7 @@ export function Header({
   pageDescription,
   backLink,
 }: HeaderProps) {
+  const { t } = useTranslation()
   const { open: openCommandPalette } = useCommandPalette()
 
   return (
@@ -50,7 +52,7 @@ export function Header({
             <>
               {showMobileMenu && <MobileMenuButton />}
               {showLogo && (
-                <Link to="/" className="font-bold text-xl text-foreground hover:opacity-80 transition-opacity shrink-0" aria-label="Upday home">
+                <Link to="/" className="font-bold text-xl text-foreground hover:opacity-80 transition-opacity shrink-0" aria-label={t('aria.updayHome')}>
                   upday
                 </Link>
               )}
@@ -75,10 +77,10 @@ export function Header({
           <button
             onClick={openCommandPalette}
             className="hidden md:flex items-center gap-2 h-9 w-56 px-3 rounded-lg border border-border bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            aria-label="Search (⌘K)"
+            aria-label={t('aria.searchCmdK')}
           >
             <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span className="text-sm flex-1 text-left">Search...</span>
+            <span className="text-sm flex-1 text-left">{t('common.search')}</span>
             <kbd className="h-5 px-1.5 rounded border border-border bg-background text-[10px] font-medium shrink-0 inline-flex items-center justify-center gap-0.5"><span className="text-[11px]">⌘</span>K</kbd>
           </button>
 
@@ -88,7 +90,7 @@ export function Header({
             size="icon"
             className="md:hidden"
             onClick={openCommandPalette}
-            aria-label="Open search"
+            aria-label={t('aria.openSearch')}
           >
             <Search className="h-5 w-5" aria-hidden="true" />
           </Button>

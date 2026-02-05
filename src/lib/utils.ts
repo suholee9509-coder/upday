@@ -1,8 +1,13 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import i18n from './i18n'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+function getLocale(): string {
+  return i18n.language === 'ko' ? 'ko-KR' : 'en-US'
 }
 
 export function formatRelativeTime(dateString: string): string {
@@ -15,12 +20,12 @@ export function formatRelativeTime(dateString: string): string {
     const hours = Math.floor(diffHours)
     if (hours < 1) {
       const minutes = Math.floor(diffMs / (1000 * 60))
-      return `${minutes}m ago`
+      return i18n.t('date.minutesAgo', { count: minutes })
     }
-    return `${hours}h ago`
+    return i18n.t('date.hoursAgo', { count: hours })
   }
 
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(getLocale(), {
     month: 'numeric',
     day: 'numeric',
     hour: '2-digit',
@@ -31,7 +36,7 @@ export function formatRelativeTime(dateString: string): string {
 
 export function formatDateSeparator(dateString: string): string {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(getLocale(), {
     weekday: 'long',
     year: 'numeric',
     month: 'long',

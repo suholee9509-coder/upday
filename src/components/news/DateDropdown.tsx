@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
+import i18n from '@/lib/i18n'
 
 interface DateDropdownProps {
   currentDate: Date
@@ -23,6 +25,10 @@ function getLast7Days(): Date[] {
   return days
 }
 
+function getLocale(): string {
+  return i18n.language === 'ko' ? 'ko-KR' : 'en-US'
+}
+
 // Format date for display
 function formatDateLabel(date: Date): string {
   const today = new Date()
@@ -35,20 +41,20 @@ function formatDateLabel(date: Date): string {
   dateOnly.setHours(0, 0, 0, 0)
 
   if (dateOnly.getTime() === today.getTime()) {
-    return 'Today'
+    return i18n.t('date.today')
   }
 
   if (dateOnly.getTime() === yesterday.getTime()) {
-    return 'Yesterday'
+    return i18n.t('date.yesterday')
   }
 
-  // Same year: "Feb 2"
+  // Same year: "Feb 2" / "2월 2일"
   if (date.getFullYear() === today.getFullYear()) {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return date.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric' })
   }
 
-  // Different year: "Dec 31, 2025"
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  // Different year: "Dec 31, 2025" / "2025년 12월 31일"
+  return date.toLocaleDateString(getLocale(), { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 // Check if two dates are the same day
@@ -61,6 +67,7 @@ function isSameDay(date1: Date, date2: Date): boolean {
 }
 
 export function DateDropdown({ currentDate, onDateSelect, className }: DateDropdownProps) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const days = getLast7Days()
@@ -110,7 +117,7 @@ export function DateDropdown({ currentDate, onDateSelect, className }: DateDropd
         )}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        aria-label="Select date"
+        aria-label={t('date.selectDate')}
       >
         <span>{formatDateLabel(currentDate)}</span>
         <ChevronDown

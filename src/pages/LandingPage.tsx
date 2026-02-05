@@ -1,5 +1,6 @@
 import { ArrowRight, Sparkles, Clock, Zap, Globe } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button, Badge, ThemeToggle } from '@/components/ui'
 import { NewsCard } from '@/components/news'
 import { SEO } from '@/components/SEO'
@@ -8,6 +9,7 @@ import { mockNews } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
 
 export function LandingPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const previewItems = mockNews.slice(0, 3)
 
@@ -40,7 +42,7 @@ export function LandingPage() {
               className="group"
               onClick={() => navigate('/timeline')}
             >
-              Get started
+              {t('landing.getStarted')}
               <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
@@ -55,17 +57,17 @@ export function LandingPage() {
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-background/80 backdrop-blur-sm text-xs font-medium mb-6">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-muted-foreground">Live updates every hour</span>
+                <span className="text-muted-foreground">{t('landing.liveUpdates')}</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-5 leading-[1.1] tracking-tight">
-                Know what's changing.
+                {t('landing.heroTitle1')}
                 <br />
-                <span className="text-muted-foreground">Without reading everything.</span>
+                <span className="text-muted-foreground">{t('landing.heroTitle2')}</span>
               </h1>
 
               <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                AI-summarized news in a timeline. Scan tech, science, and startup news in minutes, not hours.
+                {t('landing.heroDesc')}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
@@ -74,7 +76,7 @@ export function LandingPage() {
                   className="text-sm px-6 group"
                   onClick={() => navigate('/timeline')}
                 >
-                  Start reading
+                  {t('landing.startReading')}
                   <ArrowRight className="ml-1 transition-transform group-hover:translate-x-1" />
                 </Button>
                 <Button
@@ -85,12 +87,12 @@ export function LandingPage() {
                     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
                   }}
                 >
-                  Learn more
+                  {t('landing.learnMore')}
                 </Button>
               </div>
 
               <p className="text-xs text-muted-foreground mt-6">
-                Read less. Know more.
+                {t('landing.readLessKnowMore')}
               </p>
             </div>
 
@@ -131,7 +133,7 @@ export function LandingPage() {
                 </div>
 
                 <div className="absolute -top-3 -right-3 px-2.5 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium shadow-lg">
-                  AI Summary
+                  {t('landing.aiSummary')}
                 </div>
               </div>
             </div>
@@ -159,7 +161,7 @@ export function LandingPage() {
             ))}
           </div>
           <p className="text-center text-xs text-muted-foreground mt-4">
-            Browse by category
+            {t('landing.browseByCategory')}
           </p>
         </div>
       </section>
@@ -170,13 +172,13 @@ export function LandingPage() {
           <div className="text-center mb-12">
             <Badge variant="outline" className="mb-4">
               <Sparkles className="w-3 h-3 mr-1" />
-              Why upday?
+              {t('landing.whyUpday')}
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              News, simplified.
+              {t('landing.newsSimplified')}
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Stop drowning in articles. Get the signal without the noise.
+              {t('landing.stopDrowning')}
             </p>
           </div>
 
@@ -194,21 +196,20 @@ export function LandingPage() {
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10">
                       <Zap className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold">AI-powered summaries</h3>
+                    <h3 className="text-xl font-semibold">{t('landing.aiPoweredSummaries')}</h3>
                   </div>
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    Every article gets a 2-3 line summary focused on what happened and why it matters.
-                    Understand the news without clicking through.
+                    {t('landing.aiPoweredDesc')}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="text-xs px-3 py-1.5 rounded-full bg-background/80 border border-border/50 text-muted-foreground backdrop-blur-sm">
-                      GPT-4 powered
+                      {t('landing.gpt4Powered')}
                     </span>
                     <span className="text-xs px-3 py-1.5 rounded-full bg-background/80 border border-border/50 text-muted-foreground backdrop-blur-sm">
-                      Context-aware
+                      {t('landing.contextAware')}
                     </span>
                     <span className="text-xs px-3 py-1.5 rounded-full bg-background/80 border border-border/50 text-muted-foreground backdrop-blur-sm">
-                      No opinion
+                      {t('landing.noOpinion')}
                     </span>
                   </div>
                 </div>
@@ -223,9 +224,9 @@ export function LandingPage() {
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mb-4 border border-emerald-500/10">
                     <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <h3 className="font-semibold mb-2">Time-based feed</h3>
+                  <h3 className="font-semibold mb-2">{t('landing.timeBasedFeed')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    No algorithms. Just chronological news so you never miss what's new.
+                    {t('landing.timeBasedDesc')}
                   </p>
                 </div>
               </div>
@@ -236,9 +237,9 @@ export function LandingPage() {
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center mb-4 border border-blue-500/10">
                     <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-semibold mb-2">40+ sources</h3>
+                  <h3 className="font-semibold mb-2">{t('landing.fortyPlusSources')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Curated from the world's most trusted publications, updated hourly.
+                    {t('landing.fortyPlusDesc')}
                   </p>
                 </div>
               </div>
@@ -253,13 +254,13 @@ export function LandingPage() {
           <div className="text-center mb-10">
             <Badge variant="outline" className="mb-4">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse mr-2" />
-              Live
+              {t('landing.live')}
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              See what's happening now
+              {t('landing.seeWhatsHappening')}
             </h2>
             <p className="text-muted-foreground">
-              Real news, real-time updates, zero noise
+              {t('landing.realNewsRealTime')}
             </p>
           </div>
 
@@ -304,7 +305,7 @@ export function LandingPage() {
               onClick={() => navigate('/timeline')}
               className="group"
             >
-              View full timeline
+              {t('landing.viewFullTimeline')}
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
@@ -315,9 +316,9 @@ export function LandingPage() {
       <section className="py-20 relative">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">3 steps</Badge>
+            <Badge variant="outline" className="mb-4">{t('landing.threeSteps')}</Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-              Simple as it gets
+              {t('landing.simpleAsItGets')}
             </h2>
           </div>
 
@@ -328,9 +329,9 @@ export function LandingPage() {
 
             <div className="grid md:grid-cols-3 gap-8 md:gap-6">
               {[
-                { num: '1', title: 'Open', desc: 'No signup needed. Just visit and start reading.', color: 'rose' },
-                { num: '2', title: 'Scan', desc: 'Title + summary tells you everything at a glance.', color: 'violet' },
-                { num: '3', title: 'Dive', desc: 'Click through only when you want the full story.', color: 'amber' },
+                { num: '1', title: t('landing.step1Title'), desc: t('landing.step1Desc'), color: 'rose' },
+                { num: '2', title: t('landing.step2Title'), desc: t('landing.step2Desc'), color: 'violet' },
+                { num: '3', title: t('landing.step3Title'), desc: t('landing.step3Desc'), color: 'amber' },
               ].map((step, i) => (
                 <div key={i} className="relative text-center group">
                   {/* Number circle */}
@@ -362,13 +363,13 @@ export function LandingPage() {
           <div className="text-center mb-12">
             <Badge variant="outline" className="mb-4">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse mr-2" />
-              Live from 40+ sources
+              {t('landing.liveFromSources')}
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              Trusted sources, one feed
+              {t('landing.trustedSources')}
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Real-time aggregation from the world's most respected publications
+              {t('landing.realTimeAggregation')}
             </p>
           </div>
 
@@ -388,7 +389,7 @@ export function LandingPage() {
               </span>
             ))}
             <span className="inline-flex items-center h-9 px-4 rounded-full text-sm text-muted-foreground bg-muted/30 border border-dashed border-border">
-              +24 more
+              {t('landing.plusMore')}
             </span>
           </div>
 
@@ -396,17 +397,17 @@ export function LandingPage() {
           <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
             <div className="text-center p-6 rounded-2xl bg-card border border-border">
               <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">1K+</div>
-              <div className="text-xs text-muted-foreground">articles daily</div>
+              <div className="text-xs text-muted-foreground">{t('landing.articlesDaily')}</div>
             </div>
             <div className="text-center p-6 rounded-2xl bg-card border border-border">
               <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">5</div>
-              <div className="text-xs text-muted-foreground">categories</div>
+              <div className="text-xs text-muted-foreground">{t('landing.categories')}</div>
             </div>
             <div className="text-center p-6 rounded-2xl bg-card border border-border">
               <div className="text-3xl md:text-4xl font-bold text-foreground mb-1 flex items-center justify-center gap-1">
                 24/7
               </div>
-              <div className="text-xs text-muted-foreground">live updates</div>
+              <div className="text-xs text-muted-foreground">{t('landing.liveUpdates247')}</div>
             </div>
           </div>
         </div>
@@ -416,22 +417,22 @@ export function LandingPage() {
       <section className="relative py-24">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-            Ready to stay informed?
+            {t('landing.readyToStayInformed')}
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
-            Join thousands of professionals who scan upday every morning.
+            {t('landing.joinThousands')}
           </p>
           <Button
             size="lg"
             className="text-base px-8 shadow-xl hover:shadow-2xl transition-shadow group"
             onClick={() => navigate('/timeline')}
           >
-            Start reading — it's free
+            {t('landing.startReadingFree')}
             <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
           </Button>
           <p className="text-sm text-muted-foreground mt-6 flex items-center justify-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
-            No account required. Ever.
+            {t('landing.noAccountRequired')}
           </p>
         </div>
       </section>
@@ -479,8 +480,8 @@ export function LandingPage() {
             </a>
           </div>
           <div className="flex gap-6">
-            <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
-            <Link to="/feedback" className="hover:text-foreground transition-colors">Feedback</Link>
+            <Link to="/about" className="hover:text-foreground transition-colors">{t('landing.about')}</Link>
+            <Link to="/feedback" className="hover:text-foreground transition-colors">{t('landing.feedback')}</Link>
           </div>
         </div>
       </footer>

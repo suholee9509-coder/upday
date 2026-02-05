@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { Radio, ChevronRight, ChevronLeft, Pin, Grid2X2, Menu, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
 import { CompanyLogo } from '@/components/CompanyLogo'
@@ -46,6 +47,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 // Mobile Menu Button
 export function MobileMenuButton() {
+  const { t } = useTranslation()
   const { isMobileOpen, setIsMobileOpen } = useSidebar()
 
   return (
@@ -54,7 +56,7 @@ export function MobileMenuButton() {
       size="icon"
       className="md:hidden"
       onClick={() => setIsMobileOpen(!isMobileOpen)}
-      aria-label={isMobileOpen ? 'Close menu' : 'Open menu'}
+      aria-label={isMobileOpen ? t('nav.closeMenu') : t('nav.openMenu')}
       aria-expanded={isMobileOpen}
     >
       {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -64,6 +66,7 @@ export function MobileMenuButton() {
 
 // Main Sidebar
 export function Sidebar() {
+  const { t } = useTranslation()
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
@@ -133,7 +136,7 @@ export function Sidebar() {
               springTransition,
               !isCollapsed && 'ml-auto'
             )}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           >
             <ChevronLeft className={cn(
               'h-4 w-4',
@@ -146,7 +149,7 @@ export function Sidebar() {
           <button
             onClick={() => setIsMobileOpen(false)}
             className="md:hidden ml-auto p-2 text-muted-foreground hover:text-sidebar-foreground rounded-lg hover:bg-sidebar-accent"
-            aria-label="Close menu"
+            aria-label={t('nav.closeMenu')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -160,11 +163,11 @@ export function Sidebar() {
         )}>
           {/* Main Section */}
           <div className="space-y-1">
-            <SectionTitle collapsed={isCollapsed}>Feed</SectionTitle>
+            <SectionTitle collapsed={isCollapsed}>{t('nav.feed')}</SectionTitle>
 
             <NavItem
               icon={<Radio className="h-4 w-4" />}
-              label="Live Feed"
+              label={t('nav.liveFeed')}
               href="/timeline"
               active={isLiveFeed}
               collapsed={isCollapsed}
@@ -173,7 +176,7 @@ export function Sidebar() {
 
             <NavItem
               icon={<Grid2X2 className="h-4 w-4" />}
-              label="Companies"
+              label={t('nav.companies')}
               href="/timeline/companies"
               active={location.pathname === '/timeline/companies'}
               collapsed={isCollapsed}
@@ -185,7 +188,7 @@ export function Sidebar() {
           {!isCollapsed && (
           <div className="mt-6 space-y-1">
             <ExpandableSection
-              title="Pinned"
+              title={t('nav.pinned')}
               isExpanded={isPinnedExpanded}
               onToggle={() => setIsPinnedExpanded(!isPinnedExpanded)}
               collapsed={isCollapsed}
@@ -200,6 +203,7 @@ export function Sidebar() {
                     collapsed={isCollapsed}
                     onUnpin={() => togglePin(company.id)}
                     onClick={() => setIsMobileOpen(false)}
+                    unpinLabel={t('aria.unpin', { name: company.name })}
                   />
                 ))
               ) : (
@@ -208,7 +212,7 @@ export function Sidebar() {
                   springTransition,
                   isCollapsed ? 'hidden' : 'px-2 py-2'
                 )}>
-                  No pinned companies
+                  {t('nav.noPinnedCompanies')}
                 </div>
               )}
             </ExpandableSection>
@@ -349,9 +353,10 @@ interface CompanyItemProps {
   collapsed?: boolean
   onUnpin: () => void
   onClick?: () => void
+  unpinLabel?: string
 }
 
-function CompanyItem({ company, active, collapsed, onUnpin, onClick }: CompanyItemProps) {
+function CompanyItem({ company, active, collapsed, onUnpin, onClick, unpinLabel }: CompanyItemProps) {
   return (
     <div className="relative group">
       <Link
@@ -398,7 +403,7 @@ function CompanyItem({ company, active, collapsed, onUnpin, onClick }: CompanyIt
             'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent',
             'opacity-0 group-hover:opacity-100 transition-opacity duration-150'
           )}
-          aria-label={`Unpin ${company.name}`}
+          aria-label={unpinLabel || `Unpin ${company.name}`}
         >
           <Pin className="h-3 w-3 rotate-45" strokeWidth={1.5} />
         </button>
