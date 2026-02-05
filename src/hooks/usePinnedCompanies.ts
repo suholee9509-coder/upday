@@ -117,11 +117,21 @@ export function usePinnedCompanies() {
         // Authenticated: migrate then load from server
         await migrateToServer()
         const serverPins = await loadFromServer()
-        setPinnedCompanies(serverPins)
+        // Only update if different to prevent unnecessary re-renders
+        setPinnedCompanies(prev => {
+          const prevStr = JSON.stringify(prev.sort())
+          const newStr = JSON.stringify(serverPins.sort())
+          return prevStr === newStr ? prev : serverPins
+        })
       } else {
         // Non-authenticated: load from localStorage
         const localPins = loadFromLocalStorage()
-        setPinnedCompanies(localPins)
+        // Only update if different to prevent unnecessary re-renders
+        setPinnedCompanies(prev => {
+          const prevStr = JSON.stringify(prev.sort())
+          const newStr = JSON.stringify(localPins.sort())
+          return prevStr === newStr ? prev : localPins
+        })
       }
 
       setIsLoading(false)
