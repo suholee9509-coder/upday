@@ -1,14 +1,11 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
-import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { Radio, ChevronRight, ChevronLeft, ChevronUp, Pin, Grid2X2, Menu, X, LogIn, Settings, LogOut, Zap } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { Radio, ChevronLeft, ChevronUp, Grid2X2, Menu, X, LogIn, Settings, LogOut, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
-import { CompanyLogo } from '@/components/CompanyLogo'
 import { UpdayWordmark } from '@/components/UpdayLogo'
-import { usePinnedCompanies } from '@/hooks/usePinnedCompanies'
 import { useAuth } from '@/hooks/useAuth'
-import { COMPANIES } from '@/lib/constants'
 
 // Soft spring animation
 const springTransition = 'transition-all duration-300 ease-[cubic-bezier(0.25,1.1,0.4,1)]'
@@ -75,15 +72,11 @@ export function MobileMenuButton() {
 export function Sidebar() {
   const { t } = useTranslation()
   const location = useLocation()
-  const [searchParams] = useSearchParams()
   const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
-  const { pinnedCompanies, togglePin } = usePinnedCompanies()
   const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth()
-  const [isPinnedExpanded, setIsPinnedExpanded] = useState(false) // Default collapsed
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
 
-  const currentCompany = searchParams.get('company')
-  const isLiveFeed = location.pathname === '/timeline' && !currentCompany
+  const isLiveFeed = location.pathname === '/timeline'
 
   const handleSignIn = () => {
     window.dispatchEvent(new CustomEvent('open-login-modal'))
@@ -93,13 +86,6 @@ export function Sidebar() {
     await signOut()
     setIsMobileOpen(false)
   }
-
-  const pinnedCompanyDetails = useMemo(() =>
-    pinnedCompanies
-      .map(slug => COMPANIES.find(c => c.id === slug))
-      .filter(Boolean),
-    [pinnedCompanies]
-  )
 
   return (
     <>
@@ -197,37 +183,14 @@ export function Sidebar() {
           <div className="mt-6 space-y-1">
             <SectionTitle collapsed={isCollapsed}>{t('nav.companies')}</SectionTitle>
 
-            {/* Browse All - Expandable when has pinned companies, Link otherwise */}
-            {!isCollapsed && isAuthenticated && pinnedCompanyDetails.length > 0 ? (
-              <ExpandableSection
-                title={t('nav.browseCompanies')}
-                isExpanded={isPinnedExpanded}
-                onToggle={() => setIsPinnedExpanded(!isPinnedExpanded)}
-                collapsed={isCollapsed}
-                count={pinnedCompanyDetails.length}
-              >
-                {pinnedCompanyDetails.map(company => company && (
-                  <CompanyItem
-                    key={company.id}
-                    company={company}
-                    active={currentCompany === company.id}
-                    collapsed={isCollapsed}
-                    onUnpin={() => togglePin(company.id)}
-                    onClick={() => setIsMobileOpen(false)}
-                    unpinLabel={t('aria.unpin', { name: company.name })}
-                  />
-                ))}
-              </ExpandableSection>
-            ) : (
-              <NavItem
-                icon={<Grid2X2 className="h-4 w-4" />}
-                label={t('nav.browseCompanies')}
-                href="/timeline/companies"
-                active={location.pathname === '/timeline/companies'}
-                collapsed={isCollapsed}
-                onClick={() => setIsMobileOpen(false)}
-              />
-            )}
+            <NavItem
+              icon={<Grid2X2 className="h-4 w-4" />}
+              label={t('nav.browseCompanies')}
+              href="/timeline/companies"
+              active={location.pathname === '/timeline/companies'}
+              collapsed={isCollapsed}
+              onClick={() => setIsMobileOpen(false)}
+            />
           </div>
 
           {/* Personal Section */}
@@ -414,67 +377,6 @@ function SectionTitle({ children, collapsed }: { children: ReactNode; collapsed:
   )
 }
 
-// Expandable Section
-function ExpandableSection({
-  title,
-  isExpanded,
-  onToggle,
-  collapsed,
-  count,
-  children,
-}: {
-  title: string
-  isExpanded: boolean
-  onToggle: () => void
-  collapsed: boolean
-  count?: number
-  children: ReactNode
-}) {
-  return (
-    <div>
-      <button
-        onClick={onToggle}
-        className={cn(
-          'w-full flex items-center rounded-lg',
-          'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
-          springTransition,
-          collapsed ? 'h-10 justify-center' : 'h-10 px-3 gap-2'
-        )}
-        aria-expanded={isExpanded}
-      >
-        {!collapsed && (
-          <>
-            <span className="text-left text-[11px] font-medium uppercase tracking-normal">
-              {title}
-            </span>
-            {count !== undefined && (
-              <span className="text-[10px] text-muted-foreground/60 font-medium">
-                {count}
-              </span>
-            )}
-          </>
-        )}
-        <ChevronRight className={cn(
-          'h-3 w-3',
-          springTransition,
-          isExpanded ? '-rotate-90' : 'rotate-90',
-          !collapsed && 'ml-auto'
-        )} />
-      </button>
-
-      <div className={cn(
-        'overflow-hidden',
-        springTransition,
-        isExpanded && !collapsed ? 'max-h-[400px] opacity-100 mt-1' : 'max-h-0 opacity-0'
-      )}>
-        <div className="space-y-0.5">
-          {children}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // Nav Item
 interface NavItemProps {
   icon: ReactNode
@@ -518,71 +420,5 @@ function NavItem({ icon, label, href, active, collapsed, onClick, indent }: NavI
         {label}
       </span>
     </Link>
-  )
-}
-
-// Company Item
-interface CompanyItemProps {
-  company: { id: string; name: string }
-  active?: boolean
-  collapsed?: boolean
-  onUnpin: () => void
-  onClick?: () => void
-  unpinLabel?: string
-}
-
-function CompanyItem({ company, active, collapsed, onUnpin, onClick, unpinLabel }: CompanyItemProps) {
-  return (
-    <div className="relative group">
-      <Link
-        to={`/timeline?company=${company.id}`}
-        onClick={onClick}
-        className={cn(
-          'flex items-center rounded-lg',
-          springTransition,
-          active
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
-          collapsed ? 'h-10 justify-center' : 'h-10 px-3 gap-3 pr-10'
-        )}
-        aria-current={active ? 'page' : undefined}
-        title={collapsed ? company.name : undefined}
-      >
-        <CompanyLogo
-          companyId={company.id}
-          size="xs"
-          className={cn(
-            'flex-shrink-0',
-            active ? 'text-sidebar-accent-foreground' : 'text-muted-foreground'
-          )}
-        />
-        <span className={cn(
-          'text-sm font-medium truncate',
-          springTransition,
-          collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
-        )}>
-          {company.name}
-        </span>
-      </Link>
-
-      {/* Unpin button - CSS hover instead of useState */}
-      {!collapsed && (
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onUnpin()
-          }}
-          className={cn(
-            'absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md',
-            'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent',
-            'opacity-0 group-hover:opacity-100 transition-opacity duration-150'
-          )}
-          aria-label={unpinLabel || `Unpin ${company.name}`}
-        >
-          <Pin className="h-3 w-3 rotate-45" strokeWidth={1.5} />
-        </button>
-      )}
-    </div>
   )
 }

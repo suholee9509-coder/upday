@@ -108,7 +108,7 @@ export const NewsCard = memo(function NewsCard({ item, className, userKeywords =
               {matchingKeywords.map(keyword => (
                 <span
                   key={keyword}
-                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border border-primary/30 bg-primary/5 text-primary"
+                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border border-primary/15 bg-primary/5 text-primary/70"
                 >
                   {keyword}
                 </span>
