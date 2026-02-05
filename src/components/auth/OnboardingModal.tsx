@@ -171,9 +171,9 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                   key={category.id}
                   onClick={() => toggleCategory(category.id)}
                   className={cn(
-                    'px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all',
+                    'px-4 py-3 rounded-lg border text-sm font-medium transition-all',
                     selectedCategories.includes(category.id)
-                      ? 'border-primary bg-primary text-primary-foreground'
+                      ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border bg-background text-foreground hover:border-primary/50'
                   )}
                 >
@@ -200,17 +200,21 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                   }
                 }}
                 placeholder="e.g., OpenAI, Series A, GPT"
-                className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="flex-1 px-3 py-2.5 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={keywords.length >= 10}
               />
-              <Button
+              <button
                 onClick={addKeyword}
-                variant="outline"
-                size="icon"
                 disabled={!keywordInput.trim() || keywords.length >= 10}
+                className={cn(
+                  'h-[42px] w-[42px] rounded-lg shrink-0 flex items-center justify-center',
+                  'border border-border bg-background',
+                  'hover:border-primary hover:bg-primary/5',
+                  'transition-all disabled:opacity-50 disabled:pointer-events-none'
+                )}
               >
-                <Plus className="h-4 w-4" />
-              </Button>
+                <Plus className="h-5 w-5 text-foreground" />
+              </button>
             </div>
             {keywords.length > 0 && (
               <div className="flex flex-wrap gap-2">
