@@ -50,10 +50,18 @@ function calculateSimilarity(item1: NewsItem, item2: NewsItem): number {
   return score / 100 // Normalize to 0-1
 }
 
+// Cache for extracted keywords to avoid repeated computation
+const keywordCache = new Map<string, string[]>()
+
 /**
  * Extract important keywords from text (remove stop words)
+ * Uses caching for performance
  */
 function extractKeywords(text: string): string[] {
+  // Check cache first
+  const cached = keywordCache.get(text)
+  if (cached) return cached
+
   const stopWords = new Set([
     'a',
     'an',
@@ -104,11 +112,19 @@ function extractKeywords(text: string): string[] {
     'among',
   ])
 
-  return text
+  const keywords = text
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ') // Remove punctuation
     .split(/\s+/)
     .filter(word => word.length > 2 && !stopWords.has(word))
+
+  // Cache result (limit cache size to prevent memory issues)
+  if (keywordCache.size > 2000) {
+    keywordCache.clear()
+  }
+  keywordCache.set(text, keywords)
+
+  return keywords
 }
 
 /**

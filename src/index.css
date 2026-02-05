@@ -146,6 +146,16 @@
     min-height: env(safe-area-inset-bottom, 0px);
   }
 
+  /* iOS Safari viewport height fix */
+  .h-screen-safe {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height - adjusts with Safari address bar */
+  }
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
   /* 스크롤바 숨김 */
   .scrollbar-hide {
     -ms-overflow-style: none;

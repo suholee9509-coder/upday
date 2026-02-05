@@ -106,12 +106,12 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-screen',
+          'fixed top-0 left-0 z-50 h-screen-safe',
           'bg-sidebar border-r border-sidebar-border',
           'flex flex-col',
           springTransition,
           // Desktop
-          'md:sticky md:top-0 md:z-30',
+          'md:sticky md:top-0 md:z-30 md:h-screen',
           isCollapsed ? 'md:w-[60px]' : 'md:w-[240px]',
           // Mobile
           'w-[280px] -translate-x-full md:translate-x-0',

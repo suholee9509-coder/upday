@@ -16,6 +16,15 @@ import {
 import { clusterNews, type NewsCluster } from '@/lib/clustering'
 import type { NewsItem, Category } from '@/types/news'
 
+// Module-level cache for My Feed data (persists across component remounts)
+interface FeedCache {
+  key: string // JSON of interests
+  items: NewsItemWithScore[]
+  timestamp: number
+}
+let feedCache: FeedCache | null = null
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
 export interface NewsItemWithScore extends Omit<NewsItem, 'body'> {
   score: number
 }
@@ -126,10 +135,27 @@ export function useMyFeed(): UseMyFeedResult {
 
   const hasInterests = isAuthenticated && hasCompletedOnboarding && interests !== null
 
-  const fetchMyFeed = useCallback(async () => {
+  const fetchMyFeed = useCallback(async (forceRefresh = false) => {
     if (!hasInterests || !interests) {
       setIsLoading(false)
       return
+    }
+
+    // Check cache first (unless force refresh)
+    const cacheKey = JSON.stringify({
+      categories: interests.categories,
+      keywords: interests.keywords,
+      companies: interests.companies,
+    })
+
+    if (!forceRefresh && feedCache && feedCache.key === cacheKey) {
+      const cacheAge = Date.now() - feedCache.timestamp
+      if (cacheAge < CACHE_TTL) {
+        // Use cached data
+        setNewsItems(feedCache.items)
+        setIsLoading(false)
+        return
+      }
     }
 
     setIsLoading(true)
@@ -228,6 +254,13 @@ export function useMyFeed(): UseMyFeedResult {
         ? filterByImportance(scoredItems, 40)
         : scoredItems // Category-only: show all matched items
 
+      // Update cache
+      feedCache = {
+        key: cacheKey,
+        items: importantItems,
+        timestamp: Date.now(),
+      }
+
       setNewsItems(importantItems)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch My Feed')
@@ -256,7 +289,7 @@ export function useMyFeed(): UseMyFeedResult {
   }, [])
 
   const refresh = useCallback(() => {
-    fetchMyFeed()
+    fetchMyFeed(true) // Force refresh, bypass cache
   }, [fetchMyFeed])
 
   return {

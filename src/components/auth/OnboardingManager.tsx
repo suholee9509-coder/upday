@@ -26,22 +26,22 @@ export function OnboardingManager() {
       return
     }
 
-    // CRITICAL: Only show onboarding if ALL conditions are met:
-    // 1. User is authenticated (must be true)
-    // 2. User hasn't completed onboarding (must be false)
-    // 3. We haven't checked yet this session
-    //
-    // IMPORTANT: isAuthenticated must be checked FIRST to prevent showing
-    // onboarding modal to unauthenticated users
+    // Not authenticated - never show onboarding
     if (!isAuthenticated) {
-      // Not authenticated - reset state and never show onboarding
       setHasChecked(false)
       setShowOnboarding(false)
       return
     }
 
-    // User is authenticated - check if onboarding needed
-    if (!hasCompletedOnboarding && !hasChecked) {
+    // CRITICAL: If user already completed onboarding, NEVER show modal
+    // This handles the case where modal might have been set to show before data loaded
+    if (hasCompletedOnboarding) {
+      setShowOnboarding(false)
+      return
+    }
+
+    // User is authenticated but hasn't completed onboarding - show modal once per session
+    if (!hasChecked) {
       setShowOnboarding(true)
       setHasChecked(true)
     }
