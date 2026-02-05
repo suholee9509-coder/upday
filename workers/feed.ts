@@ -93,9 +93,9 @@ function generateRssXml(newsItems: NewsItem[]): string {
       const description = item.summary || item.title
 
       return `    <item>
-      <title><![CDATA[${escapeXml(item.title)}]]></title>
+      <title><![CDATA[${stripHtml(item.title)}]]></title>
       <link>${escapeXml(item.source_url)}</link>
-      <description><![CDATA[${escapeXml(description)}]]></description>
+      <description><![CDATA[${stripHtml(description)}]]></description>
       <pubDate>${pubDate}</pubDate>
       <category>${escapeXml(item.category)}</category>
       <source url="${escapeXml(item.source_url)}">${escapeXml(item.source)}</source>
@@ -125,4 +125,25 @@ function escapeXml(text: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;')
+}
+
+/**
+ * Strip HTML tags and decode entities for plain text output
+ * Used for CDATA sections where we want clean text
+ */
+function stripHtml(text: string): string {
+  return text
+    // Decode HTML entities first
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+    .replace(/&#x([a-fA-F0-9]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    // Remove HTML tags
+    .replace(/<[^>]*>/g, '')
+    // Clean up whitespace
+    .replace(/\s+/g, ' ')
+    .trim()
 }
