@@ -325,10 +325,10 @@ export function SettingsPage() {
                 </div>
               </section>
 
-              {/* Danger Zone Section */}
+              {/* Account Management Section */}
               <section className="mt-12">
-                <h2 className="text-xl font-semibold text-destructive mb-4">Danger Zone</h2>
-                <div className="bg-card border border-destructive/50 rounded-lg p-6">
+                <h2 className="text-xl font-semibold text-foreground mb-4">Account Management</h2>
+                <div className="bg-card border border-border rounded-lg p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-base font-semibold text-foreground mb-1">
@@ -340,8 +340,8 @@ export function SettingsPage() {
                     </div>
                     <Button
                       onClick={() => setShowDeleteModal(true)}
-                      variant="destructive"
-                      className="gap-2 shrink-0"
+                      variant="outline"
+                      className="gap-2 shrink-0 text-destructive border-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="h-4 w-4" />
                       {t('nav.deleteAccount')}
