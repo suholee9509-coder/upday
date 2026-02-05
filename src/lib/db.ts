@@ -63,7 +63,7 @@ export async function fetchNews(params: NewsQueryParams = {}): Promise<NewsRespo
     throw new Error('Supabase not configured')
   }
 
-  const { limit = 20, cursor, category, q, company } = params
+  const { limit = 20, cursor, category, categories, q, company } = params
 
   let query = supabase
     .from('news_items')
@@ -71,9 +71,14 @@ export async function fetchNews(params: NewsQueryParams = {}): Promise<NewsRespo
     .order('published_at', { ascending: false })
     .limit(limit + 1) // Fetch one extra to check hasMore
 
-  // Filter by category
+  // Filter by single category
   if (category) {
     query = query.eq('category', category)
+  }
+
+  // Filter by multiple categories (OR) - for My Feed
+  if (categories && categories.length > 0) {
+    query = query.in('category', categories)
   }
 
   // Filter by company (companies array contains the slug)

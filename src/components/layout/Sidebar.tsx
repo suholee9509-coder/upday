@@ -361,6 +361,8 @@ export function Sidebar() {
               </span>
             </button>
           )}
+          {/* iOS Safari safe area spacer - mobile only */}
+          <div className="h-safe-bottom md:hidden" />
         </div>
       </aside>
     </>

@@ -29,6 +29,7 @@ export interface NewsQueryParams {
   limit?: number    // default 20
   cursor?: string   // publishedAt of last item
   category?: Category
+  categories?: Category[]  // multiple categories (OR filter)
   company?: string  // company slug filter
   q?: string        // search query
 }

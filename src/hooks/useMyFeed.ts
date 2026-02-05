@@ -11,9 +11,10 @@ import {
   calculateImportanceScore,
   filterByImportance,
   matchesUserInterests,
+  extractCompaniesFromText,
 } from '@/lib/importance'
 import { clusterNews, type NewsCluster } from '@/lib/clustering'
-import type { NewsItem } from '@/types/news'
+import type { NewsItem, Category } from '@/types/news'
 
 export interface NewsItemWithScore extends Omit<NewsItem, 'body'> {
   score: number
@@ -149,9 +150,12 @@ export function useMyFeed(): UseMyFeedResult {
       let hasMore = true
       let fetchedCount = 0
 
+      // Filter by user's selected categories at DB level for efficiency
+      const userCategories = interests.categories as Category[]
+
       while (hasMore && fetchedCount < limit) {
         const result: { items: Omit<NewsItem, 'body'>[]; hasMore: boolean } = supabase
-          ? await fetchNews({ limit: 50, cursor })
+          ? await fetchNews({ limit: 50, cursor, categories: userCategories })
           : getMockNews({ limit: 50, cursor })
 
         allItems = [...allItems, ...result.items]
@@ -177,22 +181,21 @@ export function useMyFeed(): UseMyFeedResult {
       })
 
       // Convert to full NewsItem (add empty body for filtering)
-      const fullItems: NewsItem[] = recentItems.map(item => ({
-        ...item,
-        body: '',
-      }))
-
-      // Debug: log fetched data
-      console.log(`[MY_FEED] Fetched ${allItems.length} items, ${recentItems.length} within 12 weeks`)
-      console.log(`[MY_FEED] User interests: categories=${interests.categories}, companies=${interests.companies}, keywords=${interests.keywords}`)
-
-      // Check date range of fetched items
-      if (recentItems.length > 0) {
-        const dates = recentItems.map(i => new Date(i.publishedAt))
-        const oldest = new Date(Math.min(...dates.map(d => d.getTime())))
-        const newest = new Date(Math.max(...dates.map(d => d.getTime())))
-        console.log(`[MY_FEED] Date range: ${oldest.toISOString().split('T')[0]} to ${newest.toISOString().split('T')[0]}`)
-      }
+      // Pre-extract companies for items without companies field (optimization)
+      const userHasCompanies = (interests.companies?.length || 0) > 0
+      const fullItems: NewsItem[] = recentItems.map(item => {
+        let companies = item.companies || []
+        // Pre-extract companies from text if needed (avoids duplicate extraction later)
+        if (companies.length === 0 && userHasCompanies) {
+          const content = `${item.title} ${item.summary}`.toLowerCase()
+          companies = extractCompaniesFromText(content)
+        }
+        return {
+          ...item,
+          companies,
+          body: '',
+        }
+      })
 
       // Step 1: Filter by user interests (basic match)
       const matchedItems = fullItems.filter(item =>
@@ -202,7 +205,6 @@ export function useMyFeed(): UseMyFeedResult {
           companies: interests.companies || [],
         })
       )
-      console.log(`[MY_FEED] After interest filter: ${matchedItems.length} items`)
 
       // Step 2: Calculate importance score (pre-clustering, clusterSize=1)
       const scoredItems: NewsItemWithScore[] = matchedItems.map(item => {
@@ -225,17 +227,6 @@ export function useMyFeed(): UseMyFeedResult {
       const importantItems = hasSpecificInterests
         ? filterByImportance(scoredItems, 40)
         : scoredItems // Category-only: show all matched items
-
-      console.log(`[MY_FEED] After importance filter: ${importantItems.length} items (threshold: ${hasSpecificInterests ? 40 : 'none'})`)
-
-      // Debug: log per-week breakdown
-      const weekBreakdown: Record<string, number> = {}
-      for (const item of importantItems) {
-        const weekStart = getWeekStart(new Date(item.publishedAt))
-        const key = getWeekLabel(weekStart)
-        weekBreakdown[key] = (weekBreakdown[key] || 0) + 1
-      }
-      console.log('[MY_FEED] Per-week breakdown:', weekBreakdown)
 
       setNewsItems(importantItems)
     } catch (err) {

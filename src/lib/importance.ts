@@ -55,7 +55,7 @@ const COMPANY_PATTERNS: Record<string, RegExp> = {
  * Extract companies mentioned in text using pattern matching
  * Used as fallback when articles don't have companies field populated
  */
-function extractCompaniesFromText(text: string): string[] {
+export function extractCompaniesFromText(text: string): string[] {
   const companies: string[] = []
   for (const [slug, pattern] of Object.entries(COMPANY_PATTERNS)) {
     if (pattern.test(text)) {
@@ -143,9 +143,6 @@ export function calculateImportanceScore(
   if (usedFallback) {
     // Fallback: extract companies from text for old articles without companies field
     newsCompanies = extractCompaniesFromText(content)
-    if (newsCompanies.length > 0) {
-      console.log(`[IMPORTANCE] Fallback extracted: ${newsCompanies.join(', ')} from "${newsItem.title.substring(0, 40)}..."`)
-    }
   }
 
   // Track if user has specific interests defined
@@ -275,11 +272,6 @@ export function matchesUserInterests(
   const hasCompanyMatch = newsCompanies.some(company =>
     userInterests.companies.includes(company)
   )
-
-  // Debug: log why articles are filtered
-  if (!hasCompanyMatch && !hasKeywordMatch) {
-    console.log(`[FILTER] Rejected: "${newsItem.title.substring(0, 40)}..." - no company/keyword match (extracted: ${newsCompanies.join(', ') || 'none'})`)
-  }
 
   return hasCompanyMatch || hasKeywordMatch
 }
