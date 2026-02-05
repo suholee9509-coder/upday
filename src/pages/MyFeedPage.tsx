@@ -258,7 +258,7 @@ interface MobileTimelineProps {
 function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineProps) {
   return (
     <nav
-      className="md:hidden sticky top-0 z-20 bg-background/98 backdrop-blur-md"
+      className="md:hidden fixed top-[60px] left-0 right-0 z-20 bg-background/98 backdrop-blur-md border-b border-border/30"
       aria-label="Timeline navigation"
     >
       {/* Horizontal timeline line */}
@@ -527,17 +527,23 @@ export function MyFeedPage() {
               />
             )}
 
-            {/* News Content */}
-            <main id="main-content" className="mt-0 md:mt-[52px] h-[calc(100vh-60px)] md:h-[calc(100vh-112px)] md:mr-[240px] overflow-y-auto scrollbar-subtle">
-              {/* Mobile Timeline - inside scrollable area with sticky */}
-              {weeks.length > 0 && (
-                <MobileTimeline
-                  weeks={weeks.map(w => ({ weekStart: w.weekStart, label: w.label, totalItems: w.totalItems }))}
-                  activeWeekIndex={activeWeekIndex}
-                  onWeekClick={handleWeekClick}
-                />
-              )}
+            {/* Mobile Timeline - Fixed below header */}
+            {weeks.length > 0 && (
+              <MobileTimeline
+                weeks={weeks.map(w => ({ weekStart: w.weekStart, label: w.label, totalItems: w.totalItems }))}
+                activeWeekIndex={activeWeekIndex}
+                onWeekClick={handleWeekClick}
+              />
+            )}
 
+            {/* News Content */}
+            <main id="main-content" className={cn(
+              'md:mt-[52px] md:mr-[240px] overflow-y-auto scrollbar-subtle',
+              weeks.length > 0
+                ? 'mt-[80px] h-[calc(100vh-140px)]'  // Mobile: header(60) + timeline(80) = 140px total fixed
+                : 'mt-0 h-[calc(100vh-60px)]',       // Mobile: header only
+              'md:h-[calc(100vh-112px)]',            // Desktop: override mobile height
+            )}>
               <div className="max-w-3xl mx-auto">
                 {weeks.length > 0 ? (
                   <div>
@@ -545,7 +551,7 @@ export function MyFeedPage() {
                       <section
                         key={week.weekStart}
                         ref={(el) => { weekRefs.current[weekIndex] = el }}
-                        className="scroll-mt-[80px] md:scroll-mt-0"
+                        className="scroll-mt-4 md:scroll-mt-0"
                       >
                         {/* Week Header - Desktop only (mobile has timeline bar) */}
                         <div className={cn(
