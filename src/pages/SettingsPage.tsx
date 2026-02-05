@@ -341,7 +341,7 @@ export function SettingsPage() {
                     <Button
                       onClick={() => setShowDeleteModal(true)}
                       variant="outline"
-                      className="gap-2 shrink-0 text-destructive border-destructive hover:bg-destructive/10"
+                      className="gap-2 shrink-0 text-destructive/70 border-destructive/50 hover:text-destructive hover:border-destructive hover:bg-destructive/5"
                     >
                       <Trash2 className="h-4 w-4" />
                       {t('nav.deleteAccount')}
