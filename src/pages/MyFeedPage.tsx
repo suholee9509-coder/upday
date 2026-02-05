@@ -416,16 +416,17 @@ export function MyFeedPage() {
                         {/* Week Header - Minimal design since timeline exists */}
                         <div className={cn(
                           'sticky top-0 z-[9]',
-                          'bg-background/95 backdrop-blur-sm',
-                          'border-b border-border',
-                          'px-6 py-2'
+                          'bg-muted/20 backdrop-blur-sm',
+                          'border-y border-border',
+                          'px-6 py-3.5',
+                          'mt-8 first:mt-0'
                         )}>
                           <div className="flex items-center justify-between">
-                            <p className="text-xs font-medium text-muted-foreground">
+                            <p className="text-sm font-semibold text-foreground">
                               {week.label}
                             </p>
-                            <span className="text-xs text-muted-foreground/70">
-                              {week.totalItems}
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {week.totalItems} {week.totalItems === 1 ? 'article' : 'articles'}
                             </span>
                           </div>
                         </div>

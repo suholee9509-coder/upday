@@ -448,7 +448,7 @@ function ExpandableSection({
             <span className="text-left text-[11px] font-medium uppercase tracking-normal">
               {title}
             </span>
-            {count !== undefined && count > 0 && (
+            {count !== undefined && (
               <span className="text-[10px] text-muted-foreground/60 font-medium">
                 {count}
               </span>
