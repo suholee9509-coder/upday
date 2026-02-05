@@ -132,6 +132,25 @@
     display: none;
   }
 
+  /* 미묘한 스크롤바 */
+  .scrollbar-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(var(--border) / 0.3) transparent;
+  }
+  .scrollbar-subtle::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-subtle::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-subtle::-webkit-scrollbar-thumb {
+    background: oklch(var(--border) / 0.3);
+    border-radius: 2px;
+  }
+  .scrollbar-subtle::-webkit-scrollbar-thumb:hover {
+    background: oklch(var(--border) / 0.5);
+  }
+
   /* 텍스트 그라데이션 */
   .text-gradient {
     @apply bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent;

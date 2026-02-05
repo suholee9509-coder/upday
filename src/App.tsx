@@ -23,6 +23,8 @@ const EthicsPage = lazy(() => import('@/pages/EthicsPage').then(m => ({ default:
 const RedirectPage = lazy(() => import('@/pages/RedirectPage').then(m => ({ default: m.RedirectPage })))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then(m => ({ default: m.SettingsPage })))
 const MyFeedPage = lazy(() => import('@/pages/MyFeedPage').then(m => ({ default: m.MyFeedPage })))
+const NewsDetailPage = lazy(() => import('@/pages/NewsDetailPage').then(m => ({ default: m.NewsDetailPage })))
+const CompanyPage = lazy(() => import('@/pages/CompanyPage').then(m => ({ default: m.CompanyPage })))
 
 // Prefetch timeline page when on landing page (improves navigation speed)
 function usePrefetchRoutes() {
@@ -64,6 +66,10 @@ function AppRoutes() {
         <Route path="/dev" element={<CategoryPage />} />
         <Route path="/product" element={<CategoryPage />} />
         <Route path="/research" element={<CategoryPage />} />
+        {/* Individual news pages for SEO */}
+        <Route path="/news/:id" element={<NewsDetailPage />} />
+        {/* Company pages for long-tail SEO */}
+        <Route path="/company/:companyId" element={<CompanyPage />} />
         <Route path="/timeline/companies" element={<CompanyBrowserPage />} />
         <Route path="/components" element={<ComponentsPage />} />
         <Route path="/about" element={<AboutPage />} />

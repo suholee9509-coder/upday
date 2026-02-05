@@ -1,29 +1,11 @@
 /**
- * Weekly Timeline Bar Component
+ * Weekly Timeline Range Slider Component
  *
- * PURPOSE: Horizontal navigation for selecting weeks in My Feed
- *
- * DESIGN NOTES FOR DESIGNER:
- * - Horizontal scroll bar showing last 12 weeks
- * - Current week is highlighted/selected by default
- * - User can click on a week to view news from that period
- * - Arrow buttons for navigation (optional if using scroll)
- * - Visual indicator showing which week is currently selected
- *
- * EXAMPLE LAYOUT:
- * ◀ ─────[1/20-26]────[1/27-2/2]────[2/3-9]───── ▶
- *                                      ●
- *                                   current week
- *
- * This is a PLACEHOLDER implementation. The designer should:
- * 1. Create proper visual design matching the app's style
- * 2. Add animations for week selection
- * 3. Implement smooth scrolling behavior
- * 4. Add touch/drag support for mobile
- * 5. Consider accessibility (keyboard navigation, ARIA labels)
+ * Interactive range slider for selecting a week range in My Feed.
+ * Direction: Right (recent) → Left (past)
  */
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 
 export interface Week {
@@ -37,127 +19,226 @@ export interface WeeklyBarProps {
   /** Array of weeks to display (typically 12 weeks) */
   weeks: Week[]
 
-  /** Index of currently selected week (0 = most recent) */
-  selectedWeekIndex: number
+  /** Index of range start (0 = most recent) */
+  selectedStartIndex: number
 
-  /** Callback when user selects a different week */
-  onSelectWeek: (index: number) => void
+  /** Index of range end (0 = most recent) */
+  selectedEndIndex: number
+
+  /** Callback when user selects a different range */
+  onRangeSelect: (startIndex: number, endIndex: number) => void
 
   /** Optional className for custom styling */
   className?: string
 }
 
-/**
- * PLACEHOLDER Weekly Timeline Bar Component
- *
- * This is a basic implementation to demonstrate functionality.
- * The designer should replace this with a properly styled component.
- */
+type DragHandle = 'start' | 'end' | null
+
 export function WeeklyBar({
   weeks,
-  selectedWeekIndex,
-  onSelectWeek,
+  selectedStartIndex,
+  selectedEndIndex,
+  onRangeSelect,
   className,
 }: WeeklyBarProps) {
-  const handlePrevious = () => {
-    if (selectedWeekIndex < weeks.length - 1) {
-      onSelectWeek(selectedWeekIndex + 1)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [draggingHandle, setDraggingHandle] = useState<DragHandle>(null)
+  const [tempStart, setTempStart] = useState(selectedStartIndex)
+  const [tempEnd, setTempEnd] = useState(selectedEndIndex)
+
+  // Sync with props when not dragging
+  useEffect(() => {
+    if (!draggingHandle) {
+      setTempStart(selectedStartIndex)
+      setTempEnd(selectedEndIndex)
     }
+  }, [selectedStartIndex, selectedEndIndex, draggingHandle])
+
+  const getIndexFromPosition = useCallback(
+    (clientX: number): number => {
+      if (!trackRef.current) return 0
+
+      const rect = trackRef.current.getBoundingClientRect()
+      const relativeX = clientX - rect.left
+      const percentage = Math.max(0, Math.min(1, relativeX / rect.width))
+
+      // Convert to week index (reversed: right=0, left=max)
+      const index = Math.round((1 - percentage) * (weeks.length - 1))
+      return Math.max(0, Math.min(weeks.length - 1, index))
+    },
+    [weeks.length]
+  )
+
+  const handlePointerDown = (handle: 'start' | 'end') => (e: React.PointerEvent) => {
+    e.preventDefault()
+    setDraggingHandle(handle)
+    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
 
-  const handleNext = () => {
-    if (selectedWeekIndex > 0) {
-      onSelectWeek(selectedWeekIndex - 1)
+  const handlePointerMove = useCallback(
+    (e: PointerEvent) => {
+      if (!draggingHandle) return
+
+      const newIndex = getIndexFromPosition(e.clientX)
+
+      if (draggingHandle === 'start') {
+        // Start handle cannot go past end handle
+        setTempStart(Math.min(newIndex, tempEnd))
+      } else {
+        // End handle cannot go before start handle
+        setTempEnd(Math.max(newIndex, tempStart))
+      }
+    },
+    [draggingHandle, getIndexFromPosition, tempStart, tempEnd]
+  )
+
+  const handlePointerUp = useCallback(() => {
+    if (draggingHandle) {
+      onRangeSelect(tempStart, tempEnd)
+      setDraggingHandle(null)
     }
+  }, [draggingHandle, tempStart, tempEnd, onRangeSelect])
+
+  useEffect(() => {
+    if (draggingHandle) {
+      window.addEventListener('pointermove', handlePointerMove)
+      window.addEventListener('pointerup', handlePointerUp)
+      return () => {
+        window.removeEventListener('pointermove', handlePointerMove)
+        window.removeEventListener('pointerup', handlePointerUp)
+      }
+    }
+  }, [draggingHandle, handlePointerMove, handlePointerUp])
+
+  // Calculate positions (reversed layout)
+  const getPosition = (index: number) => {
+    return ((weeks.length - 1 - index) / (weeks.length - 1)) * 100
   }
+
+  const startPos = getPosition(draggingHandle ? tempStart : selectedStartIndex)
+  const endPos = getPosition(draggingHandle ? tempEnd : selectedEndIndex)
 
   return (
-    <div
+    <nav
       className={cn(
-        'flex items-center gap-2 border-b border-border bg-background/95 backdrop-blur',
-        'sticky top-0 z-10 px-4 py-3',
+        'sticky top-[61px] z-10 -mt-px',
+        'bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80',
+        'border-b border-border',
+        'px-6 py-4',
         className
       )}
+      role="group"
+      aria-label="Week range navigation"
     >
-      {/* Previous Button */}
-      <button
-        onClick={handlePrevious}
-        disabled={selectedWeekIndex >= weeks.length - 1}
-        className={cn(
-          'p-2 rounded-lg transition-colors',
-          'hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed'
-        )}
-        aria-label="Previous week"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </button>
+      <div className="max-w-5xl mx-auto">
+        {/* Week Labels */}
+        <div className="relative mb-8">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            {weeks.map((week, index) => {
+              const isInRange =
+                draggingHandle
+                  ? index >= tempStart && index <= tempEnd
+                  : index >= selectedStartIndex && index <= selectedEndIndex
+              const isCurrent = index === 0
 
-      {/* Weeks Container - Scrollable */}
-      <div className="flex-1 overflow-x-auto scrollbar-hide">
-        <div className="flex gap-2 min-w-min">
-          {weeks.map((week, index) => {
-            const isSelected = index === selectedWeekIndex
-            const isCurrent = index === 0
-
-            return (
-              <button
-                key={week.weekStart}
-                onClick={() => onSelectWeek(index)}
-                className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap',
-                  'hover:bg-accent',
-                  isSelected && 'bg-primary text-primary-foreground hover:bg-primary/90',
-                  !isSelected && 'bg-card border border-border'
-                )}
-                aria-label={`Week of ${week.label}`}
-                aria-current={isSelected ? 'true' : undefined}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <span>{week.label}</span>
-                  {isCurrent && (
-                    <span className="text-xs opacity-70">Current</span>
+              return (
+                <div
+                  key={week.weekStart}
+                  className={cn(
+                    'flex flex-col items-center gap-1 transition-colors',
+                    isInRange ? 'text-foreground font-medium' : 'text-muted-foreground/60'
                   )}
-                  {week.totalItems > 0 && (
-                    <span className="text-xs opacity-70">
-                      {week.totalItems} {week.totalItems === 1 ? 'item' : 'items'}
+                  style={{ flex: 1 }}
+                >
+                  <span className="whitespace-nowrap">{week.label}</span>
+                  {isCurrent && (
+                    <span className="w-1 h-1 bg-primary rounded-full" aria-label="Current week" />
+                  )}
+                  {week.totalItems > 0 && isInRange && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {week.totalItems}
                     </span>
                   )}
                 </div>
-              </button>
-            )
-          })}
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Timeline Track */}
+        <div className="relative" ref={trackRef}>
+          {/* Background Track */}
+          <div className="h-1 bg-muted rounded-full" />
+
+          {/* Active Range */}
+          <div
+            className="absolute top-0 h-1 bg-primary rounded-full transition-all duration-150"
+            style={{
+              left: `${Math.min(startPos, endPos)}%`,
+              right: `${100 - Math.max(startPos, endPos)}%`,
+            }}
+          />
+
+          {/* Start Handle (most recent) */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-150"
+            style={{ left: `${startPos}%` }}
+          >
+            <button
+              onPointerDown={handlePointerDown('start')}
+              className={cn(
+                'w-5 h-5 rounded-full border-2 border-primary bg-background',
+                'shadow-md hover:shadow-lg',
+                'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                'cursor-grab active:cursor-grabbing',
+                'transition-all duration-150',
+                draggingHandle === 'start' && 'scale-125 shadow-xl'
+              )}
+              aria-label="Start week handle"
+            >
+              <div className="w-full h-full rounded-full bg-primary" />
+            </button>
+          </div>
+
+          {/* End Handle (most past) */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-150"
+            style={{ left: `${endPos}%` }}
+          >
+            <button
+              onPointerDown={handlePointerDown('end')}
+              className={cn(
+                'w-5 h-5 rounded-full border-2 border-primary bg-background',
+                'shadow-md hover:shadow-lg',
+                'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                'cursor-grab active:cursor-grabbing',
+                'transition-all duration-150',
+                draggingHandle === 'end' && 'scale-125 shadow-xl'
+              )}
+              aria-label="End week handle"
+            >
+              <div className="w-full h-full rounded-full bg-primary" />
+            </button>
+          </div>
+        </div>
+
+        {/* Range Info */}
+        <div className="mt-4 text-center text-xs text-muted-foreground">
+          {selectedStartIndex === selectedEndIndex ? (
+            <span>
+              Week of <span className="text-foreground font-medium">{weeks[selectedStartIndex]?.label}</span>
+            </span>
+          ) : (
+            <span>
+              <span className="text-foreground font-medium">{weeks[selectedStartIndex]?.label}</span>
+              {' → '}
+              <span className="text-foreground font-medium">{weeks[selectedEndIndex]?.label}</span>
+              {' '}
+              ({selectedEndIndex - selectedStartIndex + 1} weeks)
+            </span>
+          )}
         </div>
       </div>
-
-      {/* Next Button */}
-      <button
-        onClick={handleNext}
-        disabled={selectedWeekIndex <= 0}
-        className={cn(
-          'p-2 rounded-lg transition-colors',
-          'hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed'
-        )}
-        aria-label="Next week"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </button>
-    </div>
+    </nav>
   )
 }
-
-/**
- * DESIGN IMPLEMENTATION CHECKLIST FOR DESIGNER:
- *
- * □ Replace basic button styles with custom design
- * □ Add smooth scroll animations when selecting weeks
- * □ Implement drag/swipe gestures for mobile
- * □ Add visual indicator (dot, line, etc.) for current week
- * □ Style the selected state with proper hover/focus states
- * □ Add loading skeleton state (when weeks data is loading)
- * □ Implement responsive design for mobile/tablet/desktop
- * □ Add keyboard navigation support (arrow keys)
- * □ Consider adding week range tooltips on hover
- * □ Test with different week label formats (edge cases)
- * □ Add empty state handling (no weeks available)
- * □ Optimize scroll performance for smooth UX
- */

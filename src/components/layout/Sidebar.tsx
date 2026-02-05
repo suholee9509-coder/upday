@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { Radio, ChevronRight, ChevronLeft, Pin, Grid2X2, Menu, X, LogIn, Settings, LogOut, Zap } from 'lucide-react'
+import { Radio, ChevronRight, ChevronLeft, ChevronUp, Pin, Grid2X2, Menu, X, LogIn, Settings, LogOut, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
@@ -74,6 +74,7 @@ export function Sidebar() {
   const { pinnedCompanies, togglePin } = usePinnedCompanies()
   const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth()
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true)
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
 
   const currentCompany = searchParams.get('company')
   const isLiveFeed = location.pathname === '/timeline' && !currentCompany
@@ -271,12 +272,74 @@ export function Sidebar() {
               )}
             </div>
           ) : isAuthenticated && user ? (
-            <div className="space-y-1">
-              {/* User Info */}
-              <div className={cn(
-                'flex items-center rounded-lg',
-                isCollapsed ? 'h-10 justify-center' : 'h-12 px-3 gap-3'
-              )}>
+            <div className="relative">
+              {/* Backdrop - click to close */}
+              {!isCollapsed && (
+                <div
+                  className={cn(
+                    'fixed inset-0 z-40 transition-opacity duration-200',
+                    isAccountMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  )}
+                  onClick={() => setIsAccountMenuOpen(false)}
+                  aria-hidden="true"
+                />
+              )}
+
+              {/* Dropdown Menu - appears above with animation */}
+              {!isCollapsed && (
+                <div className={cn(
+                  'absolute bottom-full left-0 right-0 mb-2 z-50',
+                  'bg-sidebar border border-sidebar-border/50 rounded-lg',
+                  'shadow-lg',
+                  'p-1',
+                  'transition-all duration-200 ease-out',
+                  'origin-bottom',
+                  isAccountMenuOpen
+                    ? 'opacity-100 scale-100 translate-y-0'
+                    : 'opacity-0 scale-95 translate-y-2 pointer-events-none'
+                )}>
+                  <Link
+                    to="/settings"
+                    onClick={() => {
+                      setIsMobileOpen(false)
+                      setIsAccountMenuOpen(false)
+                    }}
+                    className={cn(
+                      'flex items-center gap-2 h-9 px-3 rounded-md',
+                      'text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
+                      springTransition
+                    )}
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>{t('nav.settings')}</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleSignOut()
+                      setIsAccountMenuOpen(false)
+                    }}
+                    className={cn(
+                      'w-full flex items-center gap-2 h-9 px-3 rounded-md',
+                      'text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10',
+                      springTransition
+                    )}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>{t('nav.signOut')}</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Account Menu - Click to toggle dropdown */}
+              <button
+                onClick={() => !isCollapsed && setIsAccountMenuOpen(!isAccountMenuOpen)}
+                className={cn(
+                  'w-full flex items-center rounded-lg',
+                  'hover:bg-sidebar-accent/50',
+                  springTransition,
+                  isCollapsed ? 'h-10 justify-center' : 'h-12 px-3 gap-3'
+                )}
+              >
                 {user.user_metadata?.avatar_url ? (
                   <img
                     src={user.user_metadata.avatar_url}
@@ -291,45 +354,25 @@ export function Sidebar() {
                   </div>
                 )}
                 {!isCollapsed && (
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-sidebar-foreground truncate">
-                      {user.user_metadata?.name || user.email?.split('@')[0]}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {user.email}
-                    </p>
-                  </div>
+                  <>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="text-sm font-medium text-sidebar-foreground truncate">
+                        {user.user_metadata?.name || user.email?.split('@')[0]}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                    <ChevronUp
+                      className={cn(
+                        'h-4 w-4 text-muted-foreground shrink-0',
+                        springTransition,
+                        isAccountMenuOpen && 'rotate-180'
+                      )}
+                    />
+                  </>
                 )}
-              </div>
-
-              {/* Settings & Logout */}
-              {!isCollapsed && (
-                <div className="flex gap-1">
-                  <Link
-                    to="/settings"
-                    onClick={() => setIsMobileOpen(false)}
-                    className={cn(
-                      'flex-1 flex items-center justify-center gap-2 h-9 rounded-md',
-                      'text-sm text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
-                      springTransition
-                    )}
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>{t('nav.settings')}</span>
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className={cn(
-                      'flex items-center justify-center w-9 h-9 rounded-md',
-                      'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
-                      springTransition
-                    )}
-                    title={t('nav.signOut')}
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </button>
-                </div>
-              )}
+              </button>
             </div>
           ) : (
             <button
@@ -396,18 +439,13 @@ function ExpandableSection({
           'w-full flex items-center rounded-lg',
           'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
           springTransition,
-          collapsed ? 'h-10 justify-center' : 'h-8 px-2 gap-2'
+          collapsed ? 'h-10 justify-center' : 'h-10 px-3 gap-2'
         )}
         aria-expanded={isExpanded}
       >
-        <ChevronRight className={cn(
-          'h-3 w-3',
-          springTransition,
-          isExpanded && 'rotate-90'
-        )} />
         {!collapsed && (
           <>
-            <span className="flex-1 text-left text-[11px] font-medium uppercase tracking-normal">
+            <span className="text-left text-[11px] font-medium uppercase tracking-normal">
               {title}
             </span>
             {count !== undefined && count > 0 && (
@@ -417,6 +455,12 @@ function ExpandableSection({
             )}
           </>
         )}
+        <ChevronRight className={cn(
+          'h-3 w-3',
+          springTransition,
+          isExpanded ? '-rotate-90' : 'rotate-90',
+          !collapsed && 'ml-auto'
+        )} />
       </button>
 
       <div className={cn(

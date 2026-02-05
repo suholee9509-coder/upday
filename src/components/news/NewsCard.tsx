@@ -40,9 +40,10 @@ function TimeDisplay({ publishedAt }: { publishedAt: string | Date }) {
 interface NewsCardProps {
   item: Omit<NewsItem, 'body'>
   className?: string
+  userKeywords?: string[]
 }
 
-export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProps) {
+export const NewsCard = memo(function NewsCard({ item, className, userKeywords = [] }: NewsCardProps) {
   const [imageError, setImageError] = useState(false)
   const showImage = item.imageUrl && !imageError
 
@@ -51,13 +52,21 @@ export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProp
   const displayTitle = currentLang === 'ko' && item.titleKo ? item.titleKo : item.title
   const displaySummary = currentLang === 'ko' && item.summaryKo ? item.summaryKo : item.summary
 
+  // Find matching user keywords in title or summary
+  const matchingKeywords = userKeywords.filter(keyword => {
+    const lowerKeyword = keyword.toLowerCase()
+    const inTitle = displayTitle.toLowerCase().includes(lowerKeyword)
+    const inSummary = displaySummary.toLowerCase().includes(lowerKeyword)
+    return inTitle || inSummary
+  }).slice(0, 3) // Limit to 3 keywords per card
+
   return (
     <a
       href={item.sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'block group p-4 border-b border-border',
+        'block group px-6 py-4 border-b border-border',
         'hover:bg-muted/50 active:bg-muted/70',
         'cursor-pointer contain-layout contain-paint',
         className
@@ -77,12 +86,22 @@ export const NewsCard = memo(function NewsCard({ item, className }: NewsCardProp
               {displaySummary}
             </p>
 
-            {/* 3rd: Time + Category - metadata */}
-            <div className="flex items-center gap-2 mb-2">
+            {/* 3rd: Time + Category + User Keywords - metadata */}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <TimeDisplay publishedAt={item.publishedAt} />
+              {/* Category Badge (prominent) */}
               <Badge variant={item.category} className="text-[10px] uppercase tracking-wide">
                 {item.category}
               </Badge>
+              {/* User Keywords (subtle) */}
+              {matchingKeywords.map(keyword => (
+                <span
+                  key={keyword}
+                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border border-primary/30 bg-primary/5 text-primary"
+                >
+                  {keyword}
+                </span>
+              ))}
             </div>
 
             {/* 4th: Source indicator */}

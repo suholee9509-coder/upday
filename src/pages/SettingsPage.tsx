@@ -109,14 +109,21 @@ export function SettingsPage() {
       />
 
       <SidebarProvider>
-        <div className="min-h-screen bg-background">
-          <Header />
-          <div className="flex">
-            <Sidebar />
+        <div className="min-h-screen bg-background flex">
+          {/* Sidebar - visible on lg+ */}
+          <Sidebar />
 
           {/* Main Content */}
-          <main className="flex-1 md:ml-[240px]">
-            <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
+          <div className="flex-1 flex flex-col min-w-0">
+            <Header
+              showLogo={false}
+              showMobileMenu={true}
+              pageTitle="Settings"
+              pageDescription="Manage your account and preferences"
+            />
+
+            <main id="main-content" className="flex-1">
+              <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
               <h1 className="text-3xl font-bold text-foreground mb-8">Settings</h1>
 
               {/* Account Section */}
@@ -282,10 +289,10 @@ export function SettingsPage() {
                   </div>
                 </div>
               </section>
-            </div>
-          </main>
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
       </SidebarProvider>
     </>
   )

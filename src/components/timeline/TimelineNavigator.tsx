@@ -44,7 +44,7 @@ export function TimelineNavigator({
       {/* Continuous vertical line background */}
       <div className="absolute left-10 top-8 bottom-8 w-px bg-border/90" />
 
-      <div className="flex-1 flex flex-col justify-start gap-6 overflow-y-auto scrollbar-thin relative pr-8">
+      <div className="flex-1 flex flex-col justify-start gap-6 overflow-y-auto scrollbar-subtle relative pr-8">
         {weeks.map((week, index) => {
           const isActive = index === activeWeekIndex
           const isCurrent = index === 0
