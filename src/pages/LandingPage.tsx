@@ -1,7 +1,7 @@
 import { ArrowRight, Sparkles, Clock, Zap, Globe } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Badge, ThemeToggle } from '@/components/ui'
+import { Button, Badge, ThemeToggle, LanguageDropdown } from '@/components/ui'
 import { NewsCard } from '@/components/news'
 import { SEO } from '@/components/SEO'
 import { UpdayWordmark } from '@/components/UpdayLogo'
@@ -35,7 +35,8 @@ export function LandingPage() {
           <Link to="/" className="hover:opacity-80 transition-opacity">
             <UpdayWordmark size="md" />
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <LanguageDropdown />
             <ThemeToggle />
             <Button
               size="sm"
