@@ -265,10 +265,7 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
       )}
       aria-label="Timeline navigation"
     >
-      {/* Horizontal timeline line */}
-      <div className="absolute bottom-3 left-0 right-0 h-px bg-border" />
-
-      <div className="flex overflow-x-auto scrollbar-hide px-2 pt-2 pb-4 gap-1">
+      <div className="flex overflow-x-auto scrollbar-hide px-2 py-2 gap-1">
         {weeks.map((week, index) => {
           const isActive = index === activeWeekIndex
           const isCurrent = index === 0
@@ -278,16 +275,16 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
               key={week.weekStart}
               onClick={() => onWeekClick(index)}
               className={cn(
-                'group flex-shrink-0 flex flex-col items-center px-3 py-2',
+                'group flex-shrink-0 flex flex-col items-center px-3 py-1.5',
                 'transition-colors duration-200',
                 'rounded-lg',
-                isActive ? 'bg-muted/50' : 'hover:bg-muted/30'
+                isActive ? 'bg-background/60' : 'hover:bg-background/30'
               )}
               aria-label={`Jump to week of ${week.label}`}
               aria-current={isActive ? 'true' : undefined}
             >
               {/* Week info */}
-              <div className="flex items-center gap-1 mb-1.5">
+              <div className="flex items-center gap-1">
                 <span className={cn(
                   'text-xs font-semibold whitespace-nowrap',
                   isActive ? 'text-foreground' : 'text-muted-foreground'
@@ -303,25 +300,11 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
 
               {/* Article count */}
               <span className={cn(
-                'text-[10px] whitespace-nowrap mb-2',
+                'text-[10px] whitespace-nowrap',
                 isActive ? 'text-muted-foreground' : 'text-muted-foreground/60'
               )}>
                 {week.totalItems}개
               </span>
-
-              {/* Timeline dot */}
-              <div className="relative">
-                {isActive && (
-                  <div className="absolute inset-0 rounded-full bg-primary/20 blur-sm scale-[2]" />
-                )}
-                <div className={cn(
-                  'relative w-2 h-2 rounded-full z-10',
-                  'border-2 transition-all duration-200',
-                  isActive
-                    ? 'bg-primary border-primary'
-                    : 'bg-background border-border/80 group-hover:border-primary/60'
-                )} />
-              </div>
             </button>
           )
         })}
@@ -544,7 +527,7 @@ export function MyFeedPage() {
             <main id="main-content" className={cn(
               'md:mt-[52px] md:mr-[240px] overflow-y-auto scrollbar-subtle',
               weeks.length > 0
-                ? 'mt-[80px] h-[calc(100vh-140px)]'  // Mobile: header(60) + timeline(80) = 140px total fixed
+                ? 'mt-[48px] h-[calc(100vh-108px)]'  // Mobile: header(60) + timeline(48) = 108px total fixed
                 : 'mt-0 h-[calc(100vh-60px)]',       // Mobile: header only
               'md:h-[calc(100vh-112px)]',            // Desktop: override mobile height
             )}>
