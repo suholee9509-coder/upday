@@ -139,8 +139,8 @@ export function useMyFeed(): UseMyFeedResult {
       const twelveWeeksAgo = new Date()
       twelveWeeksAgo.setDate(twelveWeeksAgo.getDate() - 12 * 7)
 
-      // Fetch more items to account for filtering (fetch 200 items)
-      const limit = 200
+      // Fetch more items to ensure good coverage across all 12 weeks (fetch 400 items)
+      const limit = 400
 
       let allItems: Omit<NewsItem, 'body'>[] = []
 
@@ -205,8 +205,8 @@ export function useMyFeed(): UseMyFeedResult {
         return { ...item, score }
       })
 
-      // Step 3: Filter by importance threshold (40+)
-      const importantItems = filterByImportance(scoredItems, 40)
+      // Step 3: Filter by importance threshold (30+)
+      const importantItems = filterByImportance(scoredItems, 30)
 
       setNewsItems(importantItems)
     } catch (err) {

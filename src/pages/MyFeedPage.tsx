@@ -341,6 +341,9 @@ export function MyFeedPage() {
 
   // Scroll to specific week
   const handleWeekClick = (index: number) => {
+    // Update active week index immediately
+    setActiveWeekIndex(index)
+    // Scroll to the week section
     weekRefs.current[index]?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
@@ -478,7 +481,7 @@ export function MyFeedPage() {
                         ) : (
                           <div className="py-12 px-6 text-center">
                             <p className="text-sm text-muted-foreground">
-                              No significant news this week
+                              No news this week
                             </p>
                           </div>
                         )}

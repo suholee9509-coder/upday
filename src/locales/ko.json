@@ -127,5 +127,52 @@
     "searchCmdK": "검색 (⌘K)",
     "openSearch": "검색 열기",
     "unpin": "{{name}} 고정 해제"
+  },
+  "onboarding": {
+    "welcome": "upday에 오신 것을 환영합니다!",
+    "customize": "관심사를 선택하여 나만의 뉴스 피드를 만들어보세요",
+    "categories": "카테고리",
+    "categoriesRequired": "(최소 1개 선택)",
+    "keywords": "키워드",
+    "keywordsOptional": "(선택 사항, 최대 10개)",
+    "keywordsPlaceholder": "예: OpenAI, Series A, GPT",
+    "companies": "기업",
+    "companiesOptional": "(선택 사항)",
+    "footer": "마이 피드 또는 설정에서 언제든지 변경할 수 있습니다",
+    "getStarted": "시작하기",
+    "saving": "저장 중..."
+  },
+  "login": {
+    "title": "upday 로그인",
+    "description": "기업을 저장하고 맞춤형 뉴스를 받아보세요",
+    "continueGithub": "GitHub로 계속하기",
+    "continueGoogle": "Google로 계속하기",
+    "terms": "로그인하면 다음에 동의하는 것으로 간주됩니다",
+    "termsOfService": "서비스 약관",
+    "and": "및",
+    "privacyPolicy": "개인정보 처리방침"
+  },
+  "settings": {
+    "title": "설정",
+    "description": "계정 및 환경설정 관리",
+    "account": "계정",
+    "signedInWith": "로그인 제공자",
+    "interestSettings": "관심사 설정",
+    "saveChanges": "변경사항 저장",
+    "saving": "저장 중...",
+    "saveSuccess": "설정이 성공적으로 저장되었습니다!",
+    "saveFailed": "설정 저장에 실패했습니다. 다시 시도해 주세요.",
+    "selectAtLeastOne": "최소 1개 이상의 카테고리를 선택해주세요",
+    "accountManagement": "계정 관리",
+    "deleteAccountWarning": "계정과 모든 관련 데이터가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+    "confirmDelete": "계정 삭제 확인",
+    "deleteConfirmMessage": "정말로 계정을 삭제하시겠습니까? 다음 항목이 영구적으로 삭제됩니다:",
+    "deleteItem1": "프로필 및 계정 정보",
+    "deleteItem2": "저장된 모든 환경설정 및 관심사",
+    "deleteItem3": "고정된 기업 및 맞춤형 피드",
+    "deleteWarning": "이 작업은 되돌릴 수 없습니다.",
+    "cancel": "취소",
+    "deleting": "삭제 중...",
+    "companiesSynced": "(선택 사항, 고정된 기업과 동기화)"
   }
 }

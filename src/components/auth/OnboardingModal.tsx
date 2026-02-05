@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
 import { CompanyLogo } from '@/components/CompanyLogo'
@@ -13,6 +14,7 @@ interface OnboardingModalProps {
 }
 
 export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [keywords, setKeywords] = useState<string[]>([])
@@ -150,9 +152,9 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
         {/* Header */}
         <div className="p-6 border-b border-border">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Welcome to upday!</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('onboarding.welcome')}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Customize your news feed by selecting your interests
+              {t('onboarding.customize')}
             </p>
           </div>
         </div>
@@ -162,8 +164,8 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
           {/* Categories */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-3">
-              Categories <span className="text-destructive">*</span>
-              <span className="text-xs text-muted-foreground ml-2">(Select at least 1)</span>
+              {t('onboarding.categories')} <span className="text-destructive">*</span>
+              <span className="text-xs text-muted-foreground ml-2">{t('onboarding.categoriesRequired')}</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
               {CATEGORIES.map(category => (
@@ -186,7 +188,7 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
           {/* Keywords */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-3">
-              Keywords <span className="text-xs text-muted-foreground">(Optional, max 10)</span>
+              {t('onboarding.keywords')} <span className="text-xs text-muted-foreground">{t('onboarding.keywordsOptional')}</span>
             </label>
             <div className="flex gap-2 mb-3">
               <input
@@ -199,7 +201,7 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
                     addKeyword()
                   }
                 }}
-                placeholder="e.g., OpenAI, Series A, GPT"
+                placeholder={t('onboarding.keywordsPlaceholder')}
                 className="flex-1 px-3 py-2.5 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={keywords.length >= 10}
               />
@@ -239,7 +241,7 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
           {/* Companies */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-3">
-              Companies <span className="text-xs text-muted-foreground">(Optional)</span>
+              {t('onboarding.companies')} <span className="text-xs text-muted-foreground">{t('onboarding.companiesOptional')}</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto scrollbar-subtle">
               {COMPANIES.map(company => (
@@ -266,14 +268,14 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
         {/* Footer */}
         <div className="p-6 border-t border-border flex justify-between items-center">
           <p className="text-xs text-muted-foreground">
-            You can change these settings anytime in My Feed or Settings
+            {t('onboarding.footer')}
           </p>
           <Button
             onClick={handleSubmit}
             disabled={selectedCategories.length === 0 || isSubmitting}
             size="lg"
           >
-            {isSubmitting ? 'Saving...' : 'Get Started'}
+            {isSubmitting ? t('onboarding.saving') : t('onboarding.getStarted')}
           </Button>
         </div>
       </div>

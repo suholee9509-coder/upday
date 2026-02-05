@@ -127,5 +127,52 @@
     "searchCmdK": "Search (⌘K)",
     "openSearch": "Open search",
     "unpin": "Unpin {{name}}"
+  },
+  "onboarding": {
+    "welcome": "Welcome to upday!",
+    "customize": "Customize your news feed by selecting your interests",
+    "categories": "Categories",
+    "categoriesRequired": "(Select at least 1)",
+    "keywords": "Keywords",
+    "keywordsOptional": "(Optional, max 10)",
+    "keywordsPlaceholder": "e.g., OpenAI, Series A, GPT",
+    "companies": "Companies",
+    "companiesOptional": "(Optional)",
+    "footer": "You can change these settings anytime in My Feed or Settings",
+    "getStarted": "Get Started",
+    "saving": "Saving..."
+  },
+  "login": {
+    "title": "Sign in to upday",
+    "description": "Save companies and get personalized news",
+    "continueGithub": "Continue with GitHub",
+    "continueGoogle": "Continue with Google",
+    "terms": "By signing in, you agree to our",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account and preferences",
+    "account": "Account",
+    "signedInWith": "Signed in with",
+    "interestSettings": "Interest Settings",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "saveSuccess": "Settings saved successfully!",
+    "saveFailed": "Failed to save settings. Please try again.",
+    "selectAtLeastOne": "Please select at least one category",
+    "accountManagement": "Account Management",
+    "deleteAccountWarning": "Permanently delete your account and all associated data. This action cannot be undone.",
+    "confirmDelete": "Confirm Account Deletion",
+    "deleteConfirmMessage": "Are you sure you want to delete your account? This will permanently remove:",
+    "deleteItem1": "Your profile and account information",
+    "deleteItem2": "All saved preferences and interests",
+    "deleteItem3": "Pinned companies and personalized feed",
+    "deleteWarning": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting...",
+    "companiesSynced": "(Optional, synced with pinned)"
   }
 }

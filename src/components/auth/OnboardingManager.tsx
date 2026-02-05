@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { OnboardingModal } from './OnboardingModal'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserInterests } from '@/hooks/useUserInterests'
 
 export function OnboardingManager() {
+  const navigate = useNavigate()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { isLoading: interestsLoading, hasCompletedOnboarding, refetch } = useUserInterests()
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [hasChecked, setHasChecked] = useState(false)
+  const [shouldNavigate, setShouldNavigate] = useState(false)
 
   useEffect(() => {
     // Wait for both auth and interests to load
@@ -29,10 +32,20 @@ export function OnboardingManager() {
     }
   }, [isAuthenticated, hasCompletedOnboarding, authLoading, interestsLoading, hasChecked])
 
+  // Navigate to My Feed after interests are loaded
+  useEffect(() => {
+    if (shouldNavigate && !interestsLoading && hasCompletedOnboarding) {
+      navigate('/my-feed')
+      setShouldNavigate(false)
+    }
+  }, [shouldNavigate, interestsLoading, hasCompletedOnboarding, navigate])
+
   const handleComplete = async () => {
     setShowOnboarding(false)
     // Refetch interests to update the state
     await refetch()
+    // Set flag to navigate once interests are loaded
+    setShouldNavigate(true)
   }
 
   return (

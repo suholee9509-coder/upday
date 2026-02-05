@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui'
 import { cn } from '@/lib/utils'
@@ -31,6 +32,7 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen: controlledIsOpen, onClose: controlledOnClose }: LoginModalProps) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState<'github' | 'google' | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -146,10 +148,10 @@ export function LoginModal({ isOpen: controlledIsOpen, onClose: controlledOnClos
               </svg>
             </div>
             <h2 id="login-modal-title" className="text-xl font-semibold text-foreground">
-              Sign in to upday
+              {t('login.title')}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Save companies and get personalized news
+              {t('login.description')}
             </p>
           </div>
 
@@ -174,7 +176,7 @@ export function LoginModal({ isOpen: controlledIsOpen, onClose: controlledOnClos
               ) : (
                 <GitHubIcon className="w-5 h-5" />
               )}
-              Continue with GitHub
+              {t('login.continueGithub')}
             </Button>
 
             <Button
@@ -189,19 +191,19 @@ export function LoginModal({ isOpen: controlledIsOpen, onClose: controlledOnClos
               ) : (
                 <GoogleIcon className="w-5 h-5" />
               )}
-              Continue with Google
+              {t('login.continueGoogle')}
             </Button>
           </div>
 
           {/* Terms */}
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            By signing in, you agree to our{' '}
+            {t('login.terms')}{' '}
             <a href="/about" className="underline hover:text-foreground">
-              Terms of Service
+              {t('login.termsOfService')}
             </a>{' '}
-            and{' '}
+            {t('login.and')}{' '}
             <a href="/about" className="underline hover:text-foreground">
-              Privacy Policy
+              {t('login.privacyPolicy')}
             </a>
           </p>
         </div>

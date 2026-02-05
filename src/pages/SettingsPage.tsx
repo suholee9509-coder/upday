@@ -71,7 +71,7 @@ export function SettingsPage() {
 
   const handleSave = async () => {
     if (selectedCategories.length === 0) {
-      setSaveMessage('Please select at least one category')
+      setSaveMessage(t('settings.selectAtLeastOne'))
       return
     }
 
@@ -85,10 +85,10 @@ export function SettingsPage() {
         companies: selectedCompanies,
       })
 
-      setSaveMessage('Settings saved successfully!')
+      setSaveMessage(t('settings.saveSuccess'))
       setTimeout(() => setSaveMessage(null), 3000)
     } catch (error) {
-      setSaveMessage('Failed to save settings. Please try again.')
+      setSaveMessage(t('settings.saveFailed'))
       console.error('Failed to save settings:', error)
     } finally {
       setIsSaving(false)
@@ -132,8 +132,8 @@ export function SettingsPage() {
   return (
     <>
       <SEO
-        title="Settings"
-        description="Manage your account and preferences"
+        title={t('settings.title')}
+        description={t('settings.description')}
       />
 
       <SidebarProvider>
@@ -146,17 +146,17 @@ export function SettingsPage() {
             <Header
               showLogo={false}
               showMobileMenu={true}
-              pageTitle="Settings"
-              pageDescription="Manage your account and preferences"
+              pageTitle={t('settings.title')}
+              pageDescription={t('settings.description')}
             />
 
             <main id="main-content" className="flex-1">
               <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
-              <h1 className="text-3xl font-bold text-foreground mb-8">Settings</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-8">{t('settings.title')}</h1>
 
               {/* Account Section */}
               <section className="mb-12">
-                <h2 className="text-xl font-semibold text-foreground mb-4">Account</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-4">{t('settings.account')}</h2>
                 <div className="bg-card border border-border rounded-lg p-6">
                   <div className="flex items-center gap-4">
                     {user?.user_metadata?.avatar_url ? (
@@ -178,7 +178,7 @@ export function SettingsPage() {
                       </p>
                       <p className="text-sm text-muted-foreground">{user?.email}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Signed in with {user?.user_metadata?.provider || user?.app_metadata?.provider || 'OAuth'}
+                        {t('settings.signedInWith')}: {user?.user_metadata?.provider || user?.app_metadata?.provider || 'OAuth'}
                       </p>
                     </div>
                     <Button
@@ -195,13 +195,13 @@ export function SettingsPage() {
 
               {/* Interest Settings Section */}
               <section>
-                <h2 className="text-xl font-semibold text-foreground mb-4">Interest Settings</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-4">{t('settings.interestSettings')}</h2>
                 <div className="bg-card border border-border rounded-lg p-6 space-y-6">
                   {/* Categories */}
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-3">
-                      Categories <span className="text-destructive">*</span>
-                      <span className="text-xs text-muted-foreground ml-2">(Select at least 1)</span>
+                      {t('onboarding.categories')} <span className="text-destructive">*</span>
+                      <span className="text-xs text-muted-foreground ml-2">{t('onboarding.categoriesRequired')}</span>
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                       {CATEGORIES.map(category => (
@@ -224,7 +224,7 @@ export function SettingsPage() {
                   {/* Keywords */}
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-3">
-                      Keywords <span className="text-xs text-muted-foreground">(Optional, max 10)</span>
+                      {t('onboarding.keywords')} <span className="text-xs text-muted-foreground">{t('onboarding.keywordsOptional')}</span>
                     </label>
                     <div className="flex gap-2 mb-3">
                       <input
@@ -237,7 +237,7 @@ export function SettingsPage() {
                             addKeyword()
                           }
                         }}
-                        placeholder="e.g., OpenAI, Series A, GPT"
+                        placeholder={t('onboarding.keywordsPlaceholder')}
                         className="flex-1 px-3 py-2.5 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         disabled={keywords.length >= 10}
                       />
@@ -277,8 +277,8 @@ export function SettingsPage() {
                   {/* Companies */}
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-3">
-                      Companies{' '}
-                      <span className="text-xs text-muted-foreground">(Optional, synced with pinned)</span>
+                      {t('onboarding.companies')}{' '}
+                      <span className="text-xs text-muted-foreground">{t('settings.companiesSynced')}</span>
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto scrollbar-subtle">
                       {COMPANIES.map(company => (
@@ -319,7 +319,7 @@ export function SettingsPage() {
                       size="lg"
                       className="ml-auto"
                     >
-                      {isSaving ? 'Saving...' : 'Save Changes'}
+                      {isSaving ? t('settings.saving') : t('settings.saveChanges')}
                     </Button>
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export function SettingsPage() {
 
               {/* Account Management Section */}
               <section className="mt-12">
-                <h2 className="text-xl font-semibold text-foreground mb-4">Account Management</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-4">{t('settings.accountManagement')}</h2>
                 <div className="bg-card border border-border rounded-lg p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -335,7 +335,7 @@ export function SettingsPage() {
                         {t('nav.deleteAccount')}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Permanently delete your account and all associated data. This action cannot be undone.
+                        {t('settings.deleteAccountWarning')}
                       </p>
                     </div>
                     <Button
@@ -355,18 +355,18 @@ export function SettingsPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                   <div className="bg-card border border-border rounded-xl p-6 max-w-md w-full shadow-lg">
                     <h3 className="text-xl font-semibold text-foreground mb-3">
-                      Confirm Account Deletion
+                      {t('settings.confirmDelete')}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-6">
-                      Are you sure you want to delete your account? This will permanently remove:
+                      {t('settings.deleteConfirmMessage')}
                     </p>
                     <ul className="text-sm text-muted-foreground mb-6 space-y-2 list-disc list-inside">
-                      <li>Your profile and account information</li>
-                      <li>All saved preferences and interests</li>
-                      <li>Pinned companies and personalized feed</li>
+                      <li>{t('settings.deleteItem1')}</li>
+                      <li>{t('settings.deleteItem2')}</li>
+                      <li>{t('settings.deleteItem3')}</li>
                     </ul>
                     <p className="text-sm font-medium text-destructive mb-6">
-                      This action cannot be undone.
+                      {t('settings.deleteWarning')}
                     </p>
                     <div className="flex gap-3">
                       <Button
@@ -375,7 +375,7 @@ export function SettingsPage() {
                         className="flex-1"
                         disabled={isDeleting}
                       >
-                        Cancel
+                        {t('settings.cancel')}
                       </Button>
                       <Button
                         onClick={handleDeleteAccount}
@@ -383,7 +383,7 @@ export function SettingsPage() {
                         className="flex-1"
                         disabled={isDeleting}
                       >
-                        {isDeleting ? 'Deleting...' : 'Delete Account'}
+                        {isDeleting ? t('settings.deleting') : t('nav.deleteAccount')}
                       </Button>
                     </div>
                   </div>
