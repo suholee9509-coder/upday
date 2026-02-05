@@ -31,9 +31,10 @@ export default defineConfig({
       gzipSize: true,
       brotliSize: true,
     }),
-    // Pre-render pages for SEO - always enabled in production builds
-    // Disable only in dev mode or when DISABLE_PRERENDER=true
-    process.env.NODE_ENV !== 'development' && process.env.DISABLE_PRERENDER !== 'true' && prerender({
+    // Pre-render pages for SEO - disabled in Cloudflare Pages (Puppeteer incompatible)
+    // Using Cloudflare Crawler Hints instead (meta tag already added to index.html)
+    // Enable locally with: ENABLE_PRERENDER=true npm run build
+    process.env.ENABLE_PRERENDER === 'true' && prerender({
       routes: PRERENDER_ROUTES,
       renderer: '@prerenderer/renderer-puppeteer',
       rendererOptions: {
