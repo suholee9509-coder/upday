@@ -73,7 +73,7 @@ export function Sidebar() {
   const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar()
   const { pinnedCompanies, togglePin } = usePinnedCompanies()
   const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth()
-  const [isPinnedExpanded, setIsPinnedExpanded] = useState(true)
+  const [isPinnedExpanded, setIsPinnedExpanded] = useState(false) // Default collapsed
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
 
   const currentCompany = searchParams.get('company')

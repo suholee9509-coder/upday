@@ -102,7 +102,8 @@ export function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
     }
   }
 
-  if (!isOpen) return null
+  // Safety check: Only render if modal is open AND user is authenticated
+  if (!isOpen || !user) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">

@@ -13,13 +13,16 @@ export function OnboardingManager() {
     // Wait for both auth and interests to load
     if (authLoading || interestsLoading) return
 
-    // If user is authenticated and hasn't completed onboarding, show the modal
+    // CRITICAL: Only show onboarding if ALL conditions are met:
+    // 1. User is authenticated
+    // 2. User hasn't completed onboarding
+    // 3. We haven't checked yet this session
     if (isAuthenticated && !hasCompletedOnboarding && !hasChecked) {
       setShowOnboarding(true)
       setHasChecked(true)
     }
 
-    // If user logs out, reset the check
+    // If user logs out, reset the check and hide modal
     if (!isAuthenticated) {
       setHasChecked(false)
       setShowOnboarding(false)
