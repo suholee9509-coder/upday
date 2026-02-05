@@ -247,14 +247,21 @@ export function useMyFeed(): UseMyFeedResult {
         return { ...item, score }
       })
 
-      // Step 3: Filter by importance threshold (45+)
+      // Step 3: Filter by importance threshold (55+)
+      // "Must-see" curation: only high-relevance articles pass
       // Skip threshold if user has no keywords/companies (category-only mode)
-      // Threshold 45: category(15) + company(25) = 40 (not enough)
-      //   + tier1 boost(10) or event signal(10) or cluster boost needed
-      // This curates only truly important articles, not every mention
+      //
+      // Threshold 55 requires multiple strong signals:
+      // - Category(15) + 2 keywords(40) = 55 ✓
+      // - Category(15) + company(30) + tier1(10) = 55 ✓
+      // - Category(15) + keyword(20) + company(25) = 60 ✓
+      //
+      // Single weak matches won't pass:
+      // - Category(15) + company(25) = 40 ❌
+      // - Category(15) + 1 keyword(20) = 35 ❌
       const hasSpecificInterests = (interests.keywords?.length || 0) > 0 || (interests.companies?.length || 0) > 0
       const importantItems = hasSpecificInterests
-        ? filterByImportance(scoredItems, 45)
+        ? filterByImportance(scoredItems, 55)
         : scoredItems // Category-only: show all matched items
 
       // DEBUG: Log scoring stats by week
