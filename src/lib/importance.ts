@@ -21,6 +21,50 @@ const TIER_1_COMPANIES = [
   'mistral',
 ]
 
+// Company patterns for text-based matching (fallback for old articles without companies field)
+// Synced with workers/ingest.ts and scripts/backfill-companies.ts
+const COMPANY_PATTERNS: Record<string, RegExp> = {
+  'openai': /\bopen\s?ai\b/i,
+  'anthropic': /\banthropic\b/i,
+  'google': /\bgoogle\b/i,
+  'microsoft': /\bmicrosoft\b/i,
+  'meta': /\bmeta\b(?!\s*data)/i,
+  'nvidia': /\bnvidia\b/i,
+  'xai': /\bx\.?ai\b/i,
+  'mistral': /\bmistral\b/i,
+  'vercel': /\bvercel\b/i,
+  'supabase': /\bsupabase\b/i,
+  'cloudflare': /\bcloudflare\b/i,
+  'linear': /\blinear\b(?!\s*regression)/i,
+  'figma': /\bfigma\b/i,
+  'notion': /\bnotion\b/i,
+  'cursor': /\bcursor\b(?!\s*position)/i,
+  'github': /\bgithub\b/i,
+  'databricks': /\bdatabricks\b/i,
+  'apple': /\bapple\b(?!\s*(?:pie|cider|tree))/i,
+  'amazon': /\bamazon\b/i,
+  'tesla': /\btesla\b/i,
+  'stripe': /\bstripe\b(?!\s*(?:pattern|shirt))/i,
+  'shopify': /\bshopify\b/i,
+  'slack': /\bslack\b(?!\s*(?:off|time))/i,
+  'discord': /\bdiscord\b/i,
+  'reddit': /\breddit\b/i,
+}
+
+/**
+ * Extract companies mentioned in text using pattern matching
+ * Used as fallback when articles don't have companies field populated
+ */
+function extractCompaniesFromText(text: string): string[] {
+  const companies: string[] = []
+  for (const [slug, pattern] of Object.entries(COMPANY_PATTERNS)) {
+    if (pattern.test(text)) {
+      companies.push(slug)
+    }
+  }
+  return companies
+}
+
 // High-signal funding keywords (specific, not generic like "million")
 const FUNDING_KEYWORDS = [
   'series a',
@@ -92,7 +136,13 @@ export function calculateImportanceScore(
   }
 
   const content = `${newsItem.title} ${newsItem.summary}`.toLowerCase()
-  const newsCompanies = newsItem.companies || []
+
+  // Get companies from article, or extract from text as fallback (for old articles)
+  let newsCompanies = newsItem.companies || []
+  if (newsCompanies.length === 0 && userInterests.companies.length > 0) {
+    // Fallback: extract companies from text for old articles without companies field
+    newsCompanies = extractCompaniesFromText(content)
+  }
 
   // Track if user has specific interests defined
   const hasSpecificInterests =
@@ -206,16 +256,20 @@ export function matchesUserInterests(
     return true
   }
 
-  // Check company match
-  const newsCompanies = newsItem.companies || []
-  const hasCompanyMatch = newsCompanies.some(company =>
-    userInterests.companies.includes(company)
-  )
-
   // Check keyword match
   const content = `${newsItem.title} ${newsItem.summary}`.toLowerCase()
   const hasKeywordMatch = userInterests.keywords.some(keyword =>
     content.includes(keyword.toLowerCase())
+  )
+
+  // Check company match - use companies field or fallback to text extraction
+  let newsCompanies = newsItem.companies || []
+  if (newsCompanies.length === 0 && userInterests.companies.length > 0) {
+    // Fallback: extract companies from text for old articles
+    newsCompanies = extractCompaniesFromText(content)
+  }
+  const hasCompanyMatch = newsCompanies.some(company =>
+    userInterests.companies.includes(company)
   )
 
   return hasCompanyMatch || hasKeywordMatch
