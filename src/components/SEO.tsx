@@ -189,7 +189,9 @@ export function injectNewsArticleSchema(article: {
       name: 'Upday',
       logo: {
         '@type': 'ImageObject',
-        url: `${BASE_URL}/logo.png`,
+        url: `${BASE_URL}/og-image.png`,
+        width: 1200,
+        height: 630,
       },
     },
     articleSection: article.category,

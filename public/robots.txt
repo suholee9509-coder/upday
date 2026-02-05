@@ -36,5 +36,5 @@ Crawl-delay: 1
 Sitemap: https://updayapp.com/sitemap.xml
 Sitemap: https://updayapp.com/news-sitemap.xml
 
-# Host
-Host: https://updayapp.com
+# Host (domain only, no protocol)
+Host: updayapp.com

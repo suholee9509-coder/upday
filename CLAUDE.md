@@ -607,3 +607,107 @@ wrangler deploy -c wrangler-feedback.toml # 피드백 API
 # Supabase 마이그레이션
 npx supabase db push
 ```
+
+---
+
+## Internationalization (i18n)
+
+Upday supports **Global (English) primary** and **Korean (한국어) secondary** languages.
+
+### Language Support
+- **Primary:** English (en) - Global audience
+- **Secondary:** Korean (ko) - Korean users
+- **Implementation:** Client-side language switching via localStorage
+- **Library:** i18next + react-i18next
+
+### Language Files
+- `src/locales/en.json` - English translations
+- `src/locales/ko.json` - Korean translations
+- `src/lib/i18n.ts` - Language configuration and utilities
+
+### Usage
+```tsx
+import { useTranslation } from 'react-i18next'
+import { changeLanguage, getCurrentLanguage } from '@/lib/i18n'
+
+// In components
+const { t } = useTranslation()
+<h1>{t('welcome')}</h1>
+
+// Get current language
+const currentLang = getCurrentLanguage() // 'en' | 'ko'
+
+// Change language
+changeLanguage('ko') // Switches to Korean
+```
+
+### SEO Considerations
+- `hreflang` tags in `index.html` include both `en` and `ko`
+- Same URL serves both languages (client-side switching)
+- Meta descriptions available in both languages via `CATEGORY_SEO`
+- Social sharing always uses English (OG tags)
+
+---
+
+## SEO Configuration
+
+### Recent Optimizations (2026-02-06)
+
+**Cloudflare Crawler Hints:**
+- Added `<meta name="cf-2fa-verify" content="none" />` to enable automatic pre-rendering for crawlers
+- Solves React SPA empty HTML issue
+- Immediate effect on crawlability
+
+**Meta Tags Enhanced:**
+- Improved meta description with specific keywords (OpenAI, Google, Microsoft, ChatGPT, Claude, Gemini)
+- Fixed hreflang attributes (en, ko, x-default)
+- Corrected structured data logo reference (og-image.png instead of non-existent logo.png)
+
+**Pre-rendering Routes (vite.config.ts):**
+```typescript
+const PRERENDER_ROUTES = [
+  '/',
+  '/timeline',
+  '/ai',
+  '/startups',
+  '/dev',
+  '/product',
+  '/research',
+  '/about',
+  '/timeline/companies',
+]
+```
+- Fixed outdated category URLs
+- Build with `PRERENDER=true npm run build` to enable
+
+**Sitemap Updates (sitemap.xml):**
+- **26 company pages** added: `/company/openai`, `/company/anthropic`, etc.
+- Updated lastmod dates to 2026-02-06
+- Total URLs: ~40 (homepage, timeline, 5 categories, 26 company pages, 4 static pages)
+
+**robots.txt:**
+- Fixed Host directive format: `updayapp.com` (not `https://updayapp.com`)
+- Optimized crawl-delay settings for different bots
+- Sitemaps: `sitemap.xml` and `news-sitemap.xml`
+
+### Search Engine Registration
+- ✅ Google Search Console - Verified
+- ✅ Naver Search Advisor - Verified (2026-02-05)
+- ✅ Bing Webmaster Tools - Verified (via GSC import)
+
+### Structured Data
+Implemented JSON-LD schemas:
+- **WebSite** with SearchAction
+- **NewsMediaOrganization** (Google News Publisher)
+- **CollectionPage** for category/company pages
+- **NewsArticle** for individual news items (via `injectNewsArticleSchema`)
+- **BreadcrumbList** for navigation
+
+### Future Improvements
+Consider implementing:
+- Dynamic sitemap worker (Cloudflare Workers) to include latest news URLs
+- FAQ sections on category pages for Google Discover
+- Internal linking strategy (currently external links only)
+- Bundle size optimization and lazy loading improvements
+
+---

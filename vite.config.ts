@@ -6,15 +6,17 @@ import prerender from '@prerenderer/rollup-plugin'
 import path from 'path'
 
 // Routes to pre-render for SEO
+// Pre-render main pages and category pages for better initial SEO
 const PRERENDER_ROUTES = [
   '/',
   '/timeline',
-  '/timeline?category=ai',
-  '/timeline?category=startup',
-  '/timeline?category=science',
-  '/timeline?category=space',
-  '/timeline?category=dev',
-  '/timeline?category=design',
+  '/ai',
+  '/startups',
+  '/dev',
+  '/product',
+  '/research',
+  '/about',
+  '/timeline/companies',
 ]
 
 // https://vite.dev/config/
@@ -29,8 +31,9 @@ export default defineConfig({
       gzipSize: true,
       brotliSize: true,
     }),
-    // Pre-render pages for SEO - only in production build
-    process.env.PRERENDER === 'true' && prerender({
+    // Pre-render pages for SEO - always enabled in production builds
+    // Disable only in dev mode or when DISABLE_PRERENDER=true
+    process.env.NODE_ENV !== 'development' && process.env.DISABLE_PRERENDER !== 'true' && prerender({
       routes: PRERENDER_ROUTES,
       renderer: '@prerenderer/renderer-puppeteer',
       rendererOptions: {
