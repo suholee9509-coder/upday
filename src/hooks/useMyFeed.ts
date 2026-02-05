@@ -206,8 +206,11 @@ export function useMyFeed(): UseMyFeedResult {
       })
 
       // Step 3: Filter by importance threshold (50+)
-      // Only items with personal relevance (keyword/company match) will pass
-      const importantItems = filterByImportance(scoredItems, 50)
+      // Skip threshold if user has no keywords/companies (category-only mode)
+      const hasSpecificInterests = (interests.keywords?.length || 0) > 0 || (interests.companies?.length || 0) > 0
+      const importantItems = hasSpecificInterests
+        ? filterByImportance(scoredItems, 50)
+        : scoredItems // Category-only: show all matched items
 
       setNewsItems(importantItems)
     } catch (err) {
