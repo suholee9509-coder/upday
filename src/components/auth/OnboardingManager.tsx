@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { OnboardingModal } from './OnboardingModal'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserInterests } from '@/hooks/useUserInterests'
 
+// Routes where onboarding modal should NOT appear
+const EXCLUDED_ROUTES = ['/', '/about', '/feedback', '/diversity', '/ethics']
+
 export function OnboardingManager() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const { isLoading: interestsLoading, hasCompletedOnboarding, refetch } = useUserInterests()
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -15,6 +19,12 @@ export function OnboardingManager() {
   useEffect(() => {
     // Wait for both auth and interests to load
     if (authLoading || interestsLoading) return
+
+    // Don't show onboarding on excluded routes (landing page, about, etc.)
+    if (EXCLUDED_ROUTES.includes(location.pathname)) {
+      setShowOnboarding(false)
+      return
+    }
 
     // CRITICAL: Only show onboarding if ALL conditions are met:
     // 1. User is authenticated (must be true)
@@ -35,7 +45,7 @@ export function OnboardingManager() {
       setShowOnboarding(true)
       setHasChecked(true)
     }
-  }, [isAuthenticated, hasCompletedOnboarding, authLoading, interestsLoading, hasChecked])
+  }, [isAuthenticated, hasCompletedOnboarding, authLoading, interestsLoading, hasChecked, location.pathname])
 
   // Navigate to My Feed after interests are loaded
   useEffect(() => {
