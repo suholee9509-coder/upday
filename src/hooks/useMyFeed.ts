@@ -261,22 +261,31 @@ export function useMyFeed(): UseMyFeedResult {
         return { ...item, score }
       })
 
-      // Step 3: Filter by importance threshold (60+)
-      // "Must-see" curation: only high-relevance articles pass
-      // Skip threshold if user has no keywords/companies (category-only mode)
+      // Step 3: Filter by importance threshold
+      // "Must-see" curation with adaptive thresholds
       //
-      // Threshold 60 requires strong compound signals:
+      // Threshold depends on user's interest configuration:
+      // - Both keywords AND companies: 60 (cross-signal bonus possible)
+      // - Only keywords OR only companies: 55 (single-signal focus)
+      // - Category-only (no specific interests): no threshold
+      //
+      // Examples at 60 threshold (both keywords+companies):
       // - Category(15) + keyword(20) + company(25) = 60 ✓
       // - Category(15) + keyword(20) + company(25) + cross(15) = 75 ✓✓
-      // - Category(15) + 2 keywords(40) + event(10) = 65 ✓
-      // - Category(15) + company(35) + tier1(10) = 60 ✓
       //
-      // Weak matches won't pass:
-      // - Category(15) + 2 keywords(40) = 55 ❌
-      // - Category(15) + company(25) + tier1(10) = 50 ❌
-      const hasSpecificInterests = (interests.keywords?.length || 0) > 0 || (interests.companies?.length || 0) > 0
+      // Examples at 55 threshold (keywords-only or companies-only):
+      // - Category(15) + 2 keywords(40) = 55 ✓
+      // - Category(15) + company(30) + tier1(10) = 55 ✓
+      const hasKeywords = (interests.keywords?.length || 0) > 0
+      const hasCompanies = (interests.companies?.length || 0) > 0
+      const hasSpecificInterests = hasKeywords || hasCompanies
+      const hasBothInterestTypes = hasKeywords && hasCompanies
+
+      // Adaptive threshold: stricter when cross-signal is possible
+      const threshold = hasBothInterestTypes ? 60 : 55
+
       const importantItems = hasSpecificInterests
-        ? filterByImportance(scoredItems, 60)
+        ? filterByImportance(scoredItems, threshold)
         : scoredItems // Category-only: show all matched items
 
       // Update cache
