@@ -32,6 +32,11 @@ i18n
     },
     lng: getSavedLanguage(),
     fallbackLng: 'en',
+    supportedLngs: ['en', 'ko'],
+    load: 'languageOnly', // Don't load regional variants (en-US -> en)
+    detection: {
+      order: [], // Disable all auto-detection, use only explicit setting
+    },
     interpolation: {
       escapeValue: false, // React already escapes
     },
