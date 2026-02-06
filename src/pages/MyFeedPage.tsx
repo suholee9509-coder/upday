@@ -223,7 +223,7 @@ const WeeklyInsightsBar = memo(function WeeklyInsightsBar({ totalArticles }: Wee
   return (
     <div
       className={cn(
-        'fixed top-[60px] left-0 z-10',
+        'fixed top-[61px] left-0 z-10',
         'right-0 md:right-[240px]',
         'hidden md:block', // Desktop only
         'transition-[padding] duration-200 ease-in-out',
@@ -260,7 +260,7 @@ const MobileTimeline = memo(function MobileTimeline({ weeks, activeWeekIndex, on
   return (
     <nav
       className={cn(
-        'md:hidden fixed top-[60px] left-0 right-0 z-20',
+        'md:hidden fixed top-14 left-0 right-0 z-20',
         'bg-muted/70 backdrop-blur-md',
         'border-b border-border'
       )}

@@ -235,8 +235,8 @@ async function runTest() {
     const hasCompanies = profile.companies.length > 0
     const hasSpecificInterests = hasKeywords || hasCompanies
     const hasBothInterestTypes = hasKeywords && hasCompanies
-    // Category-only users: 25 threshold (event signal required)
-    const threshold = hasBothInterestTypes ? 60 : hasSpecificInterests ? 55 : 25
+    // Category-only users: 35 threshold (tier1 + event required)
+    const threshold = hasBothInterestTypes ? 60 : hasSpecificInterests ? 55 : 35
 
     const passed = scored.filter(a => a.score >= threshold)
 
@@ -244,7 +244,7 @@ async function runTest() {
       ? '≥60 (both types)'
       : hasSpecificInterests
         ? '≥55 (single type)'
-        : '≥25 (event signal)'
+        : '≥35 (tier1+event)'
     console.log(`After importance filter (${thresholdLabel}): ${passed.length} articles`)
 
     // Group by week

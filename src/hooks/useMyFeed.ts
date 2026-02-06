@@ -277,17 +277,19 @@ export function useMyFeed(): UseMyFeedResult {
       // - Category(15) + 2 keywords(40) = 55 ✓
       // - Category(15) + company(30) + tier1(10) = 55 ✓
       //
-      // Examples at 25 threshold (category-only):
-      // - Category(15) + event(10) = 25 ✓ (funding, launch news)
-      // - Category(15) only = 15 ❌ (filtered out)
+      // Examples at 35 threshold (category-only):
+      // - Category(15) + tier1(10) + event(10) = 35 ✓ (major tier-1 launches)
+      // - Category(15) + tier1(10) = 25 ❌ (too many)
+      // - Category(15) + event(10) = 25 ❌ (too many)
       const hasKeywords = (interests.keywords?.length || 0) > 0
       const hasCompanies = (interests.companies?.length || 0) > 0
       const hasSpecificInterests = hasKeywords || hasCompanies
       const hasBothInterestTypes = hasKeywords && hasCompanies
 
       // Adaptive threshold based on interest configuration
-      // Category-only users still get curation via event signals
-      const threshold = hasBothInterestTypes ? 60 : hasSpecificInterests ? 55 : 25
+      // Single-type requires additional signal (Tier-1 or Event) for quality curation
+      // Category-only requires both Tier-1 AND Event
+      const threshold = hasBothInterestTypes ? 60 : hasSpecificInterests ? 65 : 35
 
       const importantItems = filterByImportance(scoredItems, threshold)
 
