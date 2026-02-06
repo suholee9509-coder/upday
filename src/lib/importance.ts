@@ -168,8 +168,9 @@ export function calculateImportanceScore(
     userInterests.companies.includes(company)
   )
   if (matchingCompanies.length > 0) {
-    // 25 base + 5 for each additional company match
-    factors.companyMatch = Math.min(25 + (matchingCompanies.length - 1) * 5, 35)
+    // 30 base + 5 for each additional company match (max 35)
+    // Base raised from 25 to 30 so non-tier1 companies can pass threshold
+    factors.companyMatch = Math.min(30 + (matchingCompanies.length - 1) * 5, 35)
   }
 
   // 4. Tier-1 Company Boost (0-10 points)
