@@ -27,8 +27,8 @@ let translationQueue: Array<{
 }> = []
 let batchTimeout: ReturnType<typeof setTimeout> | null = null
 
-const BATCH_DELAY = 100 // ms to wait before processing batch
-const MAX_CONCURRENT = 3 // Max concurrent translations
+const BATCH_DELAY = 10 // ms to wait before processing batch (minimal delay to collect items)
+const MAX_CONCURRENT = 15 // Max concurrent translations (higher for faster batch processing)
 
 /**
  * Process translation queue in batches
@@ -49,7 +49,9 @@ async function processTranslationQueue() {
           translationCache[item.id] = result
 
           // Update DB in background (don't await)
-          if (supabase) {
+          // Skip DB update for mock data (non-UUID IDs)
+          const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id)
+          if (supabase && isValidUUID) {
             supabase
               .from('news_items')
               .update({
