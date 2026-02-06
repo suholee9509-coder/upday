@@ -322,7 +322,6 @@ export function MyFeedPage() {
   const { interests } = useUserInterests()
   const { translateAll } = useRealtimeTranslation()
   const [, setTranslationTrigger] = useState(0) // Trigger re-render after translation
-  const prevLanguageRef = useRef(language)
 
   // DEMO MODE: Override with dummy data if enabled
   const dummyWeeks = useMemo(() => DEMO_MODE ? generateDummyWeeks() : [], [])
@@ -359,10 +358,10 @@ export function MyFeedPage() {
     [weeks]
   )
 
-  // Translate all articles when switching to Korean
+  // Translate all articles when in Korean mode
+  // Triggers on: language switch to Korean, page load with Korean, new articles loaded
   useEffect(() => {
-    // Only trigger when language changes TO Korean (not on mount if already Korean)
-    if (language === 'ko' && prevLanguageRef.current !== 'ko' && weeks.length > 0) {
+    if (language === 'ko' && weeks.length > 0) {
       // Collect all articles from all weeks
       const allArticles = weeks.flatMap(week =>
         week.clusters.flatMap(cluster => [
@@ -371,12 +370,11 @@ export function MyFeedPage() {
         ])
       )
 
-      // Translate all at once, then trigger re-render
+      // Translate all at once (translateAll skips already-cached items)
       translateAll(allArticles).then(() => {
         setTranslationTrigger(prev => prev + 1)
       })
     }
-    prevLanguageRef.current = language
   }, [language, weeks, translateAll])
 
   // Intersection Observer to track which week is in view

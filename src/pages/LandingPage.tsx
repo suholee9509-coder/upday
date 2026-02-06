@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowRight, Sparkles, Clock, Zap, Globe } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -16,18 +16,16 @@ export function LandingPage() {
   const { currentLanguage: language } = useLanguage()
   const { translateAll } = useRealtimeTranslation()
   const [, setTranslationTrigger] = useState(0)
-  const prevLanguageRef = useRef(language)
   const navigate = useNavigate()
   const previewItems = mockNews.slice(0, 3)
 
-  // Translate all articles when switching to Korean
+  // Translate all articles when in Korean mode
   useEffect(() => {
-    if (language === 'ko' && prevLanguageRef.current !== 'ko' && previewItems.length > 0) {
+    if (language === 'ko' && previewItems.length > 0) {
       translateAll(previewItems).then(() => {
         setTranslationTrigger(prev => prev + 1)
       })
     }
-    prevLanguageRef.current = language
   }, [language, previewItems, translateAll])
 
   return (

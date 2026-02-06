@@ -113,13 +113,10 @@ async function processArticleWithAI(raw: RawArticle): Promise<ProcessedArticle |
       category = aiResult.category
 
       // Translate to Korean
-      try {
-        const translation = await translateToKorean(title, summary)
+      const translation = await translateToKorean(title, summary)
+      if (translation) {
         titleKo = translation.titleKo
         summaryKo = translation.summaryKo
-      } catch (transError) {
-        console.warn('Korean translation failed:', transError)
-        // Continue without translation
       }
     } catch (error) {
       console.warn('AI processing failed, using fallback:', error)

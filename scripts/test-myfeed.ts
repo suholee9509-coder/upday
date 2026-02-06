@@ -93,6 +93,12 @@ const TEST_PROFILES: UserProfile[] = [
     categories: ['ai', 'startups'],
     keywords: [],
     companies: []
+  },
+  {
+    name: "Product + AI (Category Only)",
+    categories: ['product', 'ai'],
+    keywords: [],
+    companies: []
   }
 ]
 

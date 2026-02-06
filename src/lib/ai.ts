@@ -280,13 +280,14 @@ Rules:
 
 /**
  * Translate title and summary to Korean
+ * Returns null on failure (so failed translations can be retried later)
  */
-export async function translateToKorean(title: string, summary: string): Promise<{ titleKo: string; summaryKo: string }> {
+export async function translateToKorean(title: string, summary: string): Promise<{ titleKo: string; summaryKo: string } | null> {
   try {
     return await withRetry(() => translateToKoreanOpenAI(title, summary))
   } catch (error) {
     console.error('Translation failed:', error)
-    return { titleKo: title, summaryKo: summary } // Fallback to original
+    return null // Return null so it can be retried later
   }
 }
 
@@ -325,14 +326,19 @@ export async function processArticleAI(
 export async function processArticleAIWithTranslation(
   title: string,
   body: string
-): Promise<{ summary: string; category: Category; titleKo: string; summaryKo: string }> {
+): Promise<{ summary: string; category: Category; titleKo?: string; summaryKo?: string }> {
   // First get summary and category
   const { summary, category } = await processArticleAI(title, body)
 
   // Then translate to Korean
-  const { titleKo, summaryKo } = await translateToKorean(title, summary)
+  const translation = await translateToKorean(title, summary)
 
-  return { summary, category, titleKo, summaryKo }
+  return {
+    summary,
+    category,
+    titleKo: translation?.titleKo,
+    summaryKo: translation?.summaryKo
+  }
 }
 
 // Batch processing configuration

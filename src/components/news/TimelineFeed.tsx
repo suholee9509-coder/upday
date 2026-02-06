@@ -51,16 +51,14 @@ export const TimelineFeed = memo(forwardRef<TimelineFeedRef, TimelineFeedProps>(
   const { currentLanguage: language } = useLanguage()
   const { translateAll } = useRealtimeTranslation()
   const [, setTranslationTrigger] = useState(0)
-  const prevLanguageRef = useRef(language)
 
-  // Translate all articles when switching to Korean
+  // Translate all articles when in Korean mode
   useEffect(() => {
-    if (language === 'ko' && prevLanguageRef.current !== 'ko' && items.length > 0) {
+    if (language === 'ko' && items.length > 0) {
       translateAll(items).then(() => {
         setTranslationTrigger(prev => prev + 1)
       })
     }
-    prevLanguageRef.current = language
   }, [language, items, translateAll])
 
   // Generate status message for screen readers
