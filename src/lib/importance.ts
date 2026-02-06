@@ -174,9 +174,9 @@ export function calculateImportanceScore(
   }
 
   // 4. Tier-1 Company Boost (0-10 points)
-  // ONLY applies if user has some personal relevance (keyword/company match)
-  const hasPersonalRelevance = factors.keywordMatch > 0 || factors.companyMatch > 0
-  if (hasPersonalRelevance) {
+  // Always applies when category matches - Tier-1 companies = industry-important news
+  // OpenAI, Anthropic, Google, etc. news is relevant to anyone in that category
+  if (factors.categoryMatch > 0) {
     const hasTier1Company = newsCompanies.some(company =>
       TIER_1_COMPANIES.includes(company)
     )

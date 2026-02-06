@@ -1,6 +1,7 @@
-import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo, memo } from 'react'
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef, useMemo, memo, useState } from 'react'
 import { NewsCard } from './NewsCard'
 import { useLanguage } from '@/hooks/useLanguage'
+import { useRealtimeTranslation } from '@/hooks/useRealtimeTranslation'
 import { DateSeparator } from './DateSeparator'
 import { NewsCardSkeleton } from './NewsCardSkeleton'
 import { EmptyState } from './EmptyState'
@@ -48,6 +49,19 @@ export const TimelineFeed = memo(forwardRef<TimelineFeedRef, TimelineFeedProps>(
   onVisibleDateChange,
 }, ref) {
   const { currentLanguage: language } = useLanguage()
+  const { translateAll } = useRealtimeTranslation()
+  const [, setTranslationTrigger] = useState(0)
+  const prevLanguageRef = useRef(language)
+
+  // Translate all articles when switching to Korean
+  useEffect(() => {
+    if (language === 'ko' && prevLanguageRef.current !== 'ko' && items.length > 0) {
+      translateAll(items).then(() => {
+        setTranslationTrigger(prev => prev + 1)
+      })
+    }
+    prevLanguageRef.current = language
+  }, [language, items, translateAll])
 
   // Generate status message for screen readers
   const getStatusMessage = () => {

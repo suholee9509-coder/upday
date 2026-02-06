@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Sparkles, Clock, Zap, Globe } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -8,12 +9,26 @@ import { UpdayWordmark } from '@/components/UpdayLogo'
 import { mockNews } from '@/lib/mock-data'
 import { CATEGORIES } from '@/lib/constants'
 import { useLanguage } from '@/hooks/useLanguage'
+import { useRealtimeTranslation } from '@/hooks/useRealtimeTranslation'
 
 export function LandingPage() {
   const { t } = useTranslation()
   const { currentLanguage: language } = useLanguage()
+  const { translateAll } = useRealtimeTranslation()
+  const [, setTranslationTrigger] = useState(0)
+  const prevLanguageRef = useRef(language)
   const navigate = useNavigate()
   const previewItems = mockNews.slice(0, 3)
+
+  // Translate all articles when switching to Korean
+  useEffect(() => {
+    if (language === 'ko' && prevLanguageRef.current !== 'ko' && previewItems.length > 0) {
+      translateAll(previewItems).then(() => {
+        setTranslationTrigger(prev => prev + 1)
+      })
+    }
+    prevLanguageRef.current = language
+  }, [language, previewItems, translateAll])
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden">

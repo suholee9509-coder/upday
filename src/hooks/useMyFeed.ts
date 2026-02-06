@@ -267,26 +267,29 @@ export function useMyFeed(): UseMyFeedResult {
       // Threshold depends on user's interest configuration:
       // - Both keywords AND companies: 60 (cross-signal bonus possible)
       // - Only keywords OR only companies: 55 (single-signal focus)
-      // - Category-only (no specific interests): no threshold
+      // - Category-only (no specific interests): 25 (event signal required)
       //
       // Examples at 60 threshold (both keywords+companies):
-      // - Category(15) + keyword(20) + company(25) = 60 ✓
-      // - Category(15) + keyword(20) + company(25) + cross(15) = 75 ✓✓
+      // - Category(15) + keyword(20) + company(30) = 65 ✓
+      // - Category(15) + keyword(20) + company(30) + cross(15) = 80 ✓✓
       //
       // Examples at 55 threshold (keywords-only or companies-only):
       // - Category(15) + 2 keywords(40) = 55 ✓
       // - Category(15) + company(30) + tier1(10) = 55 ✓
+      //
+      // Examples at 25 threshold (category-only):
+      // - Category(15) + event(10) = 25 ✓ (funding, launch news)
+      // - Category(15) only = 15 ❌ (filtered out)
       const hasKeywords = (interests.keywords?.length || 0) > 0
       const hasCompanies = (interests.companies?.length || 0) > 0
       const hasSpecificInterests = hasKeywords || hasCompanies
       const hasBothInterestTypes = hasKeywords && hasCompanies
 
-      // Adaptive threshold: stricter when cross-signal is possible
-      const threshold = hasBothInterestTypes ? 60 : 55
+      // Adaptive threshold based on interest configuration
+      // Category-only users still get curation via event signals
+      const threshold = hasBothInterestTypes ? 60 : hasSpecificInterests ? 55 : 25
 
-      const importantItems = hasSpecificInterests
-        ? filterByImportance(scoredItems, threshold)
-        : scoredItems // Category-only: show all matched items
+      const importantItems = filterByImportance(scoredItems, threshold)
 
       // Update cache
       feedCache = {

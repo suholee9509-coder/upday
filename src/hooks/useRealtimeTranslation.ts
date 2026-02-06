@@ -204,10 +204,73 @@ export function useRealtimeTranslation() {
     []
   )
 
+  /**
+   * Translate all articles at once and wait for completion
+   * Returns when ALL translations are done (for atomic UI update)
+   */
+  const translateAll = useCallback(
+    async (
+      articles: Array<{
+        id: string
+        title: string
+        summary: string
+        titleKo?: string
+        summaryKo?: string
+      }>
+    ): Promise<void> => {
+      const needsTranslation = articles.filter(article => {
+        // Skip if already has translation in DB
+        if (article.titleKo && article.summaryKo) {
+          // Cache DB translation
+          translationCache[article.id] = { titleKo: article.titleKo, summaryKo: article.summaryKo }
+          return false
+        }
+        // Skip if already cached
+        if (translationCache[article.id]) return false
+        // Skip if already translating
+        if (translatingSet.has(article.id)) return false
+        return true
+      })
+
+      if (needsTranslation.length === 0) return
+
+      // Translate all in parallel (no queue, direct API calls)
+      await Promise.all(
+        needsTranslation.map(async (article) => {
+          try {
+            translatingSet.add(article.id)
+            const result = await translateToKorean(article.title, article.summary)
+            if (result) {
+              translationCache[article.id] = result
+              // Update DB in background for real UUIDs
+              const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(article.id)
+              if (supabase && isValidUUID) {
+                supabase
+                  .from('news_items')
+                  .update({ title_ko: result.titleKo, summary_ko: result.summaryKo })
+                  .eq('id', article.id)
+                  .then(() => {})
+              }
+            }
+          } finally {
+            translatingSet.delete(article.id)
+          }
+        })
+      )
+
+      // Force re-render after all translations complete
+      if (mountedRef.current) {
+        forceUpdate({})
+      }
+    },
+    []
+  )
+
   return {
     getTranslation,
     isTranslating,
     getCached,
     prefetchTranslations,
+    translateAll,
   }
 }

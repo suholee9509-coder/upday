@@ -29,6 +29,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useMyFeed } from '@/hooks/useMyFeed'
 import { useUserInterests } from '@/hooks/useUserInterests'
+import { useRealtimeTranslation } from '@/hooks/useRealtimeTranslation'
 import type { NewsCluster } from '@/lib/clustering'
 import type { WeekData } from '@/hooks/useMyFeed'
 
@@ -319,6 +320,9 @@ export function MyFeedPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const myFeedResult = useMyFeed()
   const { interests } = useUserInterests()
+  const { translateAll } = useRealtimeTranslation()
+  const [, setTranslationTrigger] = useState(0) // Trigger re-render after translation
+  const prevLanguageRef = useRef(language)
 
   // DEMO MODE: Override with dummy data if enabled
   const dummyWeeks = useMemo(() => DEMO_MODE ? generateDummyWeeks() : [], [])
@@ -354,6 +358,26 @@ export function MyFeedPage() {
     weeks.map(w => ({ weekStart: w.weekStart, label: w.label, totalItems: w.totalItems })),
     [weeks]
   )
+
+  // Translate all articles when switching to Korean
+  useEffect(() => {
+    // Only trigger when language changes TO Korean (not on mount if already Korean)
+    if (language === 'ko' && prevLanguageRef.current !== 'ko' && weeks.length > 0) {
+      // Collect all articles from all weeks
+      const allArticles = weeks.flatMap(week =>
+        week.clusters.flatMap(cluster => [
+          cluster.representative,
+          ...cluster.related
+        ])
+      )
+
+      // Translate all at once, then trigger re-render
+      translateAll(allArticles).then(() => {
+        setTranslationTrigger(prev => prev + 1)
+      })
+    }
+    prevLanguageRef.current = language
+  }, [language, weeks, translateAll])
 
   // Intersection Observer to track which week is in view
   useEffect(() => {

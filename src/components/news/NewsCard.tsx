@@ -1,5 +1,5 @@
-import { useState, useEffect, memo } from 'react'
-import { ExternalLink, Loader2 } from 'lucide-react'
+import { useState, memo } from 'react'
+import { ExternalLink } from 'lucide-react'
 import { cn, stripHtml } from '@/lib/utils'
 import type { NewsItem, Category } from '@/types/news'
 import { useRealtimeTranslation } from '@/hooks/useRealtimeTranslation'
@@ -54,54 +54,25 @@ interface NewsCardProps {
 
 export const NewsCard = memo(function NewsCard({ item, className, userKeywords = [], language = 'en' }: NewsCardProps) {
   const [imageError, setImageError] = useState(false)
-  const [translatedContent, setTranslatedContent] = useState<{ titleKo: string; summaryKo: string } | null>(null)
-  const { getTranslation, isTranslating, getCached } = useRealtimeTranslation()
+  const { getCached } = useRealtimeTranslation()
   const showImage = item.imageUrl && !imageError
 
-  // Check if we need to translate (Korean mode, no cached translation yet)
-  const needsTranslation = language === 'ko' && !translatedContent
-  const translating = isTranslating(item.id)
-
-  // Trigger translation when switching to Korean
-  useEffect(() => {
-    if (language === 'ko' && !translatedContent) {
-      // Check memory cache first
-      const cached = getCached(item.id)
-      if (cached) {
-        setTranslatedContent(cached)
-        return
-      }
-
-      // Use DB translation if available (as cache), otherwise GPT translate
-      if (item.titleKo && item.summaryKo) {
-        setTranslatedContent({ titleKo: item.titleKo, summaryKo: item.summaryKo })
-        return
-      }
-
-      // Request GPT translation
-      getTranslation(item.id, item.title, item.summary).then((result) => {
-        if (result) {
-          setTranslatedContent(result)
-        }
-      })
-    }
-  }, [language, item.id, item.title, item.summary, item.titleKo, item.summaryKo, translatedContent, getTranslation, getCached])
-
-  // Reset translation when switching back to English
-  useEffect(() => {
-    if (language === 'en') {
-      setTranslatedContent(null)
-    }
-  }, [language])
-
-  // Determine which content to display
-  // Default: English. Korean only when language === 'ko' AND translation is ready
+  // Get translation from cache or DB (synchronous, no API calls)
+  // Parent component handles batch translation via translateAll
   let rawTitle = item.title
   let rawSummary = item.summary
 
-  if (language === 'ko' && translatedContent) {
-    rawTitle = translatedContent.titleKo
-    rawSummary = translatedContent.summaryKo
+  if (language === 'ko') {
+    // Priority: 1. Memory cache, 2. DB translation
+    const cached = getCached(item.id)
+    if (cached) {
+      rawTitle = cached.titleKo
+      rawSummary = cached.summaryKo
+    } else if (item.titleKo && item.summaryKo) {
+      rawTitle = item.titleKo
+      rawSummary = item.summaryKo
+    }
+    // If neither available, show English (parent will translate)
   }
 
   const displayTitle = stripHtml(rawTitle)
@@ -133,9 +104,6 @@ export const NewsCard = memo(function NewsCard({ item, className, userKeywords =
           <div className="flex-1 min-w-0">
             {/* 1st: Title - highest visual weight */}
             <h2 className="text-base font-semibold text-foreground leading-snug mb-2 group-hover:text-foreground/90">
-              {translating && needsTranslation && (
-                <Loader2 className="inline h-3 w-3 mr-1.5 animate-spin text-muted-foreground" />
-              )}
               {displayTitle}
             </h2>
 

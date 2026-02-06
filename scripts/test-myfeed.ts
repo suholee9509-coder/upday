@@ -134,9 +134,9 @@ function calculateScore(
     factors.companyMatch = Math.min(30 + (matchingCompanies.length - 1) * 5, 35)
   }
 
-  // 4. Tier-1 Boost (10 pts) - only with personal relevance
-  const hasPersonalRelevance = factors.keywordMatch > 0 || factors.companyMatch > 0
-  if (hasPersonalRelevance) {
+  // 4. Tier-1 Boost (10 pts) - always applies when category matches
+  // Tier-1 companies = industry-important news for anyone in that category
+  if (factors.categoryMatch > 0) {
     const hasTier1 = newsCompanies.some(c => TIER_1_COMPANIES.includes(c))
     if (hasTier1) {
       factors.tier1Boost = 10
@@ -229,13 +229,17 @@ async function runTest() {
     const hasCompanies = profile.companies.length > 0
     const hasSpecificInterests = hasKeywords || hasCompanies
     const hasBothInterestTypes = hasKeywords && hasCompanies
-    const threshold = hasBothInterestTypes ? 60 : 55
+    // Category-only users: 25 threshold (event signal required)
+    const threshold = hasBothInterestTypes ? 60 : hasSpecificInterests ? 55 : 25
 
-    const passed = hasSpecificInterests
-      ? scored.filter(a => a.score >= threshold)
-      : scored
+    const passed = scored.filter(a => a.score >= threshold)
 
-    console.log(`After importance filter (${hasSpecificInterests ? `≥${threshold}${hasBothInterestTypes ? ' (both types)' : ' (single type)'}` : 'no threshold'}): ${passed.length} articles`)
+    const thresholdLabel = hasBothInterestTypes
+      ? '≥60 (both types)'
+      : hasSpecificInterests
+        ? '≥55 (single type)'
+        : '≥25 (event signal)'
+    console.log(`After importance filter (${thresholdLabel}): ${passed.length} articles`)
 
     // Group by week
     const weekStats: Record<string, number> = {}
