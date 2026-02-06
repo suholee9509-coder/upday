@@ -17,6 +17,7 @@ interface TranslationCache {
 // Module-level cache (persists across component remounts)
 const translationCache: TranslationCache = {}
 const translatingSet = new Set<string>()
+const failedSet = new Set<string>() // Track failed translations for retry
 
 // Queue for batch translation
 let translationQueue: Array<{
@@ -207,6 +208,7 @@ export function useRealtimeTranslation() {
   /**
    * Translate all articles at once and wait for completion
    * Returns when ALL translations are done (for atomic UI update)
+   * Includes automatic retry for previously failed translations
    */
   const translateAll = useCallback(
     async (
@@ -216,23 +218,29 @@ export function useRealtimeTranslation() {
         summary: string
         titleKo?: string
         summaryKo?: string
-      }>
+      }>,
+      isRetry = false
     ): Promise<void> => {
       const needsTranslation = articles.filter(article => {
         // Skip if already has translation in DB
         if (article.titleKo && article.summaryKo) {
           // Cache DB translation
           translationCache[article.id] = { titleKo: article.titleKo, summaryKo: article.summaryKo }
+          failedSet.delete(article.id) // Clear from failed if DB has translation
           return false
         }
         // Skip if already cached
         if (translationCache[article.id]) return false
         // Skip if already translating
         if (translatingSet.has(article.id)) return false
+        // Include if previously failed (retry)
+        if (failedSet.has(article.id)) return true
         return true
       })
 
       if (needsTranslation.length === 0) return
+
+      let failedCount = 0
 
       // Translate all in parallel (no queue, direct API calls)
       await Promise.all(
@@ -242,6 +250,7 @@ export function useRealtimeTranslation() {
             const result = await translateToKorean(article.title, article.summary)
             if (result) {
               translationCache[article.id] = result
+              failedSet.delete(article.id) // Success - remove from failed
               // Update DB in background for real UUIDs
               const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(article.id)
               if (supabase && isValidUUID) {
@@ -251,7 +260,14 @@ export function useRealtimeTranslation() {
                   .eq('id', article.id)
                   .then(() => {})
               }
+            } else {
+              // Translation returned null - mark as failed for retry
+              failedSet.add(article.id)
+              failedCount++
             }
+          } catch {
+            failedSet.add(article.id)
+            failedCount++
           } finally {
             translatingSet.delete(article.id)
           }
@@ -261,6 +277,21 @@ export function useRealtimeTranslation() {
       // Force re-render after all translations complete
       if (mountedRef.current) {
         forceUpdate({})
+      }
+
+      // Auto-retry failed translations once after a delay (only on first attempt)
+      if (failedCount > 0 && !isRetry && mountedRef.current) {
+        console.log(`[Translation] ${failedCount} failed, retrying in 2s...`)
+        setTimeout(() => {
+          if (mountedRef.current) {
+            const retryArticles = articles.filter(a => failedSet.has(a.id))
+            if (retryArticles.length > 0) {
+              translateAll(retryArticles, true).then(() => {
+                if (mountedRef.current) forceUpdate({})
+              })
+            }
+          }
+        }, 2000)
       }
     },
     []
