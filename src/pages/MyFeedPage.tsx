@@ -154,7 +154,7 @@ const ClusterCard = memo(function ClusterCard({ cluster, userKeywords, language 
   return (
     <div className="border-b border-border last:border-b-0">
       {/* Representative Article */}
-      <NewsCard item={cluster.representative} userKeywords={userKeywords} language={language} className={hasRelated ? 'border-b-0' : ''} />
+      <NewsCard item={cluster.representative} userKeywords={userKeywords} language={language} className="border-b-0" />
 
       {/* Related Articles Toggle - Subtle design */}
       {hasRelated && (
@@ -332,6 +332,7 @@ export function MyFeedPage() {
 
   const [activeWeekIndex, setActiveWeekIndex] = useState(0)
   const weekRefs = useRef<(HTMLElement | null)[]>([])
+  const mainRef = useRef<HTMLElement | null>(null)
 
   // Get user keywords for NewsCard display
   const userKeywords = useMemo(() => {
@@ -377,65 +378,36 @@ export function MyFeedPage() {
     }
   }, [language, weeks, translateAll])
 
-  // Intersection Observer to track which week is in view
+  // Track which week section is in view based on scroll position
   useEffect(() => {
-    if (weekRefs.current.length === 0) return
+    const scrollContainer = mainRef.current
+    if (!scrollContainer || weeks.length === 0) return
 
-    const observerOptions = {
-      // More granular thresholds for smoother tracking
-      threshold: Array.from({ length: 21 }, (_, i) => i * 0.05), // [0, 0.05, 0.1, ..., 1]
-      rootMargin: '-140px 0px -60% 0px', // Account for header, less aggressive bottom
-    }
+    const handleScroll = () => {
+      const containerRect = scrollContainer.getBoundingClientRect()
+      // Trigger point: slightly below the top of the scroll container
+      const triggerY = containerRect.top + 100
 
-    const entries = new Map<Element, IntersectionObserverEntry>()
-
-    const updateActiveWeek = () => {
-      if (entries.size === 0) return
-
-      // Find the topmost intersecting section that's visible in the trigger zone
-      // Simpler algorithm: just find the section closest to top that's actually visible
-      let topMostEntry: IntersectionObserverEntry | null = null
-      let topMostPosition = Infinity
-
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.intersectionRatio > 0) {
-          const rect = entry.boundingClientRect
-          // Distance from the trigger point (140px below viewport top)
-          const triggerPoint = 140
-          const distanceFromTrigger = Math.abs(rect.top - triggerPoint)
-
-          // Prefer sections closest to trigger point
-          if (distanceFromTrigger < topMostPosition) {
-            topMostPosition = distanceFromTrigger
-            topMostEntry = entry
-          }
-        }
-      })
-
-      if (topMostEntry) {
-        const index = weekRefs.current.findIndex(ref => ref === topMostEntry!.target)
-        if (index !== -1) {
-          setActiveWeekIndex(index)
+      let activeIndex = 0
+      for (let i = 0; i < weekRefs.current.length; i++) {
+        const ref = weekRefs.current[i]
+        if (!ref) continue
+        const rect = ref.getBoundingClientRect()
+        // If section top has scrolled past the trigger point, this or a later section is active
+        if (rect.top <= triggerY) {
+          activeIndex = i
         }
       }
+
+      setActiveWeekIndex(activeIndex)
     }
 
-    const observer = new IntersectionObserver((observerEntries) => {
-      observerEntries.forEach((entry) => {
-        entries.set(entry.target, entry)
-      })
-      updateActiveWeek()
-    }, observerOptions)
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true })
+    // Run once on mount to set initial state
+    handleScroll()
 
-    weekRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref)
-    })
-
-    return () => {
-      observer.disconnect()
-      entries.clear()
-    }
-  }, [weeks.length])
+    return () => scrollContainer.removeEventListener('scroll', handleScroll)
+  }, [weeks.length, isLoading])
 
   // Scroll to specific week
   const handleWeekClick = (index: number) => {
@@ -550,7 +522,7 @@ export function MyFeedPage() {
             )}
 
             {/* News Content */}
-            <main id="main-content" className={cn(
+            <main ref={mainRef} id="main-content" className={cn(
               'md:mt-[52px] md:mr-[240px] overflow-y-auto scrollbar-subtle',
               weeks.length > 0
                 ? 'mt-[48px] h-[calc(100vh-108px)]'  // Mobile: header(60) + timeline(48) = 108px total fixed
