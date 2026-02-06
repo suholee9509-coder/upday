@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import { supabase } from '@/lib/db'
+import { changeLanguage as i18nChangeLanguage } from '@/lib/i18n'
 import type { User, Session, AuthError } from '@supabase/supabase-js'
 
 // Auth context type
@@ -83,8 +84,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Handle specific auth events
         if (event === 'SIGNED_IN') {
           console.log('User signed in:', session?.user?.email)
+          // Restore saved language preference for logged-in user
+          const savedLang = localStorage.getItem('upday-language')
+          if (savedLang === 'ko') {
+            i18nChangeLanguage('ko')
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out')
+          // Reset language to English on logout
+          i18nChangeLanguage('en')
         }
       }
     )

@@ -12,12 +12,18 @@ export const LANGUAGES = {
 
 export type LanguageCode = keyof typeof LANGUAGES
 
-// Get saved language or default to English
+// Get saved language - only restore if user has an active session
 const getSavedLanguage = (): LanguageCode => {
   if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('upday-language')
-    if (saved && (saved === 'en' || saved === 'ko')) {
-      return saved
+    // Only restore saved language for logged-in users
+    const hasSession = Object.keys(localStorage).some(
+      key => key.startsWith('sb-') && key.endsWith('-auth-token')
+    )
+    if (hasSession) {
+      const saved = localStorage.getItem('upday-language')
+      if (saved && (saved === 'en' || saved === 'ko')) {
+        return saved
+      }
     }
   }
   return 'en'
