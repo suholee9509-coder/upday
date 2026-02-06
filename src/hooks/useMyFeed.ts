@@ -20,7 +20,6 @@ import type { NewsItem, Category } from '@/types/news'
 interface FeedCache {
   key: string // JSON of interests
   items: NewsItemWithScore[]
-  itemsByWeek: NewsItemWithScore[][] // Pre-grouped by week
   timestamp: number
 }
 let feedCache: FeedCache | null = null
@@ -82,75 +81,44 @@ function getWeekLabel(weekStart: Date): string {
 
 /**
  * Group news items by week (last 12 weeks)
- * OPTIMIZATION: Only count items per week, don't cluster upfront
  */
 function groupByWeeks(newsItems: NewsItemWithScore[]): WeekData[] {
   const weeks: WeekData[] = []
   const now = new Date()
   const currentWeekStart = getWeekStart(now)
 
-  // Pre-calculate week boundaries once
-  const weekBoundaries: { start: Date; end: Date }[] = []
+  // Generate 12 weeks (current + 11 past)
   for (let i = 0; i < 12; i++) {
     const weekStart = new Date(currentWeekStart)
     weekStart.setDate(weekStart.getDate() - i * 7)
+
     const weekEnd = new Date(weekStart)
     weekEnd.setDate(weekEnd.getDate() + 6)
     weekEnd.setHours(23, 59, 59, 999)
-    weekBoundaries.push({ start: weekStart, end: weekEnd })
-  }
 
-  // Group items by week index in a single pass
-  const itemsByWeek: NewsItemWithScore[][] = Array.from({ length: 12 }, () => [])
-  for (const item of newsItems) {
-    const itemDate = new Date(item.publishedAt)
-    for (let i = 0; i < 12; i++) {
-      if (itemDate >= weekBoundaries[i].start && itemDate <= weekBoundaries[i].end) {
-        itemsByWeek[i].push(item)
-        break
-      }
-    }
-  }
+    const weekItems = newsItems.filter(item => {
+      const itemDate = new Date(item.publishedAt)
+      return itemDate >= weekStart && itemDate <= weekEnd
+    })
 
-  // Create week data (cluster lazily in useMemo)
-  for (let i = 0; i < 12; i++) {
+    // Convert to full NewsItem for clustering (add empty body)
+    const fullItems: NewsItem[] = weekItems.map(item => ({
+      ...item,
+      body: '',
+    }))
+
+    const clusters = clusterNews(fullItems)
+
     weeks.push({
-      weekStart: weekBoundaries[i].start.toISOString(),
-      weekEnd: weekBoundaries[i].end.toISOString(),
-      label: getWeekLabel(weekBoundaries[i].start),
-      clusters: [], // Will be populated lazily
-      totalItems: itemsByWeek[i].length,
+      weekStart: weekStart.toISOString(),
+      weekEnd: weekEnd.toISOString(),
+      label: getWeekLabel(weekStart),
+      clusters,
+      totalItems: weekItems.length,
     })
   }
 
   return weeks
-}
-
-// Cache for clustered week data
-const weekClusterCache = new Map<string, NewsCluster[]>()
-
-/**
- * Cluster items for a specific week (lazy, cached)
- */
-function clusterWeekItems(items: NewsItemWithScore[]): NewsCluster[] {
-  if (items.length === 0) return []
-
-  // Create cache key from item IDs
-  const cacheKey = items.map(i => i.id).join(',')
-  const cached = weekClusterCache.get(cacheKey)
-  if (cached) return cached
-
-  // Convert to full NewsItem for clustering
-  const fullItems: NewsItem[] = items.map(item => ({ ...item, body: '' }))
-  const clusters = clusterNews(fullItems)
-
-  // Cache result (limit cache size)
-  if (weekClusterCache.size > 24) {
-    weekClusterCache.clear()
-  }
-  weekClusterCache.set(cacheKey, clusters)
-
-  return clusters
 }
 
 /**
@@ -161,7 +129,6 @@ export function useMyFeed(): UseMyFeedResult {
   const { interests, isLoading: interestsLoading, hasCompletedOnboarding } = useUserInterests()
 
   const [newsItems, setNewsItems] = useState<NewsItemWithScore[]>([])
-  const [itemsByWeek, setItemsByWeek] = useState<NewsItemWithScore[][]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedWeekIndex, setSelectedWeekIndex] = useState(0)
@@ -186,7 +153,6 @@ export function useMyFeed(): UseMyFeedResult {
       if (cacheAge < CACHE_TTL) {
         // Use cached data
         setNewsItems(feedCache.items)
-        setItemsByWeek(feedCache.itemsByWeek)
         setIsLoading(false)
         return
       }
@@ -299,37 +265,14 @@ export function useMyFeed(): UseMyFeedResult {
         ? filterByImportance(scoredItems, 55)
         : scoredItems // Category-only: show all matched items
 
-      // Pre-group items by week for lazy clustering
-      const now = new Date()
-      const currentWeekStart = getWeekStart(now)
-      const groupedByWeek: NewsItemWithScore[][] = Array.from({ length: 12 }, () => [])
-
-      for (const item of importantItems) {
-        const itemDate = new Date(item.publishedAt)
-        for (let i = 0; i < 12; i++) {
-          const weekStart = new Date(currentWeekStart)
-          weekStart.setDate(weekStart.getDate() - i * 7)
-          const weekEnd = new Date(weekStart)
-          weekEnd.setDate(weekEnd.getDate() + 6)
-          weekEnd.setHours(23, 59, 59, 999)
-
-          if (itemDate >= weekStart && itemDate <= weekEnd) {
-            groupedByWeek[i].push(item)
-            break
-          }
-        }
-      }
-
       // Update cache
       feedCache = {
         key: cacheKey,
         items: importantItems,
-        itemsByWeek: groupedByWeek,
         timestamp: Date.now(),
       }
 
       setNewsItems(importantItems)
-      setItemsByWeek(groupedByWeek)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch My Feed')
       console.error('Failed to fetch My Feed:', err)
@@ -345,25 +288,12 @@ export function useMyFeed(): UseMyFeedResult {
     }
   }, [interestsLoading, fetchMyFeed])
 
-  // Group news by weeks (without clustering - just metadata)
+  // Group news by weeks
   const weeks = useMemo(() => {
     return groupByWeeks(newsItems)
   }, [newsItems])
 
-  // Lazy cluster only the selected week (major performance optimization)
-  const currentWeek = useMemo(() => {
-    const week = weeks[selectedWeekIndex]
-    if (!week) return null
-
-    // Get items for this week and cluster them lazily
-    const weekItems = itemsByWeek[selectedWeekIndex] || []
-    const clusters = clusterWeekItems(weekItems)
-
-    return {
-      ...week,
-      clusters,
-    }
-  }, [weeks, selectedWeekIndex, itemsByWeek])
+  const currentWeek = weeks[selectedWeekIndex] || null
 
   const selectWeek = useCallback((index: number) => {
     setSelectedWeekIndex(Math.max(0, Math.min(index, 11)))
