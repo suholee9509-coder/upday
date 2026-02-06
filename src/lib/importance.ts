@@ -163,14 +163,14 @@ export function calculateImportanceScore(
     factors.keywordMatch = Math.min(matchingKeywords.length * 20, 40)
   }
 
-  // 3. Company Match (0-35 points) - user's pinned companies
+  // 3. Company Match (0-45 points) - user's pinned companies
   const matchingCompanies = newsCompanies.filter(company =>
     userInterests.companies.includes(company)
   )
   if (matchingCompanies.length > 0) {
-    // 30 base + 5 for each additional company match (max 35)
-    // Base raised from 25 to 30 so non-tier1 companies can pass threshold
-    factors.companyMatch = Math.min(30 + (matchingCompanies.length - 1) * 5, 35)
+    // 40 base + 5 for each additional company match (max 45)
+    // Base of 40 ensures Category(15) + Company(40) = 55 passes threshold
+    factors.companyMatch = Math.min(40 + (matchingCompanies.length - 1) * 5, 45)
   }
 
   // 4. Tier-1 Company Boost (0-10 points)

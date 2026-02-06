@@ -134,10 +134,10 @@ function calculateScore(
     factors.keywordMatch = Math.min(matchingKeywords.length * 20, 40)
   }
 
-  // 3. Company Match (30 base + 5 per additional, max 35)
+  // 3. Company Match (40 base + 5 per additional, max 45)
   const matchingCompanies = newsCompanies.filter(c => profile.companies.includes(c))
   if (matchingCompanies.length > 0) {
-    factors.companyMatch = Math.min(30 + (matchingCompanies.length - 1) * 5, 35)
+    factors.companyMatch = Math.min(40 + (matchingCompanies.length - 1) * 5, 45)
   }
 
   // 4. Tier-1 Boost (10 pts) - always applies when category matches
