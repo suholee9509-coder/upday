@@ -634,16 +634,20 @@ async function runIngestion(env: Env): Promise<{ stats: CrawlStats; feedResults:
   const stats: CrawlStats = {
     processed: 0,
     skipped: 0,
+    translated: 0,
     errors: 0,
     feedsProcessed: 0,
     feedsFailed: 0,
     startTime: Date.now(),
   }
 
+  const translationEnabled = !!env.OPENAI_API_KEY
+
   console.log(`[CRON] ========================================`)
   console.log(`[CRON] Starting crawl at ${new Date().toISOString()}`)
   console.log(`[CRON] Feeds to process: ${RSS_SOURCES.length}`)
   console.log(`[CRON] Company tagging: enabled (keyword matching)`)
+  console.log(`[CRON] Korean translation: ${translationEnabled ? 'enabled' : 'disabled (no OPENAI_API_KEY)'}`)
   console.log(`[CRON] ========================================`)
 
   const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
@@ -651,11 +655,12 @@ async function runIngestion(env: Env): Promise<{ stats: CrawlStats; feedResults:
 
   // Process feeds sequentially to avoid rate limiting
   for (const feed of RSS_SOURCES) {
-    const result = await processFeed(feed, supabase)
+    const result = await processFeed(feed, supabase, env.OPENAI_API_KEY)
     feedResults.push(result)
 
     stats.processed += result.processed
     stats.skipped += result.skipped
+    stats.translated += result.translated
 
     if (result.error) {
       stats.feedsFailed++
@@ -673,6 +678,7 @@ async function runIngestion(env: Env): Promise<{ stats: CrawlStats; feedResults:
   console.log(`[CRON] Duration: ${duration}ms (${(duration / 1000).toFixed(2)}s)`)
   console.log(`[CRON] Feeds: ${stats.feedsProcessed}/${RSS_SOURCES.length} successful`)
   console.log(`[CRON] Articles: ${stats.processed} new, ${stats.skipped} skipped`)
+  console.log(`[CRON] Translated: ${stats.translated}/${stats.processed}`)
   if (stats.errors > 0) {
     console.log(`[CRON] Errors: ${stats.errors}`)
   }
@@ -703,6 +709,7 @@ export default {
         stats: {
           processed: stats.processed,
           skipped: stats.skipped,
+          translated: stats.translated,
           errors: stats.errors,
           feedsProcessed: stats.feedsProcessed,
           feedsFailed: stats.feedsFailed,

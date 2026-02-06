@@ -9,9 +9,10 @@ compatibility_date = "2026-02-01"
 crons = ["0 */4 * * *"]  # Every 4 hours (6 times/day)
 
 # Environment variables (set via Cloudflare dashboard or wrangler secret)
-# Run: wrangler secret put SUPABASE_URL
-# Run: wrangler secret put SUPABASE_SERVICE_ROLE_KEY
-# Run: wrangler secret put CRON_SECRET     # Optional: for manual trigger auth
+# Run: wrangler secret put SUPABASE_URL -c wrangler-ingest.toml
+# Run: wrangler secret put SUPABASE_SERVICE_ROLE_KEY -c wrangler-ingest.toml
+# Run: wrangler secret put OPENAI_API_KEY -c wrangler-ingest.toml  # For Korean translation
+# Run: wrangler secret put CRON_SECRET -c wrangler-ingest.toml     # Optional: for manual trigger auth
 
 [vars]
 # Non-sensitive variables can go here

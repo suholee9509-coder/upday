@@ -216,7 +216,7 @@ interface WeeklyInsightsBarProps {
   dateRange?: { start: string; end: string } | null
 }
 
-function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
+const WeeklyInsightsBar = memo(function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
   const { isCollapsed } = useSidebar()
 
   return (
@@ -243,7 +243,7 @@ function WeeklyInsightsBar({ totalArticles }: WeeklyInsightsBarProps) {
       </div>
     </div>
   )
-}
+})
 
 /**
  * Mobile Timeline Bar - Horizontal scrollable week list (mobile only)
@@ -255,7 +255,7 @@ interface MobileTimelineProps {
   onWeekClick: (index: number) => void
 }
 
-function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineProps) {
+const MobileTimeline = memo(function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineProps) {
   return (
     <nav
       className={cn(
@@ -309,7 +309,7 @@ function MobileTimeline({ weeks, activeWeekIndex, onWeekClick }: MobileTimelineP
       </div>
     </nav>
   )
-}
+})
 
 /**
  * My Feed Page Component
@@ -348,6 +348,12 @@ export function MyFeedPage() {
         : null
     return { totalArticles, totalWeeks: weeks.length, dateRange }
   }, [weeks])
+
+  // Memoize weeks data for MobileTimeline to prevent unnecessary re-renders
+  const mobileTimelineWeeks = useMemo(() =>
+    weeks.map(w => ({ weekStart: w.weekStart, label: w.label, totalItems: w.totalItems })),
+    [weeks]
+  )
 
   // Intersection Observer to track which week is in view
   useEffect(() => {
@@ -515,7 +521,7 @@ export function MyFeedPage() {
             {/* Mobile Timeline - Fixed below header */}
             {weeks.length > 0 && (
               <MobileTimeline
-                weeks={weeks.map(w => ({ weekStart: w.weekStart, label: w.label, totalItems: w.totalItems }))}
+                weeks={mobileTimelineWeeks}
                 activeWeekIndex={activeWeekIndex}
                 onWeekClick={handleWeekClick}
               />

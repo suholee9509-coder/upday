@@ -81,38 +81,51 @@ function getWeekLabel(weekStart: Date): string {
 
 /**
  * Group news items by week (last 12 weeks)
+ * Optimized: single pass through items instead of 12 filter calls
  */
 function groupByWeeks(newsItems: NewsItemWithScore[]): WeekData[] {
-  const weeks: WeekData[] = []
   const now = new Date()
   const currentWeekStart = getWeekStart(now)
 
-  // Generate 12 weeks (current + 11 past)
+  // Pre-calculate week boundaries once
+  const weekBoundaries: { start: Date; end: Date; startMs: number; endMs: number }[] = []
   for (let i = 0; i < 12; i++) {
     const weekStart = new Date(currentWeekStart)
     weekStart.setDate(weekStart.getDate() - i * 7)
-
     const weekEnd = new Date(weekStart)
     weekEnd.setDate(weekEnd.getDate() + 6)
     weekEnd.setHours(23, 59, 59, 999)
-
-    const weekItems = newsItems.filter(item => {
-      const itemDate = new Date(item.publishedAt)
-      return itemDate >= weekStart && itemDate <= weekEnd
+    weekBoundaries.push({
+      start: weekStart,
+      end: weekEnd,
+      startMs: weekStart.getTime(),
+      endMs: weekEnd.getTime(),
     })
+  }
 
-    // Convert to full NewsItem for clustering (add empty body)
-    const fullItems: NewsItem[] = weekItems.map(item => ({
-      ...item,
-      body: '',
-    }))
+  // Single pass: distribute items into week buckets
+  const itemsByWeek: NewsItemWithScore[][] = Array.from({ length: 12 }, () => [])
+  for (const item of newsItems) {
+    const itemMs = new Date(item.publishedAt).getTime()
+    for (let i = 0; i < 12; i++) {
+      if (itemMs >= weekBoundaries[i].startMs && itemMs <= weekBoundaries[i].endMs) {
+        itemsByWeek[i].push(item)
+        break
+      }
+    }
+  }
 
+  // Build week data with clustering
+  const weeks: WeekData[] = []
+  for (let i = 0; i < 12; i++) {
+    const weekItems = itemsByWeek[i]
+    const fullItems: NewsItem[] = weekItems.map(item => ({ ...item, body: '' }))
     const clusters = clusterNews(fullItems)
 
     weeks.push({
-      weekStart: weekStart.toISOString(),
-      weekEnd: weekEnd.toISOString(),
-      label: getWeekLabel(weekStart),
+      weekStart: weekBoundaries[i].start.toISOString(),
+      weekEnd: weekBoundaries[i].end.toISOString(),
+      label: getWeekLabel(weekBoundaries[i].start),
       clusters,
       totalItems: weekItems.length,
     })
