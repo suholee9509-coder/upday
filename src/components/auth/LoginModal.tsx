@@ -197,7 +197,8 @@ export function LoginModal({ isOpen: controlledIsOpen, onClose: controlledOnClos
 
           {/* Terms */}
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            {t('login.terms')}{' '}
+            {t('login.terms')}
+            <br />
             <a href="/about" className="underline hover:text-foreground">
               {t('login.termsOfService')}
             </a>{' '}

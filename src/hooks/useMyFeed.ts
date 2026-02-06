@@ -289,20 +289,7 @@ export function useMyFeed(): UseMyFeedResult {
       // Category-only users still get curation via event signals
       const threshold = hasBothInterestTypes ? 60 : hasSpecificInterests ? 55 : 25
 
-      // Debug logging
-      console.log('[MyFeed Debug]', {
-        categories: interests.categories,
-        keywords: interests.keywords,
-        companies: interests.companies,
-        hasKeywords,
-        hasCompanies,
-        threshold,
-        matchedCount: matchedItems.length,
-        scoredCount: scoredItems.length,
-      })
-
       const importantItems = filterByImportance(scoredItems, threshold)
-      console.log('[MyFeed Debug] After filter:', importantItems.length, 'articles')
 
       // Update cache
       feedCache = {
