@@ -201,13 +201,20 @@ export function calculateImportanceScore(
   // Calculate base score
   let score = Object.values(factors).reduce((a, b) => a + b, 0)
 
-  // 6. Relevance multiplier
+  // 6. Cross-signal bonus (0-15 points)
+  // Reward articles that match BOTH keyword AND company interests
+  // This indicates high relevance - user cares about this topic AND this company
+  if (factors.keywordMatch > 0 && factors.companyMatch > 0) {
+    score += 15
+  }
+
+  // 7. Relevance multiplier
   // If user has specific interests but none matched, heavily penalize
   if (hasSpecificInterests && factors.keywordMatch === 0 && factors.companyMatch === 0) {
     score = Math.floor(score * 0.5) // 50% penalty
   }
 
-  // 7. Multi-source boost (cluster size >= 3)
+  // 8. Multi-source boost (cluster size >= 3)
   // Reduced from 20% to 10% - shouldn't be main factor
   if (clusterSize >= 3) {
     score = Math.min(Math.floor(score * 1.1), 100)

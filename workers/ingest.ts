@@ -16,12 +16,14 @@ const MAX_RETRIES = 3 // Retry count for failed fetches
 interface Env {
   SUPABASE_URL: string
   SUPABASE_SERVICE_ROLE_KEY: string
+  OPENAI_API_KEY?: string
   CRON_SECRET?: string
 }
 
 interface CrawlStats {
   processed: number
   skipped: number
+  translated: number
   errors: number
   feedsProcessed: number
   feedsFailed: number
@@ -33,6 +35,7 @@ interface FeedResult {
   source: string
   processed: number
   skipped: number
+  translated: number
   error?: string
 }
 
@@ -450,13 +453,90 @@ async function fetchOgImage(url: string): Promise<string | null> {
 }
 
 /**
+ * Translate title and summary to Korean using OpenAI API
+ * Uses gpt-4o-mini for cost efficiency
+ */
+async function translateToKorean(
+  title: string,
+  summary: string,
+  apiKey: string
+): Promise<{ titleKo: string; summaryKo: string } | null> {
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a professional Korean translator for a tech news platform. Translate the given title and summary to natural, fluent Korean.
+Rules:
+- Maintain technical terms in English when commonly used (e.g., AI, API, GPT)
+- Keep proper nouns (company names, product names) in original form
+- Use formal but accessible Korean (합니다체)
+- Preserve the original meaning and tone
+- Return JSON format: {"titleKo": "...", "summaryKo": "..."}`
+          },
+          {
+            role: 'user',
+            content: `Title: ${title}\n\nSummary: ${summary}`
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.3,
+        response_format: { type: 'json_object' }
+      }),
+      signal: controller.signal,
+    })
+    clearTimeout(timeout)
+
+    if (!response.ok) {
+      console.error(`[TRANSLATE] API error: ${response.status}`)
+      return null
+    }
+
+    const data = await response.json() as {
+      choices?: Array<{ message?: { content?: string } }>
+    }
+    const content = data.choices?.[0]?.message?.content
+
+    if (!content) {
+      console.error('[TRANSLATE] No content in response')
+      return null
+    }
+
+    const parsed = JSON.parse(content) as { titleKo?: string; summaryKo?: string }
+    if (!parsed.titleKo || !parsed.summaryKo) {
+      console.error('[TRANSLATE] Invalid JSON structure')
+      return null
+    }
+
+    return {
+      titleKo: parsed.titleKo,
+      summaryKo: parsed.summaryKo
+    }
+  } catch (error) {
+    console.error(`[TRANSLATE] Failed: ${error instanceof Error ? error.message : 'Unknown'}`)
+    return null
+  }
+}
+
+/**
  * Process a single feed with error isolation
  */
 async function processFeed(
   feed: { url: string; source: string; category: string },
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof createClient>,
+  openaiApiKey?: string
 ): Promise<FeedResult> {
-  const result: FeedResult = { source: feed.source, processed: 0, skipped: 0 }
+  const result: FeedResult = { source: feed.source, processed: 0, skipped: 0, translated: 0 }
 
   try {
     const items = await parseRSS(feed.url)
@@ -501,9 +581,24 @@ async function processFeed(
           imageUrl = await fetchOgImage(item.link)
         }
 
+        // Translate to Korean if OpenAI API key is available
+        let titleKo: string | undefined
+        let summaryKo: string | undefined
+        if (openaiApiKey) {
+          const translation = await translateToKorean(item.title, summary, openaiApiKey)
+          if (translation) {
+            titleKo = translation.titleKo
+            summaryKo = translation.summaryKo
+            result.translated++
+            console.log(`[TRANSLATE] OK: ${item.title.substring(0, 40)}...`)
+          }
+        }
+
         const { error } = await supabase.from('news_items').insert({
           title: item.title,
           summary: summary,
+          title_ko: titleKo,
+          summary_ko: summaryKo,
           body: item.content.substring(0, 5000),
           category: feed.category,
           companies: companies,
