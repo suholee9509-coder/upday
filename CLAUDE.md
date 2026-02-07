@@ -587,6 +587,36 @@ site:updayapp.com
 - 소셜 미디어 링크: `https://updayapp.com/go?url={originalUrl}`
 - RedirectPage에서 트래픽 기록 후 원본 URL로 리다이렉트
 
+## Git Security & Hygiene
+
+### Pre-commit Hook
+A pre-commit hook (`.githooks/pre-commit`) automatically blocks sensitive files from being committed. It is auto-configured on `npm install` via the `prepare` script (`git config core.hooksPath .githooks`).
+
+### Files That Must NEVER Be Committed
+| Pattern | Reason |
+|---------|--------|
+| `.env`, `.env.*` | API keys, secrets (Supabase, Anthropic, OpenAI, etc.) |
+| `.claude/` | Claude Code local settings |
+| `ref/` | Internal design reference screenshots |
+| `prd.txt` | Internal PRD document |
+| `docs/prompts.md` | Internal prompt notes |
+| `DESIGN_BRIEF*.md` | Internal design briefs |
+| `*.local` | Local-only config files |
+
+### If Pre-commit Hook Blocks Your Commit
+```bash
+# Unstage the blocked file
+git reset HEAD <file>
+
+# If the file should be permanently ignored, add to .gitignore
+echo "<file>" >> .gitignore
+```
+
+### After Accidentally Committing Secrets
+1. **Immediately rotate all exposed keys** (even in private repos)
+2. Remove from history: `git filter-repo --invert-paths --path <file> --force`
+3. Force push: `git push --force-with-lease`
+
 ## Useful Commands
 
 ```bash

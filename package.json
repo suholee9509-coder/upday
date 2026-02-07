@@ -27,7 +27,8 @@
     "discord:post": "tsx scripts/discord/auto-post.ts",
     "discord:dry-run": "DRY_RUN=true tsx scripts/discord/auto-post.ts",
     "telegram:post": "tsx scripts/telegram/auto-post.ts",
-    "telegram:dry-run": "DRY_RUN=true tsx scripts/telegram/auto-post.ts"
+    "telegram:dry-run": "DRY_RUN=true tsx scripts/telegram/auto-post.ts",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
