@@ -21,6 +21,15 @@ dist
 dist-ssr
 *.local
 
+# Claude Code local settings
+.claude/
+
+# Internal docs & design references
+ref/
+prd.txt
+docs/prompts.md
+DESIGN_BRIEF_MY_FEED.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
