@@ -124,8 +124,8 @@ export function formatPost(item: FeedItem): string {
     description = description.substring(0, 100).trim() + '...'
   }
 
-  // Generate hashtags
-  const hashtags = generateHashtags(item.category)
+  // Generate hashtags (category + trending from content)
+  const hashtags = generateHashtags(item.category, item.title, item.description)
 
   // Build post: Hook + Title + Description snippet + Hashtags
   // Link will be in the card, not in text
@@ -175,9 +175,9 @@ function getTrackingUrl(originalUrl: string): string {
 }
 
 /**
- * Generate hashtags based on category
+ * Generate hashtags based on category + trending tags from content
  */
-function generateHashtags(category: string): string {
+function generateHashtags(category: string, title: string = '', description: string = ''): string {
   const tags: string[] = []
 
   const categoryTag = config.categoryHashtags[category.toLowerCase()]
@@ -187,7 +187,40 @@ function generateHashtags(category: string): string {
 
   tags.push(...config.baseHashtags)
 
+  // Scan title + description for trending keywords and add up to maxTrendingTags
+  const trendingTags = findTrendingTags(title, description, tags)
+  if (trendingTags.length > 0) {
+    tags.push(...trendingTags)
+  }
+
   return tags.join(' ')
+}
+
+/**
+ * Scan text for trending keywords and return matching hashtags (max 2)
+ * Avoids duplicating tags already in the list
+ */
+function findTrendingTags(title: string, description: string, existingTags: string[]): string[] {
+  const text = `${title} ${description}`.toLowerCase()
+  const existing = new Set(existingTags.join(' ').toLowerCase().split(/\s+/))
+  const matchedTags: string[] = []
+
+  for (const mapping of config.trendingTags) {
+    if (matchedTags.length >= config.maxTrendingTags) break
+
+    const hasMatch = mapping.keywords.some(keyword => text.includes(keyword.toLowerCase()))
+    if (!hasMatch) continue
+
+    for (const tag of mapping.tags) {
+      if (matchedTags.length >= config.maxTrendingTags) break
+      if (existing.has(tag.toLowerCase())) continue
+
+      existing.add(tag.toLowerCase())
+      matchedTags.push(tag)
+    }
+  }
+
+  return matchedTags
 }
 
 /**
