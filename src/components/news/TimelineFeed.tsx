@@ -50,7 +50,7 @@ export const TimelineFeed = memo(forwardRef<TimelineFeedRef, TimelineFeedProps>(
 }, ref) {
   const { currentLanguage: language } = useLanguage()
   const { translateAll } = useRealtimeTranslation()
-  const [, setTranslationTrigger] = useState(0)
+  const [translationTrigger, setTranslationTrigger] = useState(0)
 
   // Translate all articles when in Korean mode
   useEffect(() => {
@@ -279,7 +279,7 @@ export const TimelineFeed = memo(forwardRef<TimelineFeedRef, TimelineFeedProps>(
         >
           <DateSeparator date={group.date} />
           {group.items.map((item) => (
-            <NewsCard key={`${item.id}-${language}`} item={item} language={language} />
+            <NewsCard key={`${item.id}-${language}-${translationTrigger}`} item={item} language={language} />
           ))}
         </div>
       ))}

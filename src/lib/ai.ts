@@ -17,7 +17,7 @@ const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY
 
 // Initialize clients
 const openai = OPENAI_API_KEY ? new OpenAI({ apiKey: OPENAI_API_KEY, dangerouslyAllowBrowser: true }) : null
-const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null
+const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY, dangerouslyAllowBrowser: true }) : null
 
 // Prompts
 const SUMMARY_SYSTEM_PROMPT = `You are a concise news summarizer for a tech news platform. Your task is to generate a 2-3 line summary that captures "what happened" and "why it matters."

@@ -166,28 +166,30 @@ export function SettingsPage() {
                       <img
                         src={user.user_metadata.avatar_url}
                         alt=""
-                        className="w-16 h-16 rounded-full"
+                        className="w-16 h-16 rounded-full shrink-0"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <span className="text-2xl font-medium text-primary">
                           {(user?.user_metadata?.name || user?.email || '?')[0].toUpperCase()}
                         </span>
                       </div>
                     )}
-                    <div className="flex-1">
-                      <p className="text-lg font-medium text-foreground">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-lg font-medium text-foreground truncate">
                         {user?.user_metadata?.name || user?.email?.split('@')[0]}
                       </p>
-                      <p className="text-sm text-muted-foreground">{user?.email}</p>
+                      <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {t('settings.signedInWith')}: {user?.user_metadata?.provider || user?.app_metadata?.provider || 'OAuth'}
                       </p>
                     </div>
+                  </div>
+                  <div className="mt-4 flex sm:justify-end">
                     <Button
                       onClick={handleSignOut}
                       variant="outline"
-                      className="gap-2"
+                      className="gap-2 w-full sm:w-auto"
                     >
                       <LogOut className="h-4 w-4" />
                       {t('nav.logOut')}
