@@ -9,9 +9,9 @@ let openai: OpenAI | null = null
 
 function getClient(): OpenAI {
   if (!openai) {
-    const apiKey = process.env.OPENAI_API_KEY
+    const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY
     if (!apiKey) {
-      throw new Error('OPENAI_API_KEY is required for Korean translation')
+      throw new Error('OPENAI_API_KEY or VITE_OPENAI_API_KEY is required for Korean translation')
     }
     openai = new OpenAI({ apiKey })
   }
@@ -65,5 +65,5 @@ Rules:
  * Check if translation is available (API key configured)
  */
 export function isTranslationAvailable(): boolean {
-  return !!process.env.OPENAI_API_KEY
+  return !!(process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY)
 }
