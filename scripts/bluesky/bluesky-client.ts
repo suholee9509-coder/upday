@@ -8,8 +8,10 @@
 import { BskyAgent, RichText } from '@atproto/api'
 import { config, validateConfig } from './config'
 import type { FeedItem } from './rss-parser'
+import { translatePostToKorean, isTranslationAvailable } from './translate'
 
 let agent: BskyAgent | null = null
+let agentKr: BskyAgent | null = null
 
 /**
  * Initialize Bluesky agent with credentials
@@ -32,6 +34,32 @@ export async function initializeBlueskyClient(): Promise<BskyAgent> {
 }
 
 /**
+ * Initialize Korean Bluesky account (optional)
+ * Returns null if credentials are not configured
+ */
+export async function initializeKrClient(): Promise<BskyAgent | null> {
+  if (!config.blueskyKr.identifier || !config.blueskyKr.appPassword) {
+    console.log('Korean Bluesky account not configured, skipping')
+    return null
+  }
+
+  try {
+    agentKr = new BskyAgent({ service: config.blueskyKr.service })
+
+    await agentKr.login({
+      identifier: config.blueskyKr.identifier,
+      password: config.blueskyKr.appPassword,
+    })
+
+    console.log(`Korean Bluesky client initialized: @${config.blueskyKr.identifier}`)
+    return agentKr
+  } catch (error) {
+    console.warn('Failed to initialize Korean Bluesky client:', error)
+    return null
+  }
+}
+
+/**
  * Get the Bluesky agent instance
  */
 export async function getBlueskyAgent(): Promise<BskyAgent> {
@@ -39,6 +67,13 @@ export async function getBlueskyAgent(): Promise<BskyAgent> {
     return initializeBlueskyClient()
   }
   return agent
+}
+
+/**
+ * Check if Korean account is available
+ */
+export function hasKrAccount(): boolean {
+  return agentKr !== null
 }
 
 /**
@@ -264,22 +299,17 @@ async function fetchOgMetadata(url: string): Promise<{
 }
 
 /**
- * Download image and upload to Bluesky
+ * Download image from URL and return raw data for uploading
  */
-async function uploadImageToBluesky(imageUrl: string): Promise<{ blob: any } | null> {
+async function fetchImageData(imageUrl: string): Promise<{ data: Uint8Array; contentType: string } | null> {
   try {
-    const bskyAgent = await getBlueskyAgent()
-
-    // Fetch image
     const response = await fetch(imageUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; UpdayBot/1.0)',
       },
     })
 
-    if (!response.ok) {
-      return null
-    }
+    if (!response.ok) return null
 
     const contentType = response.headers.get('content-type') || 'image/jpeg'
     const arrayBuffer = await response.arrayBuffer()
@@ -291,11 +321,21 @@ async function uploadImageToBluesky(imageUrl: string): Promise<{ blob: any } | n
       return null
     }
 
-    // Upload to Bluesky
-    const uploadResult = await bskyAgent.uploadBlob(uint8Array, {
-      encoding: contentType,
-    })
+    return { data: uint8Array, contentType }
+  } catch (error) {
+    console.warn(`Failed to fetch image:`, error)
+    return null
+  }
+}
 
+/**
+ * Upload image data to a specific Bluesky agent
+ */
+async function uploadImageToAgent(bskyAgent: BskyAgent, imageData: { data: Uint8Array; contentType: string }): Promise<{ blob: any } | null> {
+  try {
+    const uploadResult = await bskyAgent.uploadBlob(imageData.data, {
+      encoding: imageData.contentType,
+    })
     return { blob: uploadResult.data.blob }
   } catch (error) {
     console.warn(`Failed to upload image:`, error)
@@ -304,25 +344,22 @@ async function uploadImageToBluesky(imageUrl: string): Promise<{ blob: any } | n
 }
 
 /**
- * Create post with external embed (link card with image)
+ * Create post with external embed (link card with image) on a specific agent
  */
-export async function createPostWithEmbed(
+async function createPostOnAgent(
+  bskyAgent: BskyAgent,
   text: string,
-  item: FeedItem
+  item: FeedItem,
+  ogData: { title?: string; description?: string; image?: string },
+  imageData: { data: Uint8Array; contentType: string } | null,
+  label: string,
 ): Promise<{ uri: string; cid: string }> {
-  const bskyAgent = await getBlueskyAgent()
-
   // Create rich text
   const rt = new RichText({ text })
   await rt.detectFacets(bskyAgent)
 
-  // Fetch OG metadata for link card
-  console.log('Fetching OG metadata...')
-  const ogData = await fetchOgMetadata(item.link)
-
   // Generate tracking URL for analytics
   const trackingUrl = getTrackingUrl(item.link)
-  console.log(`Tracking URL: ${trackingUrl}`)
 
   // Prepare external embed with tracking URL
   const externalEmbed: any = {
@@ -334,13 +371,11 @@ export async function createPostWithEmbed(
     },
   }
 
-  // Try to add thumbnail image
-  if (ogData.image) {
-    console.log(`Found OG image: ${ogData.image.substring(0, 50)}...`)
-    const imageBlob = await uploadImageToBluesky(ogData.image)
+  // Upload and attach thumbnail image (each agent needs its own upload)
+  if (imageData) {
+    const imageBlob = await uploadImageToAgent(bskyAgent, imageData)
     if (imageBlob) {
       externalEmbed.external.thumb = imageBlob.blob
-      console.log('Thumbnail uploaded successfully')
     }
   }
 
@@ -352,7 +387,7 @@ export async function createPostWithEmbed(
     createdAt: new Date().toISOString(),
   })
 
-  console.log(`Post created with link card: ${result.uri}`)
+  console.log(`[${label}] Post created: ${result.uri}`)
   return {
     uri: result.uri,
     cid: result.cid,
@@ -360,12 +395,44 @@ export async function createPostWithEmbed(
 }
 
 /**
- * Post a feed item to Bluesky with engaging format and link card
+ * Post a feed item to all configured Bluesky accounts
+ * Posts the same content to main account and Korean account (if configured)
  */
 export async function postFeedItem(item: FeedItem): Promise<{ uri: string; cid: string }> {
   const post = formatPost(item)
   console.log(`Posting: "${item.title.substring(0, 50)}..."`)
-  return createPostWithEmbed(post, item)
+
+  // Fetch OG metadata once (shared between accounts)
+  console.log('Fetching OG metadata...')
+  const ogData = await fetchOgMetadata(item.link)
+
+  // Fetch image once (shared between accounts, uploaded separately)
+  let imageData: { data: Uint8Array; contentType: string } | null = null
+  if (ogData.image) {
+    console.log(`Found OG image: ${ogData.image.substring(0, 50)}...`)
+    imageData = await fetchImageData(ogData.image)
+  }
+
+  // Post to main account
+  const bskyAgent = await getBlueskyAgent()
+  const result = await createPostOnAgent(bskyAgent, post, item, ogData, imageData, 'EN')
+
+  // Post to Korean account (translated content, if configured)
+  if (agentKr) {
+    try {
+      let krPost = post
+      if (isTranslationAvailable()) {
+        console.log('[KR] Translating post to Korean...')
+        krPost = await translatePostToKorean(post)
+        console.log(`[KR] Translated: ${krPost.substring(0, 60)}...`)
+      }
+      await createPostOnAgent(agentKr, krPost, item, ogData, imageData, 'KR')
+    } catch (error) {
+      console.warn(`[KR] Failed to post (continuing):`, error)
+    }
+  }
+
+  return result
 }
 
 /**

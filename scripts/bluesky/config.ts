@@ -20,6 +20,13 @@ export const config = {
     service: 'https://bsky.social',
   },
 
+  // Korean account (optional - same posts go to both accounts)
+  blueskyKr: {
+    identifier: process.env.BLUESKY_IDENTIFIER_KR || '',
+    appPassword: process.env.BLUESKY_APP_PASSWORD_KR || '',
+    service: 'https://bsky.social',
+  },
+
   // Posting settings
   posting: {
     // Maximum articles to post per run (to avoid rate limits)

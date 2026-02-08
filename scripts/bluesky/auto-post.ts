@@ -7,7 +7,8 @@
  *   npx tsx scripts/bluesky/auto-post.ts
  *
  * Environment variables:
- *   BLUESKY_IDENTIFIER, BLUESKY_APP_PASSWORD
+ *   BLUESKY_IDENTIFIER, BLUESKY_APP_PASSWORD (main account)
+ *   BLUESKY_IDENTIFIER_KR, BLUESKY_APP_PASSWORD_KR (Korean account, optional)
  *   RSS_FEED_URL (optional, defaults to https://updayapp.com/feed.xml)
  *   STATE_FILE_PATH (optional, defaults to /tmp/bluesky-auto-post-state.json)
  *   DRY_RUN=true (optional, to test without posting)
@@ -26,7 +27,7 @@ import {
   resetRunStats,
   getFilterDate,
 } from './state'
-import { initializeBlueskyClient, postFeedItem, verifyCredentials, formatPost } from './bluesky-client'
+import { initializeBlueskyClient, initializeKrClient, postFeedItem, verifyCredentials, formatPost } from './bluesky-client'
 
 const DRY_RUN = process.env.DRY_RUN === 'true'
 
@@ -49,11 +50,13 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
-  // Initialize Bluesky client and verify credentials
+  // Initialize Bluesky clients and verify credentials
   if (!DRY_RUN) {
     try {
       await initializeBlueskyClient()
       await verifyCredentials()
+      // Initialize Korean account (optional, won't fail if not configured)
+      await initializeKrClient()
     } catch (error) {
       console.error('Failed to initialize Bluesky client:', error)
       process.exit(1)
