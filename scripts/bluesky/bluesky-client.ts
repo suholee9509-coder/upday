@@ -55,6 +55,7 @@ export async function initializeKrClient(): Promise<BskyAgent | null> {
     return agentKr
   } catch (error) {
     console.warn('Failed to initialize Korean Bluesky client:', error)
+    agentKr = null
     return null
   }
 }
